@@ -27,6 +27,7 @@ pub struct AppWindow {
     hpaned: gtk::Paned,
     vpaned: gtk::Paned,
     editor_overlay_handle: gtk::Overlay,
+    pub search: crate::search::SearchBar,
     /// Shared mutable state; all clones of AppWindow see the same state.
     pub state: std::rc::Rc<WindowState>,
 }
@@ -61,6 +62,7 @@ impl Clone for AppWindow {
             hpaned: self.hpaned.clone(),
             vpaned: self.vpaned.clone(),
             editor_overlay_handle: self.editor_overlay_handle.clone(),
+            search: self.search.clone(),
             state: self.state.clone(),
             preview: self.preview.clone(),
         }
@@ -197,9 +199,12 @@ impl AppWindow {
         content_stack.add_named(&hpaned, Some("half-width"));
         content_stack.add_named(&vpaned, Some("half-height"));
 
+        let search = crate::search::SearchBar::new(&editor.view, &editor.buffer);
+
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&save_progress);
         toolbar_view.add_top_bar(&headerbar);
+        toolbar_view.add_top_bar(&search.bar);
         toolbar_view.set_content(Some(&content_stack));
 
         root.set_content(Some(&toolbar_view));
@@ -219,6 +224,7 @@ impl AppWindow {
             hpaned,
             vpaned,
             editor_overlay_handle: overlay.clone(),
+            search,
             state: std::rc::Rc::new(WindowState {
                 document: RefCell::new(Document::new()),
                 suppress_dirty: RefCell::new(false),
@@ -230,6 +236,28 @@ impl AppWindow {
             }),
             preview: crate::preview::PreviewPane::new(),
         };
+
+        // Find toggle button ↔ search bar visibility.
+        {
+            let win = win.clone();
+            find_button.connect_toggled(move |t| {
+                if t.is_active() {
+                    win.search.open(false, &win.editor.buffer);
+                } else {
+                    win.search.close();
+                }
+            });
+            let fb = find_button.clone();
+            win.search.bar.connect_notify_local(
+                Some("search-mode-enabled"),
+                move |bar, _pspec| {
+                    let visible = bar.is_search_mode();
+                    if fb.is_active() != visible {
+                        fb.set_active(visible);
+                    }
+                },
+            );
+        }
 
         // Open button shows the recents popover.
         open_button.set_popover(Some(&recents::build_popover({
@@ -366,6 +394,8 @@ impl AppWindow {
         });
         bind!("toggle-preview", AppWindow::toggle_preview);
         bind!("preview-close", AppWindow::preview_off);
+        bind!("find", |w: &AppWindow| w.search.open(false, &w.editor.buffer));
+        bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor.buffer));
 
         let close = gio::SimpleAction::new("close", None);
         {
