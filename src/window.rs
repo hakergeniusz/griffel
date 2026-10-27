@@ -240,7 +240,7 @@ impl AppWindow {
         // Find toggle button ↔ search bar visibility.
         {
             let win2 = win.clone();
-            let find_btn = find_button.clone();
+            let find_btn = win.find_button.clone();
             find_btn.connect_toggled(move |t| {
                 if t.is_active() {
                     win2.search.open(false, &win2.editor.buffer);
@@ -248,7 +248,7 @@ impl AppWindow {
                     win2.search.close();
                 }
             });
-            let fb = find_button.clone();
+            let fb = win.find_button.clone();
             win.search.bar.connect_notify_local(
                 Some("search-mode-enabled"),
                 move |bar, _pspec| {
