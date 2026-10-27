@@ -21,12 +21,27 @@ pub struct AppWindow {
     find_button: gtk::ToggleButton,
     layout_button: gtk::MenuButton,
     save_progress: gtk::Revealer,
+    preview: crate::preview::PreviewPane,
+    content_stack: gtk::Stack,
+    editor_page: gtk::Box,
+    hpaned: gtk::Paned,
+    vpaned: gtk::Paned,
+    editor_overlay_handle: gtk::Overlay,
+    /// Shared mutable state; all clones of AppWindow see the same state.
+    pub state: std::rc::Rc<WindowState>,
+}
+
+/// Per-window mutable state shared between all `AppWindow` clones.
+pub struct WindowState {
     pub document: RefCell<Document>,
     /// Suppress dirty marking while the program replaces the buffer
     /// (load, reload).
     pub suppress_dirty: RefCell<bool>,
     highlight_pending: RefCell<Option<glib::SourceId>>,
     last_layout_width: std::cell::Cell<i32>,
+    pub preview_active: std::cell::Cell<bool>,
+    preview_window: RefCell<Option<gtk::Window>>,
+    preview_pending: RefCell<Option<glib::SourceId>>,
 }
 
 impl Clone for AppWindow {
@@ -41,10 +56,13 @@ impl Clone for AppWindow {
             find_button: self.find_button.clone(),
             layout_button: self.layout_button.clone(),
             save_progress: self.save_progress.clone(),
-            document: RefCell::new(Document::new()),
-            suppress_dirty: RefCell::new(false),
-            highlight_pending: RefCell::new(None),
-            last_layout_width: std::cell::Cell::new(0),
+            content_stack: self.content_stack.clone(),
+            editor_page: self.editor_page.clone(),
+            hpaned: self.hpaned.clone(),
+            vpaned: self.vpaned.clone(),
+            editor_overlay_handle: self.editor_overlay_handle.clone(),
+            state: self.state.clone(),
+            preview: self.preview.clone(),
         }
     }
 }
@@ -163,10 +181,26 @@ impl AppWindow {
         overlay.add_overlay(&bottom_bar);
         overlay.set_measure_overlay(&bottom_bar, true);
 
+        // Preview layouts: the editor page hosts the editor overlay; the
+        // panes host it together with the preview pane. Widgets are moved
+        // between parents on layout switches.
+        let content_stack = gtk::Stack::new();
+        content_stack.set_transition_type(gtk::StackTransitionType::Crossfade);
+        content_stack.set_transition_duration(250);
+        content_stack.set_hexpand(true);
+        content_stack.set_vexpand(true);
+        let editor_page = gtk::Box::new(gtk::Orientation::Vertical, 0);
+        editor_page.append(&overlay);
+        content_stack.add_named(&editor_page, Some("editor"));
+        let hpaned = gtk::Paned::new(gtk::Orientation::Horizontal);
+        let vpaned = gtk::Paned::new(gtk::Orientation::Vertical);
+        content_stack.add_named(&hpaned, Some("half-width"));
+        content_stack.add_named(&vpaned, Some("half-height"));
+
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&save_progress);
         toolbar_view.add_top_bar(&headerbar);
-        toolbar_view.set_content(Some(&overlay));
+        toolbar_view.set_content(Some(&content_stack));
 
         root.set_content(Some(&toolbar_view));
 
@@ -180,10 +214,21 @@ impl AppWindow {
             find_button,
             layout_button,
             save_progress,
-            document: RefCell::new(Document::new()),
-            suppress_dirty: RefCell::new(false),
-            highlight_pending: RefCell::new(None),
-            last_layout_width: std::cell::Cell::new(0),
+            content_stack,
+            editor_page,
+            hpaned,
+            vpaned,
+            editor_overlay_handle: overlay.clone(),
+            state: std::rc::Rc::new(WindowState {
+                document: RefCell::new(Document::new()),
+                suppress_dirty: RefCell::new(false),
+                highlight_pending: RefCell::new(None),
+                last_layout_width: std::cell::Cell::new(0),
+                preview_active: std::cell::Cell::new(settings().boolean("preview-active")),
+                preview_window: RefCell::new(None),
+                preview_pending: RefCell::new(None),
+            }),
+            preview: crate::preview::PreviewPane::new(),
         };
 
         // Open button shows the recents popover.
@@ -207,8 +252,8 @@ impl AppWindow {
         let win = self.clone();
         glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
             let width = win.root.width();
-            if width > 0 && width != win.last_layout_width.get() {
-                win.last_layout_width.set(width);
+            if width > 0 && width != win.state.last_layout_width.get() {
+                win.state.last_layout_width.set(width);
                 win.editor.relayout_column(
                     width,
                     settings().integer("characters-per-line"),
@@ -221,7 +266,7 @@ impl AppWindow {
 
     /// Debounced highlighting rescan (~150 ms after the last edit).
     fn schedule_highlight(&self) {
-        if let Some(id) = self.highlight_pending.borrow_mut().take() {
+        if let Some(id) = self.state.highlight_pending.borrow_mut().take() {
             id.remove();
         }
         let win = self.clone();
@@ -229,11 +274,12 @@ impl AppWindow {
             win.editor.highlight_now();
             glib::ControlFlow::Break
         });
-        *self.highlight_pending.borrow_mut() = Some(id);
+        *self.state.highlight_pending.borrow_mut() = Some(id);
     }
 
     fn install_actions(&self) {
         let actions = gio::SimpleActionGroup::new();
+        let win_ref = self.clone();
 
         let scheme = gio::SimpleAction::new_stateful(
             "color-scheme",
@@ -268,6 +314,11 @@ impl AppWindow {
                 if let Some(mode) = PreviewMode::parse(&v) {
                     settings().set_preview_mode(mode);
                     preview_mode_state.set_state(&v.to_variant());
+                    // Re-arrange immediately when the preview is visible.
+                    let win2 = win_ref.clone();
+                    if win2.state.preview_active.get() {
+                        win2.apply_preview_mode(mode);
+                    }
                 }
             });
         }
@@ -313,6 +364,8 @@ impl AppWindow {
                 w.show_error("No table", "The cursor is not inside a table.");
             }
         });
+        bind!("toggle-preview", AppWindow::toggle_preview);
+        bind!("preview-close", AppWindow::preview_off);
 
         let close = gio::SimpleAction::new("close", None);
         {
@@ -360,7 +413,41 @@ impl AppWindow {
                 .connect_changed(move |_| {
                     win.set_dirty_from_edit();
                     win.schedule_highlight();
+                    win.schedule_preview();
                 });
+        }
+
+        // Scroll synchronization (editor → preview).
+        {
+            let win = self.clone();
+            self.editor.scroll.vadjustment().connect_value_changed(move |_| {
+                let win = &win;
+                if win.state.preview_active.get() {
+                    let f = win.editor.scroll_fraction();
+                    win.preview.sync_from_editor(f);
+                }
+            });
+        }
+
+        // Scroll synchronization (preview → editor) via injected script.
+        {
+            let win = self.clone();
+            self.preview.install_scroll_script(move |f| {
+                let win = &win;
+                if win.state.preview_active.get() {
+                    win.preview.sync_from_preview(f, |v| win.editor.set_scroll_fraction(v));
+                }
+            });
+        }
+
+        // Warning page choice wiring.
+        {
+            let win = self.clone();
+            self.preview.setup_warning_page(std::rc::Rc::new(move |level| {
+                let win = &win;
+                win.preview.choose_level(level);
+                win.schedule_preview();
+            }));
         }
 
         // Window close: unsaved-changes guard, then unregister. When the
@@ -390,11 +477,11 @@ impl AppWindow {
     }
 
     fn set_dirty_from_edit(&self) {
-        if *self.suppress_dirty.borrow() {
+        if *self.state.suppress_dirty.borrow() {
             return;
         }
-        if !self.document.borrow().dirty {
-            self.document.borrow_mut().dirty = true;
+        if !self.state.document.borrow().dirty {
+            self.state.document.borrow_mut().dirty = true;
             self.update_title();
             files::schedule_snapshot(self);
             crate::app::update_logout_inhibition();
@@ -402,13 +489,13 @@ impl AppWindow {
     }
 
     pub fn set_document_dirty(&self, dirty: bool) {
-        self.document.borrow_mut().dirty = dirty;
+        self.state.document.borrow_mut().dirty = dirty;
         self.update_title();
         crate::app::update_logout_inhibition();
     }
 
     pub fn update_title(&self) {
-        let doc = self.document.borrow();
+        let doc = self.state.document.borrow();
         let name = doc.display_name();
         let marker = if doc.dirty { "• " } else { "" };
         self.title_label.set_text(&format!("{marker}{name}"));
@@ -421,11 +508,11 @@ impl AppWindow {
     /// Replace the editor content and document state after a successful
     /// load (§2.2).
     pub fn apply_loaded(&self, file: &gio::File, decoded: &files::encoding::Decoded) {
-        *self.suppress_dirty.borrow_mut() = true;
+        *self.state.suppress_dirty.borrow_mut() = true;
         self.editor.set_full_text(&decoded.text);
-        *self.suppress_dirty.borrow_mut() = false;
+        *self.state.suppress_dirty.borrow_mut() = false;
         {
-            let mut doc = self.document.borrow_mut();
+            let mut doc = self.state.document.borrow_mut();
             doc.file = Some(file.clone());
             doc.encoding = decoded.encoding;
             doc.dirty = false;
@@ -436,17 +523,21 @@ impl AppWindow {
         *self.editor.flags.doc_dir.borrow_mut() =
             file.parent().and_then(|p| p.path());
         self.editor.highlight_now();
+        if self.state.preview_active.get() {
+            self.preview.evaluate_security(&decoded.text, false);
+            self.schedule_preview();
+        }
         self.editor.view.grab_focus();
     }
 
     /// Internal resource (tutorial): loads text, not added to recents,
     /// starts unsaved (`03-behavior/12-windows.md` §3).
     pub fn load_internal_text(&self, text: &str) {
-        *self.suppress_dirty.borrow_mut() = true;
+        *self.state.suppress_dirty.borrow_mut() = true;
         self.editor.set_full_text(text);
-        *self.suppress_dirty.borrow_mut() = false;
+        *self.state.suppress_dirty.borrow_mut() = false;
         {
-            let mut doc = self.document.borrow_mut();
+            let mut doc = self.state.document.borrow_mut();
             doc.file = None;
             doc.dirty = true;
         }
@@ -464,11 +555,11 @@ impl AppWindow {
 
     /// Reset the window to a new empty, clean document (load-failure path).
     fn reset_to_new_document(&self) {
-        *self.suppress_dirty.borrow_mut() = true;
+        *self.state.suppress_dirty.borrow_mut() = true;
         self.editor.set_full_text("");
-        *self.suppress_dirty.borrow_mut() = false;
+        *self.state.suppress_dirty.borrow_mut() = false;
         {
-            let mut doc = self.document.borrow_mut();
+            let mut doc = self.state.document.borrow_mut();
             doc.file = None;
             doc.encoding = "UTF-8";
             doc.dirty = false;
@@ -480,7 +571,7 @@ impl AppWindow {
 
     /// Save: to the backing file, or via Save As when there is none.
     pub fn save(&self) {
-        let file = self.document.borrow().file.clone();
+        let file = self.state.document.borrow().file.clone();
         match file {
             Some(file) => self.save_to(file),
             None => files::save_as_dialog(self),
@@ -492,14 +583,14 @@ impl AppWindow {
     pub fn save_to(&self, file: gio::File) {
         self.save_progress.set_reveal_child(true);
         let text = self.editor.full_text();
-        let encoding = self.document.borrow().encoding.to_owned();
+        let encoding = self.state.document.borrow().encoding.to_owned();
         let result = files::write_to(&file, &text, &encoding);
         self.save_progress.set_reveal_child(false);
 
         match result {
             Ok(effective) => {
                 {
-                    let mut doc = self.document.borrow_mut();
+                    let mut doc = self.state.document.borrow_mut();
                     doc.file = Some(file.clone());
                     doc.encoding = Box::leak(effective.into_boxed_str());
                     doc.dirty = false;
@@ -521,7 +612,7 @@ impl AppWindow {
     /// Unsaved-changes confirmation (`02-ui-layout.md` §11). Returns true
     /// when the window may close.
     pub async fn confirm_close(&self) -> bool {
-        if !self.document.borrow().dirty {
+        if !self.state.document.borrow().dirty {
             return true;
         }
         let dialog = adw::MessageDialog::new(
@@ -529,7 +620,7 @@ impl AppWindow {
             Some("Save changes?"),
             Some(&format!(
                 "“{}” contains unsaved changes. If you close it, the changes will be lost.",
-                self.document.borrow().display_name()
+                self.state.document.borrow().display_name()
             )),
         );
         dialog.add_response("cancel", "Cancel");
@@ -544,7 +635,7 @@ impl AppWindow {
             "save" => {
                 self.save();
                 // A failed save aborts the close (dirty stays set).
-                !self.document.borrow().dirty
+                !self.state.document.borrow().dirty
             }
             "discard" => true,
             _ => false,
@@ -560,6 +651,9 @@ impl AppWindow {
 
     pub fn present_window(&self) {
         self.root.present();
+        if self.state.preview_active.get() {
+            self.preview_on();
+        }
         self.editor.view.grab_focus();
     }
 }
@@ -780,4 +874,140 @@ fn table_size_popover(buffer: &sourceview5::Buffer) -> gtk::Popover {
     box_.append(&grid);
     popover.set_child(Some(&box_));
     popover
+}
+
+// ---------------------------------------------------------------------------
+// Preview integration (`03-behavior/03-live-preview.md` §2)
+// ---------------------------------------------------------------------------
+
+impl AppWindow {
+    /// Toggle the preview on/off (Ctrl+P).
+    pub fn toggle_preview(&self) {
+        if self.state.preview_active.get() {
+            self.preview_off();
+        } else {
+            self.preview_on();
+        }
+    }
+
+    pub fn preview_on(&self) {
+        // Evaluate the document's security level for the current text.
+        let text = self.editor.full_text();
+        let is_new = self.state.document.borrow().file.is_none();
+        self.preview.evaluate_security(&text, is_new);
+        self.state.preview_active.set(true);
+        self.apply_preview_mode(settings().preview_mode());
+        self.schedule_preview();
+    }
+
+    pub fn preview_off(&self) {
+        self.state.preview_active.set(false);
+        self.detach_preview_window();
+        self.detach(&self.preview.root);
+        self.show_editor_page();
+    }
+
+    fn show_editor_page(&self) {
+        self.detach(&self.editor_overlay_handle);
+        self.editor_page.append(&self.editor_overlay_handle);
+        self.content_stack.set_visible_child_name("editor");
+    }
+
+    fn detach_preview_window(&self) {
+        if let Some(win) = self.state.preview_window.borrow_mut().take() {
+            win.close();
+        }
+    }
+
+    fn detach(&self, w: &impl IsA<gtk::Widget>) {
+        if let Some(parent) = w.parent() {
+            if let Some(b) = parent.downcast_ref::<gtk::Box>() {
+                b.remove(w);
+            } else if let Some(s) = parent.downcast_ref::<gtk::Stack>() {
+                s.remove(w);
+            } else if let Some(pane) = parent.downcast_ref::<gtk::Paned>() {
+                let same = |c: Option<gtk::Widget>| {
+                    c.map(|c| c.as_ptr() == w.upcast_ref::<gtk::Widget>().as_ptr()).unwrap_or(false)
+                };
+                if same(pane.start_child()) {
+                    pane.set_start_child(None::<&gtk::Widget>);
+                } else if same(pane.end_child()) {
+                    pane.set_end_child(None::<&gtk::Widget>);
+                }
+            } else if let Some(win) = parent.downcast_ref::<gtk::Window>() {
+                win.set_child(None::<&gtk::Widget>);
+            }
+        }
+    }
+
+    /// Arrange editor and preview per `mode` (§2, `02-ui-layout.md` §4).
+    pub fn apply_preview_mode(&self, mode: PreviewMode) {
+        self.detach(&self.editor_overlay_handle);
+        self.detach(&self.preview.root);
+        self.detach_preview_window();
+
+        let width = self.root.width().max(600);
+        let height = self.root.height().max(400);
+        match mode {
+            PreviewMode::HalfWidth => {
+                self.hpaned.set_start_child(Some(&self.editor_overlay_handle));
+                self.hpaned.set_end_child(Some(&self.preview.root));
+                self.hpaned.set_position(width / 2);
+                self.content_stack.set_visible_child_name("half-width");
+            }
+            PreviewMode::HalfHeight => {
+                self.vpaned.set_start_child(Some(&self.editor_overlay_handle));
+                self.vpaned.set_end_child(Some(&self.preview.root));
+                self.vpaned.set_position(height / 2);
+                self.content_stack.set_visible_child_name("half-height");
+            }
+            PreviewMode::FullWidth => {
+                self.editor_page.append(&self.preview.root);
+                self.content_stack.set_visible_child_name("editor");
+            }
+            PreviewMode::Windowed => {
+                self.editor_page.append(&self.editor_overlay_handle);
+                self.content_stack.set_visible_child_name("editor");
+                let win = gtk::Window::new();
+                win.set_title(Some(&format!(
+                    "{} — Preview",
+                    self.state.document.borrow().display_name()
+                )));
+                win.set_default_size(700, 700);
+                win.set_child(Some(&self.preview.root));
+                win.set_transient_for(Some(&self.root));
+                {
+                    let win_self = self.clone();
+                    let preview_win = win.clone();
+                    win.connect_close_request(move |_| {
+                        if win_self.state.preview_active.get() {
+                            win_self.preview_off();
+                        }
+                        let _ = &preview_win;
+                        glib::Propagation::Proceed
+                    });
+                }
+                win.present();
+                *self.state.preview_window.borrow_mut() = Some(win);
+            }
+        }
+    }
+
+    /// Debounced preview refresh (~300 ms after the last edit).
+    pub fn schedule_preview(&self) {
+        if !self.state.preview_active.get() {
+            return;
+        }
+        if let Some(id) = self.state.preview_pending.borrow_mut().take() {
+            id.remove();
+        }
+        let win = self.clone();
+        let id = glib::timeout_add_local(std::time::Duration::from_millis(300), move || {
+            let text = win.editor.full_text();
+            let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+            win.preview.update(&text, doc_dir);
+            glib::ControlFlow::Break
+        });
+        *self.state.preview_pending.borrow_mut() = Some(id);
+    }
 }

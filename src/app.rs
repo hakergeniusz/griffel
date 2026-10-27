@@ -87,6 +87,15 @@ impl GriffelApp {
                         w.editor.highlight_now();
                     }
                 }
+                // Flavor, scroll-sync and scheme changes reload previews
+                // (`05-file-formats-and-persistence.md` §2).
+                if matches!(key, "input-format" | "sync-scroll" | "color-scheme") {
+                    for w in window_registry() {
+                        if w.state.preview_active.get() {
+                            w.schedule_preview();
+                        }
+                    }
+                }
             });
         });
 
@@ -102,6 +111,11 @@ impl GriffelApp {
                 crate::files::open_tutorial(app);
             } else {
                 win.present_window();
+            }
+            if std::env::var("GRIFFEL_PREVIEW").is_ok() {
+                if let Some(w) = window_registry().last() {
+                    w.preview_on();
+                }
             }
             register_accels(app);
         });
@@ -163,7 +177,7 @@ pub fn update_logout_inhibition() {
     }
     let dirty = window_registry()
         .iter()
-        .any(|w| w.document.borrow().dirty);
+        .any(|w| w.state.document.borrow().dirty);
     let app = gtk::Application::default();
     let current = COOKIE.get();
     if dirty && current.is_none() {

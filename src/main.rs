@@ -6,6 +6,7 @@ mod editor;
 mod format;
 mod files;
 mod markdown;
+mod preview;
 mod settings;
 mod spell;
 mod window;

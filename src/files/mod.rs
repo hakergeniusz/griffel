@@ -88,7 +88,7 @@ fn window_showing(app: &gtk::Application, file: &gio::File) -> Option<AppWindow>
     window_registry()
         .into_iter()
         .find(|w| {
-            w.document
+            w.state.document
                 .borrow()
                 .file
                 .as_ref()
@@ -100,7 +100,7 @@ fn window_showing(app: &gtk::Application, file: &gio::File) -> Option<AppWindow>
 /// recovery banner.
 fn empty_unmodified_window(app: &gtk::Application) -> Option<AppWindow> {
     window_registry().into_iter().find(|w| {
-        let doc = w.document.borrow();
+        let doc = w.state.document.borrow();
         doc.file.is_none() && !doc.dirty && !doc.recovered && w.editor.buffer().char_count() == 0
     })
 }
@@ -214,7 +214,7 @@ pub fn write_to(file: &gio::File, text: &str, encoding: &str) -> Result<String, 
 
 /// Save As: native dialog, then write and associate the backing file.
 pub fn save_as_dialog(window: &AppWindow) {
-    let doc = window.document.borrow();
+    let doc = window.state.document.borrow();
     let initial_name = {
         let mut name = doc.display_name();
         if !name.ends_with(".md") && !name.contains('.') {
