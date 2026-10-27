@@ -137,6 +137,10 @@ fn handle_enter(buffer: &sourceview5::Buffer, _flags: &Rc<InputFlags>) -> glib::
     }
 }
 
+pub fn line_text_pub(buffer: &sourceview5::Buffer, line_no: i32) -> String {
+    line_text(buffer, line_no)
+}
+
 fn line_text(buffer: &sourceview5::Buffer, line_no: i32) -> String {
     let Some(start) = buffer.iter_at_line(line_no) else {
         return String::new();

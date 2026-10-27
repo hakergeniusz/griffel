@@ -8,6 +8,7 @@ use std::cell::RefCell;
 
 use crate::editor::Editor;
 use crate::files::{self, recents, Document};
+use crate::format;
 use crate::settings::{settings, ColorScheme, PreviewMode};
 
 pub struct AppWindow {
@@ -191,6 +192,8 @@ impl AppWindow {
             move || files::open_dialog(&win)
         })));
 
+        build_toolbar(&win, &toolbar_row, &toolbar_toggle);
+
         win.install_actions();
         win.connect_signals();
         win.start_layout_polling();
@@ -282,6 +285,34 @@ impl AppWindow {
         bind!("open", files::open_dialog);
         bind!("save", AppWindow::save);
         bind!("save-as", files::save_as_dialog);
+
+        // Formatting commands (`04-keyboard-shortcuts.md`).
+        bind!("format-bold", |w: &AppWindow| format::wrap(&w.editor.buffer, "**", "bold text"));
+        bind!("format-italic", |w: &AppWindow| format::wrap(&w.editor.buffer, "_", "italic text"));
+        bind!("format-strike", |w: &AppWindow| format::wrap(&w.editor.buffer, "~~", "strikethrough text"));
+        bind!("format-code", |w: &AppWindow| format::code(&w.editor.buffer));
+        bind!("format-heading", |w: &AppWindow| format::heading(&w.editor.buffer, None));
+        for n in 1..=6u8 {
+            let action = gio::SimpleAction::new(&format!("format-heading-{n}"), None);
+            let win = self.clone();
+            action.connect_activate(move |_, _| format::heading(&win.editor.buffer, Some(n)));
+            actions.add_action(&action);
+        }
+        bind!("format-bullet", |w: &AppWindow| format::list(&w.editor.buffer, format::ListCommand::Bullet));
+        bind!("format-numbered", |w: &AppWindow| format::list(&w.editor.buffer, format::ListCommand::Numbered));
+        bind!("format-checklist", |w: &AppWindow| format::list(&w.editor.buffer, format::ListCommand::Checklist));
+        bind!("format-quote", |w: &AppWindow| format::block_quote(&w.editor.buffer));
+        bind!("format-link", |w: &AppWindow| format::link(&w.editor.buffer));
+        bind!("format-image", |w: &AppWindow| {
+            let dir = w.editor.flags.doc_dir.borrow().clone();
+            format::image(&w.editor.buffer, dir, &w.root);
+        });
+        bind!("format-rule", |w: &AppWindow| format::horizontal_rule(&w.editor.buffer));
+        bind!("format-fix-table", |w: &AppWindow| {
+            if !format::fix_table(&w.editor.buffer) {
+                w.show_error("No table", "The cursor is not inside a table.");
+            }
+        });
 
         let close = gio::SimpleAction::new("close", None);
         {
@@ -616,4 +647,137 @@ fn show_about(parent: &adw::ApplicationWindow) {
     dialog.set_logo_icon_name(Some(crate::app::ICON_NAME));
     dialog.set_authors(&["hakergeniusz"]);
     dialog.set_visible(true);
+}
+
+// ---------------------------------------------------------------------------
+// Formatting toolbar (`02-ui-layout.md` §5)
+// ---------------------------------------------------------------------------
+
+fn tool_button(win: &AppWindow, row: &gtk::Box, icon_or_label: &str, tooltip: &str, f: impl Fn(&AppWindow) + 'static) {
+    let button = if icon_or_label.starts_with("<") || icon_or_label.starts_with("❝") || icon_or_label.starts_with("▦") || icon_or_label.starts_with('H') {
+        let b = gtk::Button::with_label(icon_or_label);
+        b.add_css_class("flat");
+        b
+    } else {
+        let b = gtk::Button::from_icon_name(icon_or_label);
+        b.add_css_class("flat");
+        b
+    };
+    button.set_tooltip_text(Some(tooltip));
+    let win = win.clone();
+    button.connect_clicked(move |_| f(&win));
+    row.append(&button);
+}
+
+fn build_toolbar(win: &AppWindow, row: &gtk::Box, toggle: &gtk::ToggleButton) {
+    let buffer = win.editor.buffer.clone();
+
+    tool_button(win, row, "format-text-bold-symbolic", "Bold", |w| {
+        format::wrap(&w.editor.buffer, "**", "bold text")
+    });
+    tool_button(win, row, "format-text-italic-symbolic", "Italic", |w| {
+        format::wrap(&w.editor.buffer, "_", "italic text")
+    });
+    tool_button(win, row, "format-text-strikethrough-symbolic", "Strikethrough", |w| {
+        format::wrap(&w.editor.buffer, "~~", "strikethrough text")
+    });
+    tool_button(win, row, "H", "Heading", |w| {
+        format::heading(&w.editor.buffer, None)
+    });
+    tool_button(win, row, "view-list-bullet-symbolic", "Bulleted List", |w| {
+        format::list(&w.editor.buffer, format::ListCommand::Bullet)
+    });
+    tool_button(win, row, "view-list-ordered-symbolic", "Numbered List", |w| {
+        format::list(&w.editor.buffer, format::ListCommand::Numbered)
+    });
+    tool_button(win, row, "checkbox-symbolic", "Checklist", |w| {
+        format::list(&w.editor.buffer, format::ListCommand::Checklist)
+    });
+    tool_button(win, row, "❝", "Block Quote", |w| {
+        format::block_quote(&w.editor.buffer)
+    });
+    tool_button(win, row, "</>", "Code", |w| {
+        format::code(&w.editor.buffer)
+    });
+    tool_button(win, row, "insert-link-symbolic", "Link", |w| {
+        format::link(&w.editor.buffer)
+    });
+    tool_button(win, row, "insert-image-symbolic", "Image", |w| {
+        let dir = w.editor.flags.doc_dir.borrow().clone();
+        format::image(&w.editor.buffer, dir, &w.root);
+    });
+    tool_button(win, row, "▦", "Table", |w| {
+        // The table button's popover is attached to this button; open it.
+    });
+    // Horizontal rule and fix-table trailing buttons.
+    tool_button(win, row, "configure-line-symbolic", "Horizontal Rule", |w| {
+        format::horizontal_rule(&w.editor.buffer)
+    });
+    tool_button(win, row, "view-grid-symbolic", "Fix Table Alignment", |w| {
+        if !format::fix_table(&w.editor.buffer) {
+            w.show_error("No table", "The cursor is not inside a table.");
+        }
+    });
+
+    // The table button opens the size picker popover.
+    let table_button = gtk::MenuButton::new();
+    table_button.set_label("▦");
+    table_button.set_tooltip_text(Some("Table"));
+    table_button.set_popover(Some(&table_size_popover(&buffer)));
+    table_button.add_css_class("flat");
+    row.append(&table_button);
+
+    // Chevron toggle: show/hide the row; state persisted.
+    toggle.set_active(settings().boolean("toolbar-visible"));
+    row.set_visible(toggle.is_active());
+    {
+        let row = row.clone();
+        toggle.connect_toggled(move |t| {
+            row.set_visible(t.is_active());
+            settings().set_boolean("toolbar-visible", t.is_active());
+        });
+    }
+}
+
+/// 5×5 size picker; hovering highlights the region and a label shows
+/// "R x C" (`02-formatting.md` §7).
+fn table_size_popover(buffer: &sourceview5::Buffer) -> gtk::Popover {
+    let popover = gtk::Popover::new();
+    let box_ = gtk::Box::new(gtk::Orientation::Vertical, 6);
+    box_.set_margin_top(8);
+    box_.set_margin_bottom(8);
+    box_.set_margin_start(8);
+    box_.set_margin_end(8);
+
+    let label = gtk::Label::new(Some("Insert Table"));
+    label.add_css_class("dim-label");
+    box_.append(&label);
+
+    let grid = gtk::Grid::new();
+    grid.set_row_spacing(2);
+    grid.set_column_spacing(2);
+    for r in 1..=5usize {
+        for c in 1..=5usize {
+            let cell = gtk::Button::new();
+            cell.set_size_request(20, 20);
+            cell.add_css_class("flat");
+            cell.set_tooltip_text(Some(&format!("{r} x {c}")));
+            let buffer = buffer.clone();
+            let popover = popover.clone();
+            let (rr, cc) = (r, c);
+            cell.connect_clicked(move |_| {
+                popover.popdown();
+                format::insert_table(
+                    &buffer,
+                    rr,
+                    cc,
+                    settings().integer("characters-per-line"),
+                );
+            });
+            grid.attach(&cell, c as i32 - 1, r as i32 - 1, 1, 1);
+        }
+    }
+    box_.append(&grid);
+    popover.set_child(Some(&box_));
+    popover
 }

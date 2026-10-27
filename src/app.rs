@@ -193,6 +193,19 @@ fn register_accels(app: &gtk::Application) {
         ("win.focus-mode", vec!["<primary>d"]),
         ("win.hemingway-mode", vec!["<primary>t"]),
         ("win.preferences", vec!["<primary>comma"]),
+        // Markdown shortcuts (advertised — implemented per open question 1,
+        // with Ctrl+1..6 per open question 13).
+        ("win.format-bold", vec!["<primary>b"]),
+        ("win.format-italic", vec!["<primary>i"]),
+        ("win.format-strike", vec!["<primary><shift>d"]),
+        ("win.format-rule", vec!["<primary>r"]),
+        ("win.format-bullet", vec!["<primary>u"]),
+        ("win.format-heading-1", vec!["<primary>1"]),
+        ("win.format-heading-2", vec!["<primary>2"]),
+        ("win.format-heading-3", vec!["<primary>3"]),
+        ("win.format-heading-4", vec!["<primary>4"]),
+        ("win.format-heading-5", vec!["<primary>5"]),
+        ("win.format-heading-6", vec!["<primary>6"]),
     ] {
         app.set_accels_for_action(action, &accels);
     }

@@ -3,6 +3,7 @@
 mod app;
 mod appearance;
 mod editor;
+mod format;
 mod files;
 mod markdown;
 mod settings;
