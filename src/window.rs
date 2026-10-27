@@ -239,12 +239,13 @@ impl AppWindow {
 
         // Find toggle button ↔ search bar visibility.
         {
-            let win = win.clone();
-            find_button.connect_toggled(move |t| {
+            let win2 = win.clone();
+            let find_btn = find_button.clone();
+            find_btn.connect_toggled(move |t| {
                 if t.is_active() {
-                    win.search.open(false, &win.editor.buffer);
+                    win2.search.open(false, &win2.editor.buffer);
                 } else {
-                    win.search.close();
+                    win2.search.close();
                 }
             });
             let fb = find_button.clone();
