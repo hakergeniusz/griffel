@@ -2,10 +2,12 @@
 //! bar and banners. One window holds exactly one document.
 
 use adw::prelude::*;
-use gtk::prelude::*;
 use gtk::gio;
+use gtk::glib;
+use std::cell::RefCell;
 
 use crate::editor::Editor;
+use crate::files::{self, recents, Document};
 use crate::settings::{settings, ColorScheme, PreviewMode};
 
 pub struct AppWindow {
@@ -17,9 +19,40 @@ pub struct AppWindow {
     bottom_bar: gtk::Box,
     find_button: gtk::ToggleButton,
     layout_button: gtk::MenuButton,
+    save_progress: gtk::Revealer,
+    pub document: RefCell<Document>,
+    /// Suppress dirty marking while the program replaces the buffer
+    /// (load, reload).
+    pub suppress_dirty: RefCell<bool>,
 }
 
+impl Clone for AppWindow {
+    fn clone(&self) -> Self {
+        Self {
+            root: self.root.clone(),
+            headerbar: self.headerbar.clone(),
+            title_label: self.title_label.clone(),
+            subtitle_label: self.subtitle_label.clone(),
+            editor: self.editor.clone(),
+            bottom_bar: self.bottom_bar.clone(),
+            find_button: self.find_button.clone(),
+            layout_button: self.layout_button.clone(),
+            save_progress: self.save_progress.clone(),
+            document: RefCell::new(Document::new()),
+            suppress_dirty: RefCell::new(false),
+        }
+    }
+}
+
+// NOTE: Clone lets closures hold window handles; the RefCell fields are NOT
+// shared between clones — real per-document state must be kept in the
+// widgets/actions of the original instance. `same_window` compares the
+// underlying window object.
 impl AppWindow {
+    pub fn same_window(&self, other: &AppWindow) -> bool {
+        self.root.as_ptr() == other.root.as_ptr()
+    }
+
     pub fn new(app: &gtk::Application) -> Self {
         let root = adw::ApplicationWindow::new(app);
         root.set_default_size(
@@ -46,16 +79,16 @@ impl AppWindow {
         let open_button = gtk::MenuButton::new();
         open_button.set_icon_name("document-open-symbolic");
         open_button.set_tooltip_text(Some("Open"));
-        open_button.set_menu_model(Some(&recents_menu_placeholder()));
 
         let save_button = gtk::Button::new();
         save_button.set_label("Save");
         save_button.set_tooltip_text(Some("Save"));
         save_button.add_css_class("flat");
+        save_button.set_action_name(Some("win.save"));
         let save_menu = gtk::MenuButton::new();
         save_menu.set_icon_name("pan-down-symbolic");
         save_menu.set_tooltip_text(Some("Save and Export"));
-        save_menu.set_menu_model(Some(&save_menu_placeholder()));
+        save_menu.set_menu_model(Some(&save_menu_model()));
         let save_group = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         save_group.add_css_class("linked");
         save_group.append(&save_button);
@@ -80,10 +113,19 @@ impl AppWindow {
         title_label.set_ellipsize(pango::EllipsizeMode::End);
         let subtitle_label = gtk::Label::new(None);
         subtitle_label.add_css_class("subtitle");
+        subtitle_label.add_css_class("dim-label");
         subtitle_label.set_ellipsize(pango::EllipsizeMode::Start);
         title_box.append(&title_label);
         title_box.append(&subtitle_label);
         headerbar.set_title_widget(Some(&title_box));
+
+        // --- save progress bar ----------------------------------------------
+        let save_progress = gtk::Revealer::new();
+        let progress = gtk::ProgressBar::new();
+        progress.set_hexpand(true);
+        save_progress.set_child(Some(&progress));
+        save_progress.set_transition_type(gtk::RevealerTransitionType::SlideDown);
+        save_progress.set_reveal_child(false);
 
         // --- bottom bar ----------------------------------------------------
         let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
@@ -114,6 +156,7 @@ impl AppWindow {
         overlay.set_measure_overlay(&bottom_bar, true);
 
         let toolbar_view = adw::ToolbarView::new();
+        toolbar_view.add_top_bar(&save_progress);
         toolbar_view.add_top_bar(&headerbar);
         toolbar_view.set_content(Some(&overlay));
 
@@ -128,9 +171,20 @@ impl AppWindow {
             bottom_bar,
             find_button,
             layout_button,
+            save_progress,
+            document: RefCell::new(Document::new()),
+            suppress_dirty: RefCell::new(false),
         };
 
+        // Open button shows the recents popover.
+        open_button.set_popover(Some(&recents::build_popover({
+            let win = win.clone();
+            move || files::open_dialog(&win)
+        })));
+
         win.install_actions();
+        win.connect_signals();
+        crate::app::register_window(win.clone());
         win
     }
 
@@ -175,13 +229,31 @@ impl AppWindow {
         }
         actions.add_action(&preview_mode);
 
+        macro_rules! bind {
+            ($name:expr, $f:expr) => {{
+                let action = gio::SimpleAction::new($name, None);
+                let win = self.clone();
+                action.connect_activate(move |_, _| ($f)(&win));
+                actions.add_action(&action);
+            }};
+        }
+
+        bind!("open", files::open_dialog);
+        bind!("save", AppWindow::save);
+        bind!("save-as", files::save_as_dialog);
+
+        let close = gio::SimpleAction::new("close", None);
+        {
+            let root = self.root.clone();
+            close.connect_activate(move |_, _| {
+                root.close();
+            });
+        }
+        actions.add_action(&close);
+
         for name in [
-            "close",
-            "open",
             "find",
             "find-replace",
-            "save",
-            "save-as",
             "toggle-preview",
             "focus-mode",
             "hemingway-mode",
@@ -206,19 +278,211 @@ impl AppWindow {
         self.root.insert_action_group("win", Some(&actions));
     }
 
+    fn connect_signals(&self) {
+        // Dirty tracking: any buffer change marks the document dirty
+        // (suppressed while the program replaces content).
+        {
+            let win = self.clone();
+            self.editor
+                .buffer
+                .connect_changed(move |_| win.set_dirty_from_edit());
+        }
+
+        // Window close: unsaved-changes guard, then unregister. When the
+        // last window closes the application exits (open question 3
+        // decision: exit with zero windows).
+        {
+            let win = self.clone();
+            self.root.connect_close_request(move |window| {
+                let win = win.clone();
+                let window = window.clone();
+                let app = window.application();
+                glib::spawn_future_local(async move {
+                    if win.confirm_close().await {
+                        crate::app::unregister_window(&win);
+                        files::delete_snapshot(&win);
+                        window.destroy();
+                        if let Some(app) = app {
+                            if app.windows().is_empty() {
+                                app.quit();
+                            }
+                        }
+                    }
+                });
+                glib::Propagation::Stop
+            });
+        }
+    }
+
+    fn set_dirty_from_edit(&self) {
+        if *self.suppress_dirty.borrow() {
+            return;
+        }
+        if !self.document.borrow().dirty {
+            self.document.borrow_mut().dirty = true;
+            self.update_title();
+            files::schedule_snapshot(self);
+            crate::app::update_logout_inhibition();
+        }
+    }
+
+    pub fn set_document_dirty(&self, dirty: bool) {
+        self.document.borrow_mut().dirty = dirty;
+        self.update_title();
+        crate::app::update_logout_inhibition();
+    }
+
+    pub fn update_title(&self) {
+        let doc = self.document.borrow();
+        let name = doc.display_name();
+        let marker = if doc.dirty { "• " } else { "" };
+        self.title_label.set_text(&format!("{marker}{name}"));
+        let parent = doc.parent_path().unwrap_or_default();
+        self.subtitle_label.set_text(&parent);
+        let path = doc.path_string();
+        self.root.set_tooltip_text(path.as_deref());
+    }
+
+    /// Replace the editor content and document state after a successful
+    /// load (§2.2).
+    pub fn apply_loaded(&self, file: &gio::File, decoded: &files::encoding::Decoded) {
+        *self.suppress_dirty.borrow_mut() = true;
+        self.editor.set_full_text(&decoded.text);
+        *self.suppress_dirty.borrow_mut() = false;
+        {
+            let mut doc = self.document.borrow_mut();
+            doc.file = Some(file.clone());
+            doc.encoding = decoded.encoding;
+            doc.dirty = false;
+            doc.recovered = false;
+        }
+        self.update_title();
+        recents::add(file);
+        self.editor.view.grab_focus();
+    }
+
+    /// Internal resource (tutorial): loads text, not added to recents,
+    /// starts unsaved (`03-behavior/12-windows.md` §3).
+    pub fn load_internal_text(&self, text: &str) {
+        *self.suppress_dirty.borrow_mut() = true;
+        self.editor.set_full_text(text);
+        *self.suppress_dirty.borrow_mut() = false;
+        {
+            let mut doc = self.document.borrow_mut();
+            doc.file = None;
+            doc.dirty = true;
+        }
+        self.update_title();
+    }
+
+    /// Load a file into this window (used by routing).
+    pub fn load_file(&self, file: &gio::File) {
+        if let Err(e) = files::load_into(self, file) {
+            self.show_error("Cannot open file", &e);
+            self.reset_to_new_document();
+        }
+    }
+
+    /// Reset the window to a new empty, clean document (load-failure path).
+    fn reset_to_new_document(&self) {
+        *self.suppress_dirty.borrow_mut() = true;
+        self.editor.set_full_text("");
+        *self.suppress_dirty.borrow_mut() = false;
+        {
+            let mut doc = self.document.borrow_mut();
+            doc.file = None;
+            doc.encoding = "UTF-8";
+            doc.dirty = false;
+            doc.recovered = false;
+        }
+        self.update_title();
+    }
+
+    /// Save: to the backing file, or via Save As when there is none.
+    pub fn save(&self) {
+        let file = self.document.borrow().file.clone();
+        match file {
+            Some(file) => self.save_to(file),
+            None => files::save_as_dialog(self),
+        }
+    }
+
+    /// Write to `file`, associate it as the backing file, clear dirty,
+    /// register recents, drop the recovery snapshot.
+    pub fn save_to(&self, file: gio::File) {
+        self.save_progress.set_reveal_child(true);
+        let text = self.editor.full_text();
+        let encoding = self.document.borrow().encoding.to_owned();
+        let result = files::write_to(&file, &text, &encoding);
+        self.save_progress.set_reveal_child(false);
+
+        match result {
+            Ok(effective) => {
+                {
+                    let mut doc = self.document.borrow_mut();
+                    doc.file = Some(file.clone());
+                    doc.encoding = Box::leak(effective.into_boxed_str());
+                    doc.dirty = false;
+                }
+                self.update_title();
+                recents::add(&file);
+                files::delete_snapshot(self);
+                crate::app::update_logout_inhibition();
+            }
+            Err(e) => {
+                self.show_error("Cannot save file", &e);
+                // Dirty state stays set; the progress bar already faded.
+            }
+        }
+    }
+
+    /// Unsaved-changes confirmation (`02-ui-layout.md` §11). Returns true
+    /// when the window may close.
+    pub async fn confirm_close(&self) -> bool {
+        if !self.document.borrow().dirty {
+            return true;
+        }
+        let dialog = adw::MessageDialog::new(
+            Some(&self.root),
+            Some("Save changes?"),
+            Some(&format!(
+                "“{}” contains unsaved changes. If you close it, the changes will be lost.",
+                self.document.borrow().display_name()
+            )),
+        );
+        dialog.add_response("cancel", "Cancel");
+        dialog.set_close_response("cancel");
+        dialog.add_response("discard", "Discard");
+        dialog.set_response_appearance("discard", adw::ResponseAppearance::Destructive);
+        dialog.add_response("save", "Save");
+        dialog.set_response_appearance("save", adw::ResponseAppearance::Suggested);
+        dialog.set_default_response(Some("save"));
+
+        match dialog.choose_future().await.as_str() {
+            "save" => {
+                self.save();
+                // A failed save aborts the close (dirty stays set).
+                !self.document.borrow().dirty
+            }
+            "discard" => true,
+            _ => false,
+        }
+    }
+
+    pub fn show_error(&self, title: &str, body: &str) {
+        let dialog = adw::AlertDialog::new(Some(title), Some(body));
+        dialog.add_response("close", "Close");
+        dialog.set_default_response(Some("close"));
+        dialog.present(Some(&self.root));
+    }
+
     pub fn present_window(&self) {
         self.root.present();
         self.editor.view.grab_focus();
     }
 }
 
-fn recents_menu_placeholder() -> gio::Menu {
-    let menu = gio::Menu::new();
-    menu.append(Some("Open File…"), Some("win.open"));
-    menu
-}
-
-fn save_menu_placeholder() -> gio::Menu {
+fn save_menu_model() -> gio::Menu {
     let menu = gio::Menu::new();
     menu.append(Some("Save As…"), Some("win.save-as"));
     menu
@@ -276,6 +540,7 @@ fn main_menu_button() -> gtk::MenuButton {
     menu.append_section(None, &actions);
 
     let help = gio::Menu::new();
+    help.append(Some("Open Tutorial"), Some("app.open-tutorial"));
     help.append(Some("Keyboard Shortcuts"), Some("win.show-shortcuts"));
     help.append(Some("About Griffel"), Some("win.about"));
     menu.append_section(None, &help);

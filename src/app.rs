@@ -10,6 +10,30 @@ use crate::window::AppWindow;
 pub const APP_ID: &str = "io.github.hakergeniusz.Griffel";
 pub const ICON_NAME: &str = APP_ID;
 
+/// Registry of live document windows. `AppWindow` is a plain struct, so
+/// strong clones are kept here; entries are removed when their window
+/// closes. The registry never blocks the process from exiting (the app
+/// quits when the last window closes).
+thread_local! {
+    static WINDOWS: std::cell::RefCell<Vec<crate::window::AppWindow>> =
+        const { std::cell::RefCell::new(Vec::new()) };
+}
+
+pub fn register_window(win: crate::window::AppWindow) {
+    WINDOWS.with(|w| w.borrow_mut().push(win));
+}
+
+pub fn unregister_window(win: &crate::window::AppWindow) {
+    WINDOWS.with(|w| {
+        w.borrow_mut()
+            .retain(|other| !other.same_window(win))
+    });
+}
+
+pub fn window_registry() -> Vec<crate::window::AppWindow> {
+    WINDOWS.with(|w| w.borrow().clone())
+}
+
 pub struct GriffelApp {
     app: gtk::Application,
 }
@@ -83,6 +107,15 @@ impl GriffelApp {
         }
         app.add_action(&new_window);
 
+        let open_tutorial = gio::SimpleAction::new("open-tutorial", None);
+        {
+            let app = app.clone();
+            open_tutorial.connect_activate(move |_, _| {
+                crate::files::open_tutorial(&app);
+            });
+        }
+        app.add_action(&open_tutorial);
+
         let quit = gio::SimpleAction::new("quit", None);
         {
             let app = app.clone();
@@ -105,6 +138,30 @@ impl GriffelApp {
 
     pub fn run(self) -> glib::ExitCode {
         self.app.run()
+    }
+}
+
+/// While any document is dirty, inhibit session logout (K2). Released when
+/// all documents are clean.
+pub fn update_logout_inhibition() {
+    thread_local! {
+        static COOKIE: std::cell::Cell<Option<u32>> = const { std::cell::Cell::new(None) };
+    }
+    let dirty = window_registry()
+        .iter()
+        .any(|w| w.document.borrow().dirty);
+    let app = gtk::Application::default();
+    let current = COOKIE.get();
+    if dirty && current.is_none() {
+        let cookie = app.inhibit(
+            None::<&gtk::Window>,
+            gtk::ApplicationInhibitFlags::LOGOUT,
+            Some("A document has unsaved changes"),
+        );
+        COOKIE.set(Some(cookie));
+    } else if !dirty && current.is_some() {
+        app.uninhibit(current.unwrap());
+        COOKIE.set(None);
     }
 }
 

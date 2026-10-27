@@ -8,6 +8,7 @@ pub mod input;
 use gtk::prelude::*;
 use sourceview5::prelude::*;
 
+#[derive(Clone)]
 pub struct Editor {
     pub view: sourceview5::View,
     pub buffer: sourceview5::Buffer,
@@ -64,6 +65,10 @@ impl Editor {
         if upper > 0.0 {
             adj.set_value((f.clamp(0.0, 1.0)) * upper);
         }
+    }
+
+    pub fn buffer(&self) -> &sourceview5::Buffer {
+        &self.buffer
     }
 
     pub fn full_text(&self) -> String {
