@@ -24,6 +24,8 @@ pub struct AppWindow {
     /// Suppress dirty marking while the program replaces the buffer
     /// (load, reload).
     pub suppress_dirty: RefCell<bool>,
+    highlight_pending: RefCell<Option<glib::SourceId>>,
+    last_layout_width: std::cell::Cell<i32>,
 }
 
 impl Clone for AppWindow {
@@ -40,6 +42,8 @@ impl Clone for AppWindow {
             save_progress: self.save_progress.clone(),
             document: RefCell::new(Document::new()),
             suppress_dirty: RefCell::new(false),
+            highlight_pending: RefCell::new(None),
+            last_layout_width: std::cell::Cell::new(0),
         }
     }
 }
@@ -130,12 +134,15 @@ impl AppWindow {
         // --- bottom bar ----------------------------------------------------
         let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
         bottom_bar.add_css_class("bottom-bar");
+        bottom_bar.set_halign(gtk::Align::Fill);
+        bottom_bar.set_valign(gtk::Align::End);
         bottom_bar.set_margin_start(6);
         bottom_bar.set_margin_end(6);
         bottom_bar.set_margin_bottom(6);
 
         let toolbar_row = gtk::Box::new(gtk::Orientation::Horizontal, 2);
         toolbar_row.add_css_class("toolbar-row");
+        toolbar_row.set_hexpand(true);
         let toolbar_toggle = gtk::ToggleButton::new();
         toolbar_toggle.set_icon_name("pan-down-symbolic");
         toolbar_toggle.set_tooltip_text(Some("Formatting"));
@@ -174,6 +181,8 @@ impl AppWindow {
             save_progress,
             document: RefCell::new(Document::new()),
             suppress_dirty: RefCell::new(false),
+            highlight_pending: RefCell::new(None),
+            last_layout_width: std::cell::Cell::new(0),
         };
 
         // Open button shows the recents popover.
@@ -184,8 +193,40 @@ impl AppWindow {
 
         win.install_actions();
         win.connect_signals();
+        win.start_layout_polling();
         crate::app::register_window(win.clone());
         win
+    }
+
+    /// Adaptive column layout: re-run when the window size changes. GTK4
+    /// has no size-allocate signal, so poll cheaply and skip no-ops.
+    fn start_layout_polling(&self) {
+        let win = self.clone();
+        glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
+            let width = win.root.width();
+            if width > 0 && width != win.last_layout_width.get() {
+                win.last_layout_width.set(width);
+                win.editor.relayout_column(
+                    width,
+                    settings().integer("characters-per-line"),
+                    settings().boolean("bigger-text"),
+                );
+            }
+            glib::ControlFlow::Continue
+        });
+    }
+
+    /// Debounced highlighting rescan (~150 ms after the last edit).
+    fn schedule_highlight(&self) {
+        if let Some(id) = self.highlight_pending.borrow_mut().take() {
+            id.remove();
+        }
+        let win = self.clone();
+        let id = glib::timeout_add_local(std::time::Duration::from_millis(150), move || {
+            win.editor.highlight_now();
+            glib::ControlFlow::Break
+        });
+        *self.highlight_pending.borrow_mut() = Some(id);
     }
 
     fn install_actions(&self) {
@@ -285,7 +326,10 @@ impl AppWindow {
             let win = self.clone();
             self.editor
                 .buffer
-                .connect_changed(move |_| win.set_dirty_from_edit());
+                .connect_changed(move |_| {
+                    win.set_dirty_from_edit();
+                    win.schedule_highlight();
+                });
         }
 
         // Window close: unsaved-changes guard, then unregister. When the
@@ -360,6 +404,7 @@ impl AppWindow {
         recents::add(file);
         *self.editor.flags.doc_dir.borrow_mut() =
             file.parent().and_then(|p| p.path());
+        self.editor.highlight_now();
         self.editor.view.grab_focus();
     }
 
@@ -375,6 +420,7 @@ impl AppWindow {
             doc.dirty = true;
         }
         self.update_title();
+        self.editor.highlight_now();
     }
 
     /// Load a file into this window (used by routing).

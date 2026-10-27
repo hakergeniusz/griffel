@@ -129,26 +129,7 @@ pub fn apply() {
             );
             list.push(p);
         }
-        let editor = gtk::CssProvider::new();
-        editor.load_from_string(&editor_css(&effective_palette()));
-        gtk::style_context_add_provider_for_display(
-            &gdk::Display::default().expect("no display"),
-            &editor,
-            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 2,
-        );
-        list.push(editor);
     });
-}
-
-fn editor_css(p: &EditorPalette) -> String {
-    format!(
-        ".editor-view {{ background-color: {bg}; color: {fg}; }}\n\
-         .editor-view selection {{ background-color: {sel}; }}\n\
-         .editor-gutter {{ background-color: {bg}; }}",
-        bg = p.background,
-        fg = p.foreground,
-        sel = p.selection,
-    )
 }
 
 const SEPIA_CHROME_CSS: &str = r#"

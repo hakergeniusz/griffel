@@ -78,6 +78,16 @@ impl GriffelApp {
                     .add_resource_path(&format!("/{}/icons", APP_ID));
             }
             crate::appearance::apply();
+            // Scheme changes restyle every open editor immediately.
+            crate::settings::settings().changed(move |_s, key| {
+                if key == "color-scheme" {
+                    crate::appearance::apply();
+                    for w in window_registry() {
+                        w.editor.recolor();
+                        w.editor.highlight_now();
+                    }
+                }
+            });
         });
 
         app.connect_activate(|app| {
@@ -88,7 +98,11 @@ impl GriffelApp {
                 crate::files::recover_snapshots(app);
             }
             let win = AppWindow::new(app);
-            win.present_window();
+            if std::env::var("GRIFFEL_OPEN").ok().as_deref() == Some("tutorial") {
+                crate::files::open_tutorial(app);
+            } else {
+                win.present_window();
+            }
             register_accels(app);
         });
 
