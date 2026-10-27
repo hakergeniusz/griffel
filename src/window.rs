@@ -358,6 +358,8 @@ impl AppWindow {
         }
         self.update_title();
         recents::add(file);
+        *self.editor.flags.doc_dir.borrow_mut() =
+            file.parent().and_then(|p| p.path());
         self.editor.view.grab_focus();
     }
 
@@ -395,6 +397,7 @@ impl AppWindow {
             doc.dirty = false;
             doc.recovered = false;
         }
+        *self.editor.flags.doc_dir.borrow_mut() = None;
         self.update_title();
     }
 
@@ -424,6 +427,8 @@ impl AppWindow {
                     doc.encoding = Box::leak(effective.into_boxed_str());
                     doc.dirty = false;
                 }
+                *self.editor.flags.doc_dir.borrow_mut() =
+                    file.parent().and_then(|p| p.path());
                 self.update_title();
                 recents::add(&file);
                 files::delete_snapshot(self);

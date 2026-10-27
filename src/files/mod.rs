@@ -3,6 +3,7 @@
 //! One window holds one document (`03-behavior/06-files.md`).
 
 pub mod encoding;
+pub mod paths;
 pub mod recents;
 
 use gtk::prelude::*;

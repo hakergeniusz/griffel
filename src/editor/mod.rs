@@ -4,6 +4,7 @@
 pub mod focus;
 pub mod highlight;
 pub mod input;
+pub use input::InputFlags;
 
 use gtk::prelude::*;
 use sourceview5::prelude::*;
@@ -13,6 +14,10 @@ pub struct Editor {
     pub view: sourceview5::View,
     pub buffer: sourceview5::Buffer,
     pub scroll: gtk::ScrolledWindow,
+    /// Shared typing-behavior state (Hemingway mode, document folder).
+    pub flags: std::rc::Rc<input::InputFlags>,
+    /// Invoked when a user deletion is blocked (Hemingway Mode).
+    pub blocked_callback: std::rc::Rc<input::BlockedCallback>,
 }
 
 impl Editor {
@@ -40,10 +45,17 @@ impl Editor {
         scroll.set_hexpand(true);
         scroll.set_vexpand(true);
 
+        let flags = std::rc::Rc::new(input::InputFlags::default());
+        let blocked_callback = std::rc::Rc::new(input::BlockedCallback::new(None));
+        input::install(&view, &buffer, flags.clone(), blocked_callback.clone());
+        input::install_dnd(&view, &buffer, flags.clone());
+
         Self {
             view,
             buffer,
             scroll,
+            flags,
+            blocked_callback,
         }
     }
 
