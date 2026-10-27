@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.hakergeniusz.Griffel" path="/io/github/hakergeniusz/Griffel/">
+    <key name="window-width" type="i">
+      <default>1000</default>
+      <summary>Window width</summary>
+      <description>Default width restored for new windows.</description>
+    </key>
+    <key name="window-height" type="i">
+      <default>600</default>
+      <summary>Window height</summary>
+      <description>Default height restored for new windows.</description>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Window maximized</summary>
+    </key>
+    <key name="window-fullscreen" type="b">
+      <default>false</default>
+      <summary>Window fullscreen</summary>
+    </key>
+    <key name="color-scheme" type="s">
+      <choices>
+        <choice value="system"/>
+        <choice value="light"/>
+        <choice value="sepia"/>
+        <choice value="dark"/>
+      </choices>
+      <default>"system"</default>
+      <summary>Color scheme</summary>
+      <description>One of system, light, sepia, dark.</description>
+    </key>
+    <key name="spellcheck" type="b">
+      <default>true</default>
+      <summary>Check spelling</summary>
+    </key>
+    <key name="sync-scroll" type="b">
+      <default>true</default>
+      <summary>Synchronize editor and preview scrolling</summary>
+    </key>
+    <key name="input-format" type="s">
+      <choices>
+        <choice value="markdown"/>
+        <choice value="commonmark"/>
+        <choice value="gfm"/>
+        <choice value="markdown_mmd"/>
+        <choice value="markdown_strict"/>
+      </choices>
+      <default>"markdown"</default>
+      <summary>Input format for the converter</summary>
+    </key>
+    <key name="autohide-headerbar" type="b">
+      <default>true</default>
+      <summary>Auto-hide the header bar while typing</summary>
+    </key>
+    <key name="default-statistic" type="s">
+      <choices>
+        <choice value="characters"/>
+        <choice value="words"/>
+        <choice value="sentences"/>
+        <choice value="paragraphs"/>
+        <choice value="read_time"/>
+      </choices>
+      <default>"words"</default>
+      <summary>Which statistic the status button shows</summary>
+    </key>
+    <key name="characters-per-line" type="i">
+      <default>66</default>
+      <summary>Editor column width in characters</summary>
+    </key>
+    <key name="hemingway-mode" type="b">
+      <default>false</default>
+      <summary>Startup state of Hemingway Mode</summary>
+    </key>
+    <key name="hemingway-toast-count" type="i">
+      <default>0</default>
+      <summary>How many times the Hemingway toast has been shown</summary>
+    </key>
+    <key name="preview-mode" type="s">
+      <choices>
+        <choice value="full-width"/>
+        <choice value="half-width"/>
+        <choice value="half-height"/>
+        <choice value="windowed"/>
+      </choices>
+      <default>"full-width"</default>
+      <summary>Preview layout mode</summary>
+    </key>
+    <key name="preview-security" type="s">
+      <choices>
+        <choice value="ask"/>
+        <choice value="always-restricted"/>
+        <choice value="always-unrestricted"/>
+      </choices>
+      <default>"ask"</default>
+      <summary>Preview security policy</summary>
+    </key>
+    <key name="preview-active" type="b">
+      <default>false</default>
+      <summary>Whether new windows start with the preview visible</summary>
+    </key>
+    <key name="bigger-text" type="b">
+      <default>false</default>
+      <summary>Use larger text</summary>
+    </key>
+    <key name="toolbar-visible" type="b">
+      <default>false</default>
+      <summary>Whether the formatting row is expanded</summary>
+    </key>
+    <key name="autosave-period" type="i">
+      <default>5</default>
+      <summary>Snapshot interval in seconds</summary>
+    </key>
+  </schema>
+</schemalist>

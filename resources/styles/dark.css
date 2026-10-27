@@ -1,0 +1,12 @@
+:root {
+  --bg: #1e2126;
+  --fg: #e6e6e6;
+  --muted: #9aa1ab;
+  --accent: #78aeed;
+  --border: #3d4652;
+  --code-bg: #2b3037;
+  --mark-bg: #4a4426;
+}
+
+/* dark syntax-highlight variant for converter output */
+pre code span { color: #cfd3d9; }
