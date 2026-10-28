@@ -174,9 +174,6 @@ impl AppWindow {
         headerbar_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
         headerbar_revealer.set_transition_duration(450);
         headerbar_revealer.set_child(Some(&headerbar));
-        // The revealer itself never blocks clicks: its children stay
-        // interactive while visible, and clicks fall through elsewhere.
-        headerbar_revealer.set_can_target(false);
 
         // --- bottom bar ----------------------------------------------------
         let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
