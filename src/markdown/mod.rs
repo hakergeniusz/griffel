@@ -3,3 +3,4 @@
 pub mod autopair;
 pub mod formatting;
 pub mod lists;
+pub mod stats;

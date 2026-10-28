@@ -28,6 +28,7 @@ pub struct AppWindow {
     vpaned: gtk::Paned,
     editor_overlay_handle: gtk::Overlay,
     pub search: crate::search::SearchBar,
+    stats_button: gtk::MenuButton,
     /// Shared mutable state; all clones of AppWindow see the same state.
     pub state: std::rc::Rc<WindowState>,
 }
@@ -38,11 +39,12 @@ pub struct WindowState {
     /// Suppress dirty marking while the program replaces the buffer
     /// (load, reload).
     pub suppress_dirty: RefCell<bool>,
-    highlight_pending: RefCell<Option<glib::SourceId>>,
+    highlight_generation: std::cell::Cell<u64>,
     last_layout_width: std::cell::Cell<i32>,
     pub preview_active: std::cell::Cell<bool>,
     preview_window: RefCell<Option<gtk::Window>>,
-    preview_pending: RefCell<Option<glib::SourceId>>,
+    preview_generation: std::cell::Cell<u64>,
+    stats_generation: std::cell::Cell<u64>,
 }
 
 impl Clone for AppWindow {
@@ -63,6 +65,7 @@ impl Clone for AppWindow {
             vpaned: self.vpaned.clone(),
             editor_overlay_handle: self.editor_overlay_handle.clone(),
             search: self.search.clone(),
+            stats_button: self.stats_button.clone(),
             state: self.state.clone(),
             preview: self.preview.clone(),
         }
@@ -170,7 +173,7 @@ impl AppWindow {
         bottom_bar.append(&toolbar_row);
         bottom_bar.append(&toolbar_toggle);
 
-        let stats_button = gtk::Button::new();
+        let stats_button = gtk::MenuButton::new();
         stats_button.set_label("0 Words");
         stats_button.add_css_class("flat");
         stats_button.set_halign(gtk::Align::End);
@@ -225,14 +228,16 @@ impl AppWindow {
             vpaned,
             editor_overlay_handle: overlay.clone(),
             search,
+            stats_button: stats_button.clone(),
             state: std::rc::Rc::new(WindowState {
                 document: RefCell::new(Document::new()),
                 suppress_dirty: RefCell::new(false),
-                highlight_pending: RefCell::new(None),
+                highlight_generation: std::cell::Cell::new(0),
                 last_layout_width: std::cell::Cell::new(0),
                 preview_active: std::cell::Cell::new(settings().boolean("preview-active")),
                 preview_window: RefCell::new(None),
-                preview_pending: RefCell::new(None),
+                preview_generation: std::cell::Cell::new(0),
+                stats_generation: std::cell::Cell::new(0),
             }),
             preview: crate::preview::PreviewPane::new(),
         };
@@ -295,20 +300,21 @@ impl AppWindow {
 
     /// Debounced highlighting rescan (~150 ms after the last edit).
     fn schedule_highlight(&self) {
-        if let Some(id) = self.state.highlight_pending.borrow_mut().take() {
-            id.remove();
-        }
+        let generation = self.state.highlight_generation.get() + 1;
+        self.state.highlight_generation.set(generation);
         let win = self.clone();
-        let id = glib::timeout_add_local(std::time::Duration::from_millis(150), move || {
-            win.editor.highlight_now();
+        glib::timeout_add_local(std::time::Duration::from_millis(150), move || {
+            if win.state.highlight_generation.get() == generation {
+                win.editor.highlight_now();
+            }
             glib::ControlFlow::Break
         });
-        *self.state.highlight_pending.borrow_mut() = Some(id);
     }
 
     fn install_actions(&self) {
         let actions = gio::SimpleActionGroup::new();
         let win_ref = self.clone();
+        let win_ref2 = self.clone();
 
         let scheme = gio::SimpleAction::new_stateful(
             "color-scheme",
@@ -398,6 +404,40 @@ impl AppWindow {
         bind!("find", |w: &AppWindow| w.search.open(false, &w.editor.buffer));
         bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor.buffer));
 
+        // Default statistic selection (persisted, F2).
+        let statistic = gio::SimpleAction::new_stateful(
+            "statistic",
+            Some(glib::VariantTy::STRING),
+            &settings().string("default-statistic").to_variant(),
+        );
+        {
+            let statistic_state = statistic.clone();
+            statistic.connect_activate(move |_, param| {
+                let v = param
+                    .and_then(|p| p.str().map(str::to_owned))
+                    .unwrap_or_else(|| "words".into());
+                if crate::markdown::stats::Statistic::parse_name(&v).is_some() {
+                    settings().set_string("default-statistic", &v);
+                    statistic_state.set_state(&v.to_variant());
+                }
+                let win2 = win_ref2.clone();
+                win2.update_stats_now();
+            });
+        }
+        actions.add_action(&statistic);
+        {
+            let menu = gio::Menu::new();
+            for st in [crate::markdown::stats::Statistic::Characters, crate::markdown::stats::Statistic::Words, crate::markdown::stats::Statistic::Sentences, crate::markdown::stats::Statistic::Paragraphs, crate::markdown::stats::Statistic::ReadTime] {
+                menu.append(
+                    Some(st.display_name()),
+                    Some(&format!("win.statistic::{}", st.as_name())),
+                );
+            }
+            self.stats_button.set_menu_model(Some(&menu));
+            self.stats_button.set_always_show_arrow(false);
+        }
+        self.update_stats_now();
+
         let close = gio::SimpleAction::new("close", None);
         {
             let root = self.root.clone();
@@ -445,6 +485,16 @@ impl AppWindow {
                     win.set_dirty_from_edit();
                     win.schedule_highlight();
                     win.schedule_preview();
+                });
+        }
+
+        // Statistics update on selection change.
+        {
+            let win = self.clone();
+            self.editor
+                .buffer
+                .connect_mark_set(move |_buf, _location, _mark| {
+                    win.schedule_stats();
                 });
         }
 
@@ -1029,16 +1079,74 @@ impl AppWindow {
         if !self.state.preview_active.get() {
             return;
         }
-        if let Some(id) = self.state.preview_pending.borrow_mut().take() {
-            id.remove();
-        }
+        let generation = self.state.preview_generation.get() + 1;
+        self.state.preview_generation.set(generation);
         let win = self.clone();
-        let id = glib::timeout_add_local(std::time::Duration::from_millis(300), move || {
-            let text = win.editor.full_text();
-            let doc_dir = win.editor.flags.doc_dir.borrow().clone();
-            win.preview.update(&text, doc_dir);
+        glib::timeout_add_local(std::time::Duration::from_millis(300), move || {
+            if win.state.preview_generation.get() == generation {
+                let text = win.editor.full_text();
+                let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+                win.preview.update(&text, doc_dir);
+            }
             glib::ControlFlow::Break
         });
-        *self.state.preview_pending.borrow_mut() = Some(id);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Statistics (`03-behavior/05-statistics.md`)
+// ---------------------------------------------------------------------------
+
+impl AppWindow {
+    /// Debounced (~50 ms) statistics recompute.
+    pub fn schedule_stats(&self) {
+        let generation = self.state.stats_generation.get() + 1;
+        self.state.stats_generation.set(generation);
+        let win = self.clone();
+        glib::timeout_add_local(std::time::Duration::from_millis(50), move || {
+            if win.state.stats_generation.get() == generation {
+                win.update_stats_now();
+            }
+            glib::ControlFlow::Break
+        });
+    }
+
+    /// Recompute statistics (background) and update the status button.
+    pub fn update_stats_now(&self) {
+        let win = self.clone();
+        let full = self.editor.full_text();
+        let selection_text: Option<String> = self
+            .editor
+            .buffer
+            .selection_bounds()
+            .map(|(s, e)| self.editor.buffer.text(&s, &e, true).into());
+        let has_selection = selection_text.is_some();
+
+        glib::spawn_future_local(async move {
+            let handle = gio::spawn_blocking(move || {
+                let total = crate::markdown::stats::compute(&full);
+                let selected = selection_text
+                    .as_deref()
+                    .map(crate::markdown::stats::compute);
+                (total, selected)
+            });
+            let (total, selected) = handle.await.unwrap_or_default();
+            let setting = settings().default_statistic();
+            let Some(stat) =
+                crate::markdown::stats::Statistic::parse_name(setting.as_str())
+            else {
+                return;
+            };
+            let label = match (has_selection, selected) {
+                (true, Some(sel)) => format!(
+                    "{} of {} {}",
+                    stat.value(&sel),
+                    stat.value(&total),
+                    stat.display_name()
+                ),
+                _ => stat.label(&total),
+            };
+            win.stats_button.set_label(&label);
+        });
     }
 }
