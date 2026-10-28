@@ -239,6 +239,7 @@ fn register_accels(app: &gtk::Application) {
         ("win.close", vec!["<primary>w"]),
         ("win.find", vec!["<primary>f"]),
         ("win.find-replace", vec!["<primary>h"]),
+        ("win.toggle-spellcheck", vec!["F7"]),
         ("win.toggle-preview", vec!["<primary>p"]),
         ("win.focus-mode", vec!["<primary>d"]),
         ("win.hemingway-mode", vec!["<primary>t"]),

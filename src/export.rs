@@ -2,9 +2,18 @@
 
 use crate::window::AppWindow;
 use gtk::prelude::*;
+use adw::prelude::*;
 use gdk;
 use std::fs;
 use std::process::Command;
+
+pub fn has_tex() -> bool {
+    std::process::Command::new("xelatex")
+        .arg("--version")
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
 
 fn run_pandoc(input: &str, output: &std::path::Path, extra: &[&str]) -> Result<(), String> {
     let input_path = std::env::temp_dir().join(format!("griffel-export-{}.md", std::process::id()));
@@ -102,4 +111,83 @@ pub fn copy_html(win: &AppWindow) {
             let _ = win.root.clipboard().set_content(Some(&provider));
         }
     }
+}
+
+
+
+pub fn advanced_dialog(win: &AppWindow) {
+    let win = win.clone();
+    let dialog = gtk::Window::builder()
+        .title("Advanced Export")
+        .modal(true)
+        .transient_for(&win.root)
+        .default_width(420)
+        .default_height(320)
+        .build();
+
+    let outer = gtk::Box::new(gtk::Orientation::Vertical, 12);
+    outer.set_margin_top(18);
+    outer.set_margin_bottom(18);
+    outer.set_margin_start(18);
+    outer.set_margin_end(18);
+
+    let formats = ["PDF", "HTML", "ODT", "LaTeX PDF"];
+    let model = gtk::StringList::new(&formats);
+    let combo = adw::ComboRow::new();
+    combo.set_title("Format");
+    combo.set_model(Some(&model));
+    combo.set_selected(0);
+
+    let options_box = gtk::Box::new(gtk::Orientation::Vertical, 6);
+    let standalone = gtk::CheckButton::with_label("Standalone document");
+    standalone.set_active(true);
+    let embed = gtk::CheckButton::with_label("Embed resources");
+    embed.set_active(true);
+    options_box.append(&standalone);
+    options_box.append(&embed);
+
+    let guidance = gtk::Box::new(gtk::Orientation::Vertical, 6);
+    let glabel = gtk::Label::new(Some("TeX is not installed. Install a TeX distribution (e.g. TeX Live) to enable LaTeX-based export."));
+    glabel.set_wrap(true);
+    guidance.append(&glabel);
+    guidance.set_visible(false);
+
+    outer.append(&combo);
+    outer.append(&options_box);
+    outer.append(&guidance);
+
+    let export_btn = gtk::Button::with_label("Export…");
+    export_btn.add_css_class("suggested-action");
+    outer.append(&export_btn);
+
+    dialog.set_child(Some(&outer));
+
+    let options_box_c = options_box.clone();
+    let guidance_c = guidance.clone();
+    combo.connect_selected_notify(move |row| {
+        let is_latex = row.selected() == 3;
+        if is_latex && !has_tex() {
+            options_box_c.set_visible(false);
+            guidance_c.set_visible(true);
+        } else {
+            options_box_c.set_visible(true);
+            guidance_c.set_visible(false);
+        }
+    });
+
+    let dialog_c = dialog.clone();
+    let combo_e = combo.clone();
+    let win_e = win.clone();
+    export_btn.connect_clicked(move |_| {
+        match combo_e.selected() {
+            0 => quick_pdf(&win_e),
+            1 => quick_html(&win_e),
+            2 => quick_odt(&win_e),
+            3 => quick_pdf(&win_e),
+            _ => {}
+        }
+        dialog_c.close();
+    });
+
+    dialog.present();
 }

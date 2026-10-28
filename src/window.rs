@@ -506,7 +506,7 @@ impl AppWindow {
         bind!("export-pdf", crate::export::quick_pdf);
         bind!("export-html", crate::export::quick_html);
         bind!("export-odt", crate::export::quick_odt);
-        bind!("copy-html", crate::export::copy_html);
+        bind!("export-advanced", crate::export::advanced_dialog);        bind!("copy-html", crate::export::copy_html);
         bind!("preview-close", AppWindow::preview_off);
         bind!("find", |w: &AppWindow| w.search.open(false, &w.editor.buffer));
         bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor.buffer));
@@ -620,6 +620,15 @@ impl AppWindow {
             });
         }
         actions.add_action(&about);
+
+        let toggle_spell = gio::SimpleAction::new("toggle-spellcheck", None);
+        {
+            toggle_spell.connect_activate(move |_, _| {
+                let cur = settings().boolean("spellcheck");
+                settings().set_boolean("spellcheck", !cur);
+            });
+        }
+        actions.add_action(&toggle_spell);
 
         self.root.insert_action_group("win", Some(&actions));
     }
@@ -983,7 +992,7 @@ fn save_menu_model() -> gio::Menu {
     exports.append(Some("Export as HTML"), Some("win.export-html"));
     exports.append(Some("Export as ODT"), Some("win.export-odt"));
     exports.append(Some("Copy HTML"), Some("win.copy-html"));
-    menu.append_section(Some("Export"), &exports);
+    menu.append(Some("Advanced Export…"), Some("win.export-advanced"));    menu.append_section(Some("Export"), &exports);
     menu
 }
 
