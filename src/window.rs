@@ -207,8 +207,6 @@ impl AppWindow {
         bottom_revealer.set_child(Some(&bottom_bar));
         bottom_revealer.set_halign(gtk::Align::Fill);
         bottom_revealer.set_valign(gtk::Align::End);
-        // Empty middle area passes clicks through to the editor (03/13 §3).
-        bottom_revealer.set_can_target(false);
 
         // --- content -------------------------------------------------------
         let overlay = gtk::Overlay::new();
