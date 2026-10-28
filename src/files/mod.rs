@@ -3,8 +3,10 @@
 //! One window holds one document (`03-behavior/06-files.md`).
 
 pub mod encoding;
+pub mod monitor;
 pub mod paths;
 pub mod recents;
+pub mod snapshots;
 
 use gtk::prelude::*;
 use gtk::gio;
@@ -272,14 +274,14 @@ fn default_folder() -> Option<gio::File> {
 // Snapshots (stub until milestone 11)
 // ---------------------------------------------------------------------------
 
-pub fn recover_snapshots(_app: &gtk::Application) {
-    // Implemented in milestone 11.
+pub fn recover_snapshots(app: &gtk::Application) {
+    snapshots::recover_snapshots(app);
 }
 
-pub fn delete_snapshot(_window: &AppWindow) {
-    // Implemented in milestone 11.
+pub fn delete_snapshot(window: &AppWindow) {
+    snapshots::delete(window);
 }
 
-pub fn schedule_snapshot(_window: &AppWindow) {
-    // Implemented in milestone 11.
+pub fn schedule_snapshot(window: &AppWindow) {
+    snapshots::schedule(window);
 }

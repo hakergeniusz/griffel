@@ -4,6 +4,7 @@ mod app;
 mod appearance;
 mod dialogs;
 mod editor;
+mod export;
 mod format;
 mod files;
 mod markdown;

@@ -33,6 +33,9 @@ pub struct AppWindow {
     /// Auto-hide wrappers for the header and bottom bars.
     headerbar_revealer: gtk::Revealer,
     bottom_revealer: gtk::Revealer,
+    recovery_bar: gtk::InfoBar,
+    file_changed_bar: gtk::InfoBar,
+    file_changed_reload: gtk::Button,
     toast_overlay: adw::ToastOverlay,
     /// Shared mutable state; all clones of AppWindow see the same state.
     pub state: std::rc::Rc<WindowState>,
@@ -56,6 +59,9 @@ pub struct WindowState {
     shaking: Cell<bool>,
     /// Recent blocked-deletion instants (Hemingway toast frequency rule).
     blocked_attempts: RefCell<VecDeque<std::time::Instant>>,
+    pub monitor: RefCell<Option<gio::FileMonitor>>,
+    pub snapshot_timer: RefCell<Option<glib::SourceId>>,
+    pub snapshot_file: RefCell<Option<std::path::PathBuf>>,
 }
 
 impl Clone for AppWindow {
@@ -79,6 +85,9 @@ impl Clone for AppWindow {
             stats_button: self.stats_button.clone(),
             headerbar_revealer: self.headerbar_revealer.clone(),
             bottom_revealer: self.bottom_revealer.clone(),
+            recovery_bar: self.recovery_bar.clone(),
+            file_changed_bar: self.file_changed_bar.clone(),
+            file_changed_reload: self.file_changed_reload.clone(),
             toast_overlay: self.toast_overlay.clone(),
             state: self.state.clone(),
             preview: self.preview.clone(),
@@ -208,6 +217,26 @@ impl AppWindow {
         bottom_revealer.set_halign(gtk::Align::Fill);
         bottom_revealer.set_valign(gtk::Align::End);
 
+        // --- recovery & file-changed banners (infobars) ---------------------
+        let recovery_bar = gtk::InfoBar::new();
+        recovery_bar.set_message_type(gtk::MessageType::Info);
+        recovery_bar.set_show_close_button(true);
+        let recovery_label = gtk::Label::new(Some("This document was recovered from an autosave."));
+        recovery_bar.add_child(&recovery_label);
+        recovery_bar.set_revealed(false);
+
+        let file_changed_bar = gtk::InfoBar::new();
+        file_changed_bar.set_message_type(gtk::MessageType::Warning);
+        file_changed_bar.set_show_close_button(true);
+        let fc_box = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+        let fc_label = gtk::Label::new(Some("This file changed on disk."));
+        fc_box.append(&fc_label);
+        let file_changed_reload = gtk::Button::with_label("Reload");
+        file_changed_reload.add_css_class("flat");
+        fc_box.append(&file_changed_reload);
+        file_changed_bar.add_child(&fc_box);
+        file_changed_bar.set_revealed(false);
+
         // --- content -------------------------------------------------------
         let overlay = gtk::Overlay::new();
         overlay.set_child(Some(&editor.scroll));
@@ -234,6 +263,8 @@ impl AppWindow {
 
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&save_progress);
+        toolbar_view.add_top_bar(&recovery_bar);
+        toolbar_view.add_top_bar(&file_changed_bar);
         toolbar_view.add_top_bar(&headerbar_revealer);
         toolbar_view.add_top_bar(&search.bar);
         toolbar_view.set_content(Some(&content_stack));
@@ -263,6 +294,9 @@ impl AppWindow {
             stats_button: stats_button.clone(),
             headerbar_revealer,
             bottom_revealer,
+            recovery_bar,
+            file_changed_bar,
+            file_changed_reload,
             toast_overlay,
             state: std::rc::Rc::new(WindowState {
                 document: RefCell::new(Document::new()),
@@ -276,6 +310,9 @@ impl AppWindow {
                 bars_hidden: Cell::new(false),
                 shaking: Cell::new(false),
                 blocked_attempts: RefCell::new(VecDeque::new()),
+                monitor: RefCell::new(None),
+                snapshot_timer: RefCell::new(None),
+                snapshot_file: RefCell::new(None),
             }),
             preview: crate::preview::PreviewPane::new(),
         };
@@ -352,6 +389,13 @@ impl AppWindow {
                 );
                 // Keep Focus Mode margins at half the viewport.
                 win.editor.apply_focus_margins();
+            }
+            // Persist window geometry (`05-file-formats-and-persistence.md`).
+            if win.root.width() > 0 {
+                settings().set_integer("window-width", win.root.width());
+                settings().set_integer("window-height", win.root.height());
+                settings().set_boolean("window-maximized", win.root.is_maximized());
+                settings().set_boolean("window-fullscreen", win.root.is_fullscreen());
             }
             glib::ControlFlow::Continue
         });
@@ -459,6 +503,10 @@ impl AppWindow {
             }
         });
         bind!("toggle-preview", AppWindow::toggle_preview);
+        bind!("export-pdf", crate::export::quick_pdf);
+        bind!("export-html", crate::export::quick_html);
+        bind!("export-odt", crate::export::quick_odt);
+        bind!("copy-html", crate::export::copy_html);
         bind!("preview-close", AppWindow::preview_off);
         bind!("find", |w: &AppWindow| w.search.open(false, &w.editor.buffer));
         bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor.buffer));
@@ -506,18 +554,7 @@ impl AppWindow {
         }
         actions.add_action(&close);
 
-        for name in [
-            "find",
-            "find-replace",
-            "toggle-preview",
-        ] {
-            let action = gio::SimpleAction::new(name, None);
-            action.connect_activate(|_, _| {
-                // Implemented in later milestones; the action exists so the
-                // accelerators resolve.
-            });
-            actions.add_action(&action);
-        }
+        // `find`, `find-replace`, `toggle-preview` are already bound above.
 
         let preferences = gio::SimpleAction::new("preferences", None);
         {
@@ -625,6 +662,20 @@ impl AppWindow {
             });
         }
 
+        // File-changed reload button and banner dismissal.
+        {
+            let win = self.clone();
+            self.file_changed_reload.connect_clicked(move |_| {
+                win.reload_from_disk();
+            });
+            let bar = self.file_changed_bar.clone();
+            let bar2 = bar.clone();
+            bar.connect_response(move |_b, _| bar2.set_revealed(false));
+            let rbar = self.recovery_bar.clone();
+            let rbar2 = rbar.clone();
+            rbar.connect_response(move |_b, _| rbar2.set_revealed(false));
+        }
+
         // Auto-hide reveal triggers (03/13 §2): pointer entering the top
         // region of the window, and fullscreen exit.
         {
@@ -686,6 +737,10 @@ impl AppWindow {
                 let app = window.application();
                 glib::spawn_future_local(async move {
                     if win.confirm_close().await {
+                        win.cancel_snapshot_timer();
+                        if let Some(m) = win.state.monitor.borrow_mut().take() {
+                            m.cancel();
+                        }
                         crate::app::unregister_window(&win);
                         files::delete_snapshot(&win);
                         window.destroy();
@@ -730,6 +785,28 @@ impl AppWindow {
         self.root.set_tooltip_text(path.as_deref());
     }
 
+    pub fn reload_from_disk(&self) {
+        self.file_changed_bar.set_revealed(false);
+        if let Some(file) = self.state.document.borrow().file.clone() {
+            self.load_file(&file);
+        }
+        self.file_changed_bar.set_revealed(false);
+    }
+
+    pub fn show_file_changed(&self) {
+        self.file_changed_bar.set_revealed(true);
+    }
+
+    pub fn show_recovery_banner(&self) {
+        self.recovery_bar.set_revealed(true);
+    }
+
+    pub fn cancel_snapshot_timer(&self) {
+        if let Some(id) = self.state.snapshot_timer.borrow_mut().take() {
+            id.remove();
+        }
+    }
+
     /// Replace the editor content and document state after a successful
     /// load (§2.2).
     pub fn apply_loaded(&self, file: &gio::File, decoded: &files::encoding::Decoded) {
@@ -745,6 +822,7 @@ impl AppWindow {
         }
         self.update_title();
         recents::add(file);
+        files::monitor::install(self, file);
         *self.editor.flags.doc_dir.borrow_mut() =
             file.parent().and_then(|p| p.path());
         self.editor.highlight_now();
@@ -808,6 +886,7 @@ impl AppWindow {
     pub fn save_to(&self, file: gio::File) {
         // A save starting reveals the auto-hidden bars (03/13 §2).
         self.reveal_bars();
+        files::monitor::pause(self);
         self.save_progress.set_reveal_child(true);
         let text = self.editor.full_text();
         let encoding = self.state.document.borrow().encoding.to_owned();
@@ -827,6 +906,17 @@ impl AppWindow {
                 self.update_title();
                 recents::add(&file);
                 files::delete_snapshot(self);
+                self.cancel_snapshot_timer();
+                // Re-arm the file monitor after a grace delay so our own
+                // write does not trigger the external-change banner.
+                {
+                    let win = self.clone();
+                    let f = file.clone();
+                    glib::timeout_add_seconds_local(1, move || {
+                        files::monitor::install(&win, &f);
+                        glib::ControlFlow::Break
+                    });
+                }
                 crate::app::update_logout_inhibition();
             }
             Err(e) => {
@@ -888,6 +978,12 @@ impl AppWindow {
 fn save_menu_model() -> gio::Menu {
     let menu = gio::Menu::new();
     menu.append(Some("Save As…"), Some("win.save-as"));
+    let exports = gio::Menu::new();
+    exports.append(Some("Export as PDF"), Some("win.export-pdf"));
+    exports.append(Some("Export as HTML"), Some("win.export-html"));
+    exports.append(Some("Export as ODT"), Some("win.export-odt"));
+    exports.append(Some("Copy HTML"), Some("win.copy-html"));
+    menu.append_section(Some("Export"), &exports);
     menu
 }
 

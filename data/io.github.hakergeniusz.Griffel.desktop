@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Griffel
+Exec=griffel %F
+Icon=io.github.hakergeniusz.Griffel
+Terminal=false
+Categories=GNOME;GTK;Utility;TextEditor;Office;
+MimeType=text/markdown;text/plain;
+StartupNotify=true

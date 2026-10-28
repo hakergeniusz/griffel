@@ -42,7 +42,7 @@ impl GriffelApp {
     pub fn new() -> Self {
         let app = gtk::Application::builder()
             .application_id(APP_ID)
-            .flags(gio::ApplicationFlags::HANDLES_OPEN)
+            .flags(gio::ApplicationFlags::HANDLES_OPEN | gio::ApplicationFlags::HANDLES_COMMAND_LINE)
             .build();
 
         app.add_main_option(
@@ -123,6 +123,42 @@ impl GriffelApp {
         app.connect_open(|app, files, _hint| {
             crate::files::open_files(app, &files);
             register_accels(app);
+        });
+
+        app.connect_command_line(|app, cmd| {
+            let args = cmd.arguments();
+            let mut new_window = false;
+            let mut files = Vec::new();
+            for arg in args.iter().skip(1) {
+                let s = arg.to_string_lossy();
+                if s == "--new-window" {
+                    new_window = true;
+                } else if s == "--verbose" {
+                    // handled elsewhere
+                } else {
+                    let path = std::path::PathBuf::from(&*s);
+                    let file = if path.is_absolute() {
+                        gio::File::for_path(&path)
+                    } else {
+                        let cwd = cmd.cwd().unwrap_or_default();
+                        gio::File::for_path(cwd.join(&path))
+                    };
+                    files.push(file);
+                }
+            }
+            if new_window {
+                let win = AppWindow::new(app);
+                win.present_window();
+            }
+            if !files.is_empty() {
+                crate::files::open_files(app, &files);
+            }
+            // Ensure an empty window exists on a plain launch.
+            if files.is_empty() && !new_window && app.windows().is_empty() {
+                let win = AppWindow::new(app);
+                win.present_window();
+            }
+            0.into()
         });
 
         let new_window = gio::SimpleAction::new("new-window", None);

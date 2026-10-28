@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.hakergeniusz.Griffel</id>
+  <name>Griffel</name>
+  <summary>A distraction-free Markdown editor</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <description><p>Griffel is a distraction-free Markdown editor.</p></description>
+  <launchable type="desktop-id">io.github.hakergeniusz.Griffel.desktop</launchable>
+</component>

@@ -14,7 +14,7 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     dialog.add(&page);
 
     let group = adw::PreferencesGroup::new();
-    group.set_title("Editor & Window");
+    group.set_title("Editor &amp; Window");
     page.add(&group);
 
     // 1. Check spelling
@@ -39,7 +39,7 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     group.add(&large_text_row);
 
     let format_group = adw::PreferencesGroup::new();
-    format_group.set_title("Formatting & Preview");
+    format_group.set_title("Formatting &amp; Preview");
     page.add(&format_group);
 
     // 4. Input format ComboRow
