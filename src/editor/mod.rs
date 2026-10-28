@@ -24,6 +24,13 @@ pub struct Editor {
     font_px: std::cell::Cell<i32>,
     /// Character width of the current font (px).
     char_px: std::cell::Cell<f64>,
+    /// Focus Mode is on (dimming + typewriter scrolling).
+    focus_active: std::cell::Cell<bool>,
+    /// Top/bottom margins to restore when Focus Mode is switched off.
+    saved_top_margin: std::cell::Cell<i32>,
+    saved_bottom_margin: std::cell::Cell<i32>,
+    /// Cancels a running typewriter-scroll animation.
+    typewriter_generation: std::cell::Cell<u64>,
 }
 
 impl Editor {
@@ -93,8 +100,25 @@ impl Editor {
             highlighter,
             font_px: std::cell::Cell::new(16),
             char_px: std::cell::Cell::new(9.6),
+            focus_active: std::cell::Cell::new(false),
+            saved_top_margin: std::cell::Cell::new(34),
+            saved_bottom_margin: std::cell::Cell::new(64),
+            typewriter_generation: std::cell::Cell::new(0),
         };
         editor.highlight_now();
+
+        // Focus Mode: re-evaluate dimming and typewriter centering when
+        // the cursor moves (the insert mark is set); no-op when off.
+        {
+            let editor2 = editor.clone();
+            editor.buffer.connect_mark_set(move |_buf, _loc, mark| {
+                let is_insert = mark.name().map(|n| n == "insert").unwrap_or(false);
+                if is_insert {
+                    editor2.focus_update();
+                }
+            });
+        }
+
         editor
     }
 
@@ -107,6 +131,7 @@ impl Editor {
     /// Re-apply tag colors and widget colors after a scheme change.
     pub fn recolor(&self) {
         highlight::update_palette(&self.buffer, &crate::appearance::effective_palette());
+        focus::update_palette(&self.buffer, &crate::appearance::effective_palette());
         editor_widget_css(&self.font_provider, &crate::appearance::effective_palette());
     }
 

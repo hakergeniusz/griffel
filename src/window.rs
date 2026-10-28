@@ -4,7 +4,8 @@
 use adw::prelude::*;
 use gtk::gio;
 use gtk::glib;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
+use std::collections::VecDeque;
 
 use crate::editor::Editor;
 use crate::files::{self, recents, Document};
@@ -29,6 +30,10 @@ pub struct AppWindow {
     editor_overlay_handle: gtk::Overlay,
     pub search: crate::search::SearchBar,
     stats_button: gtk::MenuButton,
+    /// Auto-hide wrappers for the header and bottom bars.
+    headerbar_revealer: gtk::Revealer,
+    bottom_revealer: gtk::Revealer,
+    toast_overlay: adw::ToastOverlay,
     /// Shared mutable state; all clones of AppWindow see the same state.
     pub state: std::rc::Rc<WindowState>,
 }
@@ -45,6 +50,12 @@ pub struct WindowState {
     preview_window: RefCell<Option<gtk::Window>>,
     preview_generation: std::cell::Cell<u64>,
     stats_generation: std::cell::Cell<u64>,
+    /// Bars currently faded out (auto-hide).
+    pub bars_hidden: Cell<bool>,
+    /// A blocked-deletion shake animation is running.
+    shaking: Cell<bool>,
+    /// Recent blocked-deletion instants (Hemingway toast frequency rule).
+    blocked_attempts: RefCell<VecDeque<std::time::Instant>>,
 }
 
 impl Clone for AppWindow {
@@ -66,6 +77,9 @@ impl Clone for AppWindow {
             editor_overlay_handle: self.editor_overlay_handle.clone(),
             search: self.search.clone(),
             stats_button: self.stats_button.clone(),
+            headerbar_revealer: self.headerbar_revealer.clone(),
+            bottom_revealer: self.bottom_revealer.clone(),
+            toast_overlay: self.toast_overlay.clone(),
             state: self.state.clone(),
             preview: self.preview.clone(),
         }
@@ -155,6 +169,15 @@ impl AppWindow {
         save_progress.set_transition_type(gtk::RevealerTransitionType::SlideDown);
         save_progress.set_reveal_child(false);
 
+        // --- auto-hide revealer for the header (~450 ms crossfade) ---------
+        let headerbar_revealer = gtk::Revealer::new();
+        headerbar_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
+        headerbar_revealer.set_transition_duration(450);
+        headerbar_revealer.set_child(Some(&headerbar));
+        // The revealer itself never blocks clicks: its children stay
+        // interactive while visible, and clicks fall through elsewhere.
+        headerbar_revealer.set_can_target(false);
+
         // --- bottom bar ----------------------------------------------------
         let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
         bottom_bar.add_css_class("bottom-bar");
@@ -180,11 +203,21 @@ impl AppWindow {
         stats_button.set_valign(gtk::Align::Center);
         bottom_bar.append(&stats_button);
 
+        // --- auto-hide revealer for the bottom bar --------------------------
+        let bottom_revealer = gtk::Revealer::new();
+        bottom_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
+        bottom_revealer.set_transition_duration(450);
+        bottom_revealer.set_child(Some(&bottom_bar));
+        bottom_revealer.set_halign(gtk::Align::Fill);
+        bottom_revealer.set_valign(gtk::Align::End);
+        // Empty middle area passes clicks through to the editor (03/13 §3).
+        bottom_revealer.set_can_target(false);
+
         // --- content -------------------------------------------------------
         let overlay = gtk::Overlay::new();
         overlay.set_child(Some(&editor.scroll));
-        overlay.add_overlay(&bottom_bar);
-        overlay.set_measure_overlay(&bottom_bar, true);
+        overlay.add_overlay(&bottom_revealer);
+        overlay.set_measure_overlay(&bottom_revealer, true);
 
         // Preview layouts: the editor page hosts the editor overlay; the
         // panes host it together with the preview pane. Widgets are moved
@@ -206,11 +239,15 @@ impl AppWindow {
 
         let toolbar_view = adw::ToolbarView::new();
         toolbar_view.add_top_bar(&save_progress);
-        toolbar_view.add_top_bar(&headerbar);
+        toolbar_view.add_top_bar(&headerbar_revealer);
         toolbar_view.add_top_bar(&search.bar);
         toolbar_view.set_content(Some(&content_stack));
 
-        root.set_content(Some(&toolbar_view));
+        // Toasts surface here (blocked-deletion feedback and friends).
+        let toast_overlay = adw::ToastOverlay::new();
+        toast_overlay.set_child(Some(&toolbar_view));
+
+        root.set_content(Some(&toast_overlay));
 
         let win = Self {
             root,
@@ -229,6 +266,9 @@ impl AppWindow {
             editor_overlay_handle: overlay.clone(),
             search,
             stats_button: stats_button.clone(),
+            headerbar_revealer,
+            bottom_revealer,
+            toast_overlay,
             state: std::rc::Rc::new(WindowState {
                 document: RefCell::new(Document::new()),
                 suppress_dirty: RefCell::new(false),
@@ -238,9 +278,25 @@ impl AppWindow {
                 preview_window: RefCell::new(None),
                 preview_generation: std::cell::Cell::new(0),
                 stats_generation: std::cell::Cell::new(0),
+                bars_hidden: Cell::new(false),
+                shaking: Cell::new(false),
+                blocked_attempts: RefCell::new(VecDeque::new()),
             }),
             preview: crate::preview::PreviewPane::new(),
         };
+        // Hemingway Mode startup state comes from the preference (03/04 §2).
+        win.editor
+            .flags
+            .hemingway
+            .set(settings().boolean("hemingway-mode"));
+        // Blocked-deletion feedback: shake + toast.
+        {
+            let win2 = win.clone();
+            win.editor
+                .blocked_callback
+                .borrow_mut()
+                .replace(Box::new(move || win2.on_delete_blocked()));
+        }
 
         // Find toggle button ↔ search bar visibility.
         {
@@ -254,12 +310,18 @@ impl AppWindow {
                 }
             });
             let fb = win.find_button.clone();
+            let win3 = win.clone();
             win.search.bar.connect_notify_local(
                 Some("search-mode-enabled"),
                 move |bar, _pspec| {
                     let visible = bar.is_search_mode();
                     if fb.is_active() != visible {
                         fb.set_active(visible);
+                    }
+                    // The search bar being visible reveals the bars
+                    // (03/13 §2) and keeps them revealed.
+                    if visible {
+                        win3.reveal_bars();
                     }
                 },
             );
@@ -293,6 +355,8 @@ impl AppWindow {
                     settings().integer("characters-per-line"),
                     settings().boolean("bigger-text"),
                 );
+                // Keep Focus Mode margins at half the viewport.
+                win.editor.apply_focus_margins();
             }
             glib::ControlFlow::Continue
         });
@@ -451,10 +515,6 @@ impl AppWindow {
             "find",
             "find-replace",
             "toggle-preview",
-            "focus-mode",
-            "hemingway-mode",
-            "preferences",
-            "show-shortcuts",
         ] {
             let action = gio::SimpleAction::new(name, None);
             action.connect_activate(|_, _| {
@@ -464,10 +524,68 @@ impl AppWindow {
             actions.add_action(&action);
         }
 
+        let preferences = gio::SimpleAction::new("preferences", None);
+        {
+            let root = self.root.clone();
+            preferences.connect_activate(move |_, _| {
+                crate::dialogs::show_preferences(&root);
+            });
+        }
+        actions.add_action(&preferences);
+
+        let shortcuts = gio::SimpleAction::new("show-shortcuts", None);
+        {
+            let root = self.root.clone();
+            shortcuts.connect_activate(move |_, _| {
+                crate::dialogs::show_shortcuts(&root);
+            });
+        }
+        actions.add_action(&shortcuts);
+
+        // Focus Mode (03/04 §1): dim + typewriter scrolling; the state
+        // is not persisted.
+        let focus_mode =
+            gio::SimpleAction::new_stateful("focus-mode", None, &false.to_variant());
+        {
+            let win_ref = self.clone();
+            focus_mode.connect_activate(move |action, _| {
+                let new = !action
+                    .state()
+                    .and_then(|v| v.get::<bool>())
+                    .unwrap_or(false);
+                action.set_state(&new.to_variant());
+                win_ref.editor.set_focus_mode(new);
+            });
+        }
+        actions.add_action(&focus_mode);
+
+        // Hemingway Mode (03/04 §2): deletions blocked; the state is
+        // remembered across sessions.
+        let hemingway = gio::SimpleAction::new_stateful(
+            "hemingway-mode",
+            None,
+            &settings().boolean("hemingway-mode").to_variant(),
+        );
+        {
+            let win_ref = self.clone();
+            hemingway.connect_activate(move |action, _| {
+                let new = !action
+                    .state()
+                    .and_then(|v| v.get::<bool>())
+                    .unwrap_or(false);
+                action.set_state(&new.to_variant());
+                settings().set_boolean("hemingway-mode", new);
+                win_ref.editor.flags.hemingway.set(new);
+            });
+        }
+        actions.add_action(&hemingway);
+
         let about = gio::SimpleAction::new("about", None);
         {
             let root = self.root.clone();
-            about.connect_activate(move |_, _| show_about(&root));
+            about.connect_activate(move |_, _| {
+                crate::dialogs::show_about(&root);
+            });
         }
         actions.add_action(&about);
 
@@ -485,6 +603,8 @@ impl AppWindow {
                     win.set_dirty_from_edit();
                     win.schedule_highlight();
                     win.schedule_preview();
+                    win.maybe_autohide_bars();
+                    win.editor.focus_update();
                 });
         }
 
@@ -508,6 +628,35 @@ impl AppWindow {
                     win.preview.sync_from_editor(f);
                 }
             });
+        }
+
+        // Auto-hide reveal triggers (03/13 §2): pointer entering the top
+        // region of the window, and fullscreen exit.
+        {
+            let win = self.clone();
+            let motion = gtk::EventControllerMotion::new();
+            motion.connect_motion(move |_c, _x, y| {
+                if win.state.bars_hidden.get() && y < 56.0 {
+                    win.reveal_bars();
+                }
+            });
+            self.root.add_controller(motion);
+        }
+        {
+            let win = self.clone();
+            self.root.connect_notify_local(Some("fullscreened"), move |w, _| {
+                if !w.is_fullscreen() {
+                    win.reveal_bars();
+                }
+            });
+        }
+
+        // Auto-hide reveal: the editor losing keyboard focus (03/13 §2).
+        {
+            let win = self.clone();
+            let focus_ctl = gtk::EventControllerFocus::new();
+            focus_ctl.connect_leave(move |_| win.reveal_bars());
+            self.editor.view.add_controller(focus_ctl);
         }
 
         // Scroll synchronization (preview → editor) via injected script.
@@ -662,6 +811,8 @@ impl AppWindow {
     /// Write to `file`, associate it as the backing file, clear dirty,
     /// register recents, drop the recovery snapshot.
     pub fn save_to(&self, file: gio::File) {
+        // A save starting reveals the auto-hidden bars (03/13 §2).
+        self.reveal_bars();
         self.save_progress.set_reveal_child(true);
         let text = self.editor.full_text();
         let encoding = self.state.document.borrow().encoding.to_owned();
@@ -809,20 +960,7 @@ fn main_menu_button() -> gtk::MenuButton {
     button
 }
 
-fn show_about(parent: &adw::ApplicationWindow) {
-    let dialog = gtk::AboutDialog::new();
-    dialog.set_transient_for(Some(parent));
-    dialog.set_modal(true);
-    dialog.set_program_name(Some("Griffel"));
-    dialog.set_version(Some(env!("CARGO_PKG_VERSION")));
-    dialog.set_comments(Some("A distraction-free Markdown editor"));
-    dialog.set_website(Some("https://github.com/hakergeniusz/griffel"));
-    dialog.set_website_label("Website");
-    dialog.set_license_type(gtk::License::MitX11);
-    dialog.set_logo_icon_name(Some(crate::app::ICON_NAME));
-    dialog.set_authors(&["hakergeniusz"]);
-    dialog.set_visible(true);
-}
+
 
 // ---------------------------------------------------------------------------
 // Formatting toolbar (`02-ui-layout.md` §5)
@@ -1090,6 +1228,145 @@ impl AppWindow {
             }
             glib::ControlFlow::Break
         });
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Auto-hiding bars (`03-behavior/13-autohide.md`)
+// ---------------------------------------------------------------------------
+
+impl AppWindow {
+    /// Hide both bars if all the auto-hide conditions hold: the
+    /// preference is on, the layout is wide, no bar/banner is visible,
+    /// and an edit was just made with the editor focused.
+    fn maybe_autohide_bars(&self) {
+        if !settings().boolean("autohide-headerbar") {
+            return;
+        }
+        // Auto-hide never engages in the narrow layout (§1).
+        if self.root.width() < 500 {
+            return;
+        }
+        if self.search.bar.is_search_mode() {
+            return;
+        }
+        if !self.editor.view.has_focus() {
+            return;
+        }
+        if self.state.bars_hidden.get() {
+            return;
+        }
+        self.state.bars_hidden.set(true);
+        self.headerbar_revealer.set_reveal_child(false);
+        self.bottom_revealer.set_reveal_child(false);
+    }
+
+    /// Fade both bars back in.
+    pub fn reveal_bars(&self) {
+        if !self.state.bars_hidden.get() {
+            return;
+        }
+        self.state.bars_hidden.set(false);
+        self.headerbar_revealer.set_reveal_child(true);
+        self.bottom_revealer.set_reveal_child(true);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Hemingway Mode feedback (`03-behavior/04-focus-and-hemingway.md` §2)
+// ---------------------------------------------------------------------------
+
+impl AppWindow {
+    /// A user deletion was blocked: shake the editor area and show the
+    /// explanation toast, subject to the frequency rule.
+    fn on_delete_blocked(&self) {
+        self.shake_editor();
+
+        // Frequency rule: the toast shows at most for the first 3 blocked
+        // attempts per installation; 4 attempts within roughly a minute
+        // reset the counter so a user who keeps hitting the wall is
+        // reminded again.
+        let now = std::time::Instant::now();
+        {
+            let mut attempts = self.state.blocked_attempts.borrow_mut();
+            attempts.push_back(now);
+            while let Some(front) = attempts.front() {
+                if now.duration_since(*front).as_secs() >= 60 {
+                    attempts.pop_front();
+                } else {
+                    break;
+                }
+            }
+            if attempts.len() >= 4 {
+                attempts.clear();
+                settings().set_integer("hemingway-toast-count", 0);
+            }
+        }
+        let count = settings().integer("hemingway-toast-count");
+        if count < 3 {
+            settings().set_integer("hemingway-toast-count", count + 1);
+            self.hemingway_toast();
+        }
+    }
+
+    /// Small horizontal shake of the editor area.
+    fn shake_editor(&self) {
+        if self.state.shaking.get() {
+            return;
+        }
+        self.state.shaking.set(true);
+        let win = self.clone();
+        const STEPS: [i32; 9] = [12, -12, 9, -9, 5, -5, 2, -2, 0];
+        let mut i = 0usize;
+        glib::timeout_add_local(std::time::Duration::from_millis(25), move || {
+            let dx = STEPS[i];
+            i += 1;
+            win.editor
+                .scroll
+                .set_margin_start(dx.max(0));
+            win.editor
+                .scroll
+                .set_margin_end((-dx).max(0));
+            if i >= STEPS.len() {
+                win.state.shaking.set(false);
+                glib::ControlFlow::Break
+            } else {
+                glib::ControlFlow::Continue
+            }
+        });
+    }
+
+    /// The "text cannot be deleted" toast with a Learn More action;
+    /// auto-dismisses after ~3 seconds.
+    fn hemingway_toast(&self) {
+        let toast = adw::Toast::new("Text cannot be deleted in Hemingway Mode");
+        toast.set_button_label(Some("Learn More"));
+        toast.set_timeout(3);
+        {
+            let win = self.clone();
+            toast.connect_button_clicked(move |_| {
+                win.show_hemingway_dialog();
+            });
+        }
+        self.toast_overlay.add_toast(toast);
+    }
+
+    /// Short informational dialog about Hemingway Mode.
+    fn show_hemingway_dialog(&self) {
+        let dialog = adw::MessageDialog::builder()
+            .heading("Hemingway Mode")
+            .body(
+                "While Hemingway Mode is on, text can only be added, never deleted. \
+Backspace, Delete, cutting, and replacing a selection do nothing. \
+Undo still works. Toggle the mode with Ctrl+T or from the main menu.",
+            )
+            .transient_for(&self.root)
+            .modal(true)
+            .build();
+        dialog.add_response("ok", "OK");
+        dialog.set_default_response(Some("ok"));
+        dialog.set_close_response("ok");
+        dialog.present();
     }
 }
 

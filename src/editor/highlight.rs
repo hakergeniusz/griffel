@@ -69,7 +69,7 @@ pub fn update_palette(buffer: &sourceview5::Buffer, palette: &EditorPalette) {
     set_fg("md-fence", &palette.code_foreground);
 }
 
-fn parse_color(hex: &str) -> gdk::RGBA {
+pub(crate) fn parse_color(hex: &str) -> gdk::RGBA {
     gdk::RGBA::parse(hex).unwrap_or_else(|_| gdk::RGBA::new(0.5, 0.5, 0.5, 1.0))
 }
 

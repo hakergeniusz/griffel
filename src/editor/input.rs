@@ -34,10 +34,41 @@ pub fn install(
 
     let v = view.clone();
     let b = buffer.clone();
+    let flags_for_keys = flags.clone();
+    let blocked_for_keys = blocked_callback.clone();
     controller.connect_key_pressed(move |_, keyval, _keycode, state| {
-        handle_key(&v, &b, &flags, &blocked_callback, keyval, state)
+        handle_key(&v, &b, &flags_for_keys, &blocked_for_keys, keyval, state)
     });
     view.add_controller(controller);
+
+    // Hemingway Mode: cutting deletes the selection; pasting over a
+    // selection deletes it too (§2). Additive pastes stay allowed. The
+    // signal emission is stopped so the view's default handler never
+    // runs while blocked.
+    {
+        let v = view.clone();
+        let b = buffer.clone();
+        let flags = flags.clone();
+        let blocked_callback = blocked_callback.clone();
+        view.connect_cut_clipboard(move |_| {
+            if flags.hemingway.get() && b.has_selection() {
+                v.stop_signal_emission_by_name("cut-clipboard");
+                notify_blocked(&blocked_callback);
+            }
+        });
+    }
+    {
+        let v = view.clone();
+        let b = buffer.clone();
+        let flags = flags.clone();
+        let blocked_callback = blocked_callback.clone();
+        view.connect_paste_clipboard(move |_| {
+            if flags.hemingway.get() && b.has_selection() {
+                v.stop_signal_emission_by_name("paste-clipboard");
+                notify_blocked(&blocked_callback);
+            }
+        });
+    }
 }
 
 fn handle_key(
@@ -57,7 +88,16 @@ fn handle_key(
             let _ = state;
             handle_tab(buffer, flags, blocked_callback, true)
         }
-        _ => handle_character(buffer, keyval),
+        // Hemingway Mode (03/04 §2): backspace and delete are blocked.
+        gdk::Key::BackSpace | gdk::Key::Delete | gdk::Key::KP_Delete => {
+            if flags.hemingway.get() {
+                notify_blocked(blocked_callback);
+                glib::Propagation::Stop
+            } else {
+                glib::Propagation::Proceed
+            }
+        }
+        _ => handle_character(buffer, flags, blocked_callback, keyval),
     }
 }
 
@@ -65,12 +105,23 @@ fn handle_key(
 // Auto-pairing
 // ---------------------------------------------------------------------------
 
-fn handle_character(buffer: &sourceview5::Buffer, keyval: gdk::Key) -> glib::Propagation {
+fn handle_character(
+    buffer: &sourceview5::Buffer,
+    flags: &Rc<InputFlags>,
+    blocked_callback: &Rc<BlockedCallback>,
+    keyval: gdk::Key,
+) -> glib::Propagation {
     let Some(ch) = keyval.to_unicode() else {
         return glib::Propagation::Proceed;
     };
 
     let has_selection = buffer.selection_bounds().is_some();
+
+    // Hemingway Mode: replacing a selection by typing is a deletion (§2).
+    if has_selection && flags.hemingway.get() {
+        notify_blocked(blocked_callback);
+        return glib::Propagation::Stop;
+    }
     let insert = buffer.iter_at_mark(&buffer.get_insert());
     let next_char = insert.char();
 
@@ -105,9 +156,18 @@ fn handle_character(buffer: &sourceview5::Buffer, keyval: gdk::Key) -> glib::Pro
 // Enter: list continuation
 // ---------------------------------------------------------------------------
 
-fn handle_enter(buffer: &sourceview5::Buffer, _flags: &Rc<InputFlags>) -> glib::Propagation {
+fn handle_enter(
+    buffer: &sourceview5::Buffer,
+    flags: &Rc<InputFlags>,
+) -> glib::Propagation {
     let insert = buffer.iter_at_mark(&buffer.get_insert());
     let has_selection = buffer.selection_bounds().is_some();
+
+    // Hemingway Mode: replacing a selection with a newline is a
+    // deletion (§2).
+    if has_selection && flags.hemingway.get() {
+        return glib::Propagation::Stop;
+    }
 
     // Magic applies only at the end of a line with no selection.
     if has_selection || !insert.ends_line() {

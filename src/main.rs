@@ -2,6 +2,7 @@
 
 mod app;
 mod appearance;
+mod dialogs;
 mod editor;
 mod format;
 mod files;
