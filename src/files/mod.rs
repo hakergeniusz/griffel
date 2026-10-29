@@ -267,7 +267,7 @@ pub fn save_as_dialog(window: &AppWindow) {
     );
 }
 
-fn default_folder() -> Option<gio::File> {
+pub(crate) fn default_folder() -> Option<gio::File> {
     gio::File::for_path(glib::home_dir()).into()
 }
 
