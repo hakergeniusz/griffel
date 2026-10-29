@@ -30,6 +30,8 @@ pub struct AppWindow {
     editor_overlay_handle: gtk::Overlay,
     pub search: crate::search::SearchBar,
     stats_button: gtk::MenuButton,
+    exit_fullscreen: gtk::Button,
+    toolbar_view: adw::ToolbarView,
     /// Auto-hide wrappers for the header and bottom bars.
     headerbar_revealer: gtk::Revealer,
     bottom_revealer: gtk::Revealer,
@@ -56,6 +58,10 @@ pub struct WindowState {
     spell_generation: std::cell::Cell<u64>,
     /// Bars currently faded out (auto-hide).
     pub bars_hidden: Cell<bool>,
+    /// Height of the top bar while revealed (bar-shift compensation).
+    bar_height: Cell<i32>,
+    /// Cancels a running bar-compensation animation.
+    comp_generation: Cell<u64>,
     /// A blocked-deletion shake animation is running.
     shaking: Cell<bool>,
     /// Recent blocked-deletion instants (Hemingway toast frequency rule).
@@ -84,6 +90,8 @@ impl Clone for AppWindow {
             editor_overlay_handle: self.editor_overlay_handle.clone(),
             search: self.search.clone(),
             stats_button: self.stats_button.clone(),
+            exit_fullscreen: self.exit_fullscreen.clone(),
+            toolbar_view: self.toolbar_view.clone(),
             headerbar_revealer: self.headerbar_revealer.clone(),
             bottom_revealer: self.bottom_revealer.clone(),
             recovery_bar: self.recovery_bar.clone(),
@@ -155,9 +163,17 @@ impl AppWindow {
         find_button.set_tooltip_text(Some("Find"));
 
         let layout_button = preview_layout_button();
+        let exit_fullscreen = gtk::Button::from_icon_name("view-restore-symbolic");
+        exit_fullscreen.set_tooltip_text(Some("Leave fullscreen"));
+        exit_fullscreen.set_visible(false);
+        {
+            let root = root.clone();
+            exit_fullscreen.connect_clicked(move |_| root.unfullscreen());
+        }
         headerbar.pack_end(&main_menu_button());
         headerbar.pack_end(&find_button);
         headerbar.pack_end(&layout_button);
+        headerbar.pack_end(&exit_fullscreen);
 
         let title_box = gtk::Box::new(gtk::Orientation::Vertical, 1);
         title_box.set_valign(gtk::Align::Center);
@@ -302,6 +318,8 @@ impl AppWindow {
             recovery_bar,
             file_changed_bar,
             file_changed_reload,
+            exit_fullscreen,
+            toolbar_view,
             toast_overlay,
             state: std::rc::Rc::new(WindowState {
                 document: RefCell::new(Document::new()),
@@ -314,6 +332,8 @@ impl AppWindow {
                 stats_generation: std::cell::Cell::new(0),
                 spell_generation: std::cell::Cell::new(0),
                 bars_hidden: Cell::new(false),
+                bar_height: Cell::new(0),
+                comp_generation: Cell::new(0),
                 shaking: Cell::new(false),
                 blocked_attempts: RefCell::new(VecDeque::new()),
                 monitor: RefCell::new(None),
@@ -525,7 +545,17 @@ impl AppWindow {
         bind!("export-pdf", crate::export::quick_pdf);
         bind!("export-html", crate::export::quick_html);
         bind!("export-odt", crate::export::quick_odt);
-        bind!("export-advanced", crate::export::advanced_dialog);        bind!("copy-html", crate::export::copy_html);
+        bind!("export-advanced", crate::export::advanced_dialog);
+        bind!("copy-html", crate::export::copy_html);
+
+        // Fullscreen (F11 or the exit-fullscreen control, 03/14 §3).
+        bind!("toggle-fullscreen", |w: &AppWindow| {
+            if w.root.is_fullscreen() {
+                w.root.unfullscreen();
+            } else {
+                w.root.fullscreen();
+            }
+        });
         bind!("preview-close", AppWindow::preview_off);
         bind!("find", |w: &AppWindow| w.search.open(false, &w.editor.buffer));
         bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor.buffer));
@@ -738,8 +768,12 @@ impl AppWindow {
         {
             let win = self.clone();
             self.root.connect_notify_local(Some("fullscreened"), move |w, _| {
-                if !w.is_fullscreen() {
+                win.exit_fullscreen.set_visible(w.is_fullscreen());
+                if w.is_fullscreen() {
+                    win.hide_bars_for_fullscreen();
+                } else {
                     win.reveal_bars();
+                    win.editor.view.grab_focus();
                 }
             });
         }
@@ -1203,9 +1237,12 @@ fn build_toolbar(win: &AppWindow, row: &gtk::Box, toggle: &gtk::ToggleButton) {
     }
 }
 
-/// 5×5 size picker; hovering highlights the region and a label shows
-/// "R x C" (`02-formatting.md` §7).
+/// Size picker (up to 4 rows × 6 columns); hovering highlights the
+/// selected rows×columns region and a label shows "R x C"
+/// (`02-formatting.md` §7).
 fn table_size_popover(buffer: &sourceview5::Buffer) -> gtk::Popover {
+    const MAX_ROWS: usize = 4;
+    const MAX_COLS: usize = 6;
     let popover = gtk::Popover::new();
     let box_ = gtk::Box::new(gtk::Orientation::Vertical, 6);
     box_.set_margin_top(8);
@@ -1220,12 +1257,14 @@ fn table_size_popover(buffer: &sourceview5::Buffer) -> gtk::Popover {
     let grid = gtk::Grid::new();
     grid.set_row_spacing(2);
     grid.set_column_spacing(2);
-    for r in 1..=5usize {
-        for c in 1..=5usize {
+
+    let mut cells: Vec<Vec<gtk::Button>> = Vec::new();
+    for r in 1..=MAX_ROWS {
+        let mut row = Vec::new();
+        for c in 1..=MAX_COLS {
             let cell = gtk::Button::new();
             cell.set_size_request(20, 20);
             cell.add_css_class("flat");
-            cell.set_tooltip_text(Some(&format!("{r} x {c}")));
             let buffer = buffer.clone();
             let popover = popover.clone();
             let (rr, cc) = (r, c);
@@ -1239,7 +1278,44 @@ fn table_size_popover(buffer: &sourceview5::Buffer) -> gtk::Popover {
                 );
             });
             grid.attach(&cell, c as i32 - 1, r as i32 - 1, 1, 1);
+            row.push(cell);
         }
+        cells.push(row);
+    }
+    // Hover highlights the rows×columns region and the label shows "R x C".
+    for (r, row) in cells.iter().enumerate() {
+        for (c, cell) in row.iter().enumerate() {
+            let cells = cells.clone();
+            let label = label.clone();
+            let motion = gtk::EventControllerMotion::new();
+            motion.connect_enter(move |_, _x, _y| {
+                for (ri, hrow) in cells.iter().enumerate() {
+                    for (ci, b) in hrow.iter().enumerate() {
+                        if ri <= r && ci <= c {
+                            b.add_css_class("suggested-action");
+                        } else {
+                            b.remove_css_class("suggested-action");
+                        }
+                    }
+                }
+                label.set_text(&format!("{} x {}", r + 1, c + 1));
+            });
+            cell.add_controller(motion);
+        }
+    }
+    {
+        let cells = cells.clone();
+        let label = label.clone();
+        let leave = gtk::EventControllerMotion::new();
+        leave.connect_leave(move |_| {
+            for row in cells.iter() {
+                for b in row.iter() {
+                    b.remove_css_class("suggested-action");
+                }
+            }
+            label.set_text("Insert Table");
+        });
+        grid.add_controller(leave);
     }
     box_.append(&grid);
     popover.set_child(Some(&box_));
@@ -1408,8 +1484,7 @@ impl AppWindow {
             return;
         }
         self.state.bars_hidden.set(true);
-        self.headerbar_revealer.set_reveal_child(false);
-        self.bottom_revealer.set_reveal_child(false);
+        self.animate_bar_comp(true);
     }
 
     /// Fade both bars back in.
@@ -1418,8 +1493,74 @@ impl AppWindow {
             return;
         }
         self.state.bars_hidden.set(false);
-        self.headerbar_revealer.set_reveal_child(true);
-        self.bottom_revealer.set_reveal_child(true);
+        self.animate_bar_comp(false);
+    }
+
+    /// Fullscreen entry: hide the bars immediately unless a search bar or
+    /// banner needs them; exit always reveals and refocuses the editor
+    /// (`14-presentation-details.md` §3).
+    fn hide_bars_for_fullscreen(&self) {
+        if self.state.bars_hidden.get()
+            || self.search.bar.is_search_mode()
+            || self.recovery_bar.is_visible()
+            || self.file_changed_bar.is_visible()
+        {
+            return;
+        }
+        self.state.bars_hidden.set(true);
+        self.animate_bar_comp(true);
+    }
+
+    /// Track the space the top bars free while they animate so the first
+    /// text line and the preview content do not shift vertically
+    /// (`14-presentation-details.md` §2). The top-bar area collapses via
+    /// the toolbar view; the overlay-hosted bottom bar fades manually
+    /// (its revealer does not re-map reliably after a collapse).
+    fn animate_bar_comp(&self, hiding: bool) {
+        // The freed space is everything above the content (headerbar plus
+        // any other visible top bars); measure before the collapse starts.
+        let h = if hiding {
+            let h = self
+                .content_stack
+                .translate_coordinates(&self.root, 0.0, 0.0)
+                .map(|(_, y)| y.round() as i32)
+                .unwrap_or(0)
+                .max(0);
+            self.state.bar_height.set(h);
+            h
+        } else {
+            self.state.bar_height.get()
+        };
+        self.toolbar_view.set_reveal_top_bars(!hiding);
+        self.bottom_bar.set_visible(true);
+        let (start, end) = if hiding { (0, h) } else { (h, 0) };
+        let win = self.clone();
+        let generation = self.state.comp_generation.get() + 1;
+        self.state.comp_generation.set(generation);
+        let steps = 12;
+        let mut i = 0u32;
+        glib::timeout_add_local(std::time::Duration::from_millis(25), move || {
+            if win.state.comp_generation.get() != generation {
+                return glib::ControlFlow::Break;
+            }
+            i += 1;
+            let t = i as f64 / steps as f64;
+            let eased = 1.0 - (1.0 - t) * (1.0 - t);
+            let v = (f64::from(start) + f64::from(end - start) * eased).round() as i32;
+            let o = if hiding { 1.0 - eased } else { eased };
+            win.bottom_bar.set_opacity(o.clamp(0.0, 1.0));
+            win.editor.set_bar_comp(v);
+            win.preview.root.set_margin_top(v);
+            if i >= steps {
+                if hiding {
+                    win.bottom_bar.set_visible(false);
+                    win.bottom_bar.set_opacity(1.0);
+                }
+                glib::ControlFlow::Break
+            } else {
+                glib::ControlFlow::Continue
+            }
+        });
     }
 }
 

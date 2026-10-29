@@ -56,10 +56,10 @@ impl Statistic {
     /// The bare value: a number or an `H:MM:SS` duration.
     pub fn value(&self, st: &Stats) -> String {
         match self {
-            Statistic::Characters => st.characters.to_string(),
-            Statistic::Words => st.words.to_string(),
-            Statistic::Sentences => st.sentences.to_string(),
-            Statistic::Paragraphs => st.paragraphs.to_string(),
+            Statistic::Characters => group_thousands(st.characters),
+            Statistic::Words => group_thousands(st.words),
+            Statistic::Sentences => group_thousands(st.sentences),
+            Statistic::Paragraphs => group_thousands(st.paragraphs),
             Statistic::ReadTime => read_time(st.words),
         }
     }
@@ -301,22 +301,27 @@ fn strip_heading_marker(line: &str) -> String {
 
 fn strip_inline(text: &str) -> String {
     use regex::Regex;
-    let patterns = [
-        // Images: keep alt text.
-        (Regex::new(r"!\[([^\]\n]*)\]\([^)\n]*\)").unwrap(), "$1"),
-        // Links: keep label.
-        (Regex::new(r"\[([^\]\n]*)\]\([^)\n]*\)").unwrap(), "$1"),
-        // Footnote references: removed.
-        (Regex::new(r"\[\^[^\]\n]+\]").unwrap(), ""),
-        // Footnote definitions: keep text.
-        (Regex::new(r"\[\^[^\]\n]+\]:\s*").unwrap(), ""),
-        // Math delimiters: keep content.
-        (Regex::new(r"\$\$([^$\n]+)\$\$").unwrap(), "$1"),
-        // Emphasis delimiters: removed.
-        (Regex::new(r"\*\*\*|\*\*|__|~~|\*|_|`").unwrap(), ""),
-    ];
+    use std::sync::OnceLock;
+    // Compiled once: strip_markup runs per line over whole documents.
+    static PATTERNS: OnceLock<Vec<(Regex, &'static str)>> = OnceLock::new();
+    let patterns = PATTERNS.get_or_init(|| {
+        vec![
+            // Images: keep alt text.
+            (Regex::new(r"!\[([^\]\n]*)\]\([^)\n]*\)").unwrap(), "$1"),
+            // Links: keep label.
+            (Regex::new(r"\[([^\]\n]*)\]\([^)\n]*\)").unwrap(), "$1"),
+            // Footnote references: removed.
+            (Regex::new(r"\[\^[^\]\n]+\]").unwrap(), ""),
+            // Footnote definitions: keep text.
+            (Regex::new(r"\[\^[^\]\n]+\]:\s*").unwrap(), ""),
+            // Math delimiters: keep content.
+            (Regex::new(r"\$\$([^$\n]+)\$\$").unwrap(), "$1"),
+            // Emphasis delimiters: removed.
+            (Regex::new(r"\*\*\*|\*\*|__|~~|\*|_|`").unwrap(), ""),
+        ]
+    });
     let mut s = text.to_owned();
-    for (re, repl) in &patterns {
+    for (re, repl) in patterns.iter() {
         s = re.replace_all(&s, *repl).into_owned();
     }
     s
@@ -334,6 +339,15 @@ mod tests {
         assert_eq!(count_characters("a  b\t\tc"), 5);
         assert_eq!(count_characters("a\nb"), 2);
         assert_eq!(count_characters(""), 0);
+    }
+
+    #[test]
+    fn grouping_never_shrinks_and_is_ascii_safe() {
+        // C locale has no separator; any locale must keep every digit.
+        let g = group_thousands(1_234_567);
+        let digits: String = g.chars().filter(|c| c.is_ascii_digit()).collect();
+        assert_eq!(digits, "1234567");
+        assert_eq!(group_thousands(42), "42");
     }
 
     #[test]
@@ -421,5 +435,63 @@ mod tests {
         assert_eq!(stats.paragraphs, 3); // "Hello", paragraph, "item one item two"
         assert!(stats.words >= 10);
         assert!(stats.sentences >= 2);
+    }
+}
+
+/// Format `n` with the active locale's digit grouping separator
+/// (`03-behavior/14-presentation-details.md` §4); read time and other
+/// non-grouped numbers bypass this.
+pub fn group_thousands(n: u64) -> String {
+    let sep = unsafe {
+        let lc = libc::localeconv();
+        if lc.is_null() || (*lc).thousands_sep.is_null() {
+            String::new()
+        } else {
+            std::ffi::CStr::from_ptr((*lc).thousands_sep)
+                .to_string_lossy()
+                .into_owned()
+        }
+    };
+    let digits = n.to_string();
+    let bytes = digits.as_bytes();
+    if sep.is_empty() || bytes.len() <= 3 {
+        return digits;
+    }
+    let mut out = String::with_capacity(digits.len() + sep.len() * (digits.len() / 3));
+    for (i, b) in bytes.iter().enumerate() {
+        if i > 0 && (bytes.len() - i) % 3 == 0 {
+            out.push_str(&sep);
+        }
+        out.push(*b as char);
+    }
+    out
+}
+
+#[cfg(test)]
+mod perf {
+    use super::*;
+    use std::time::Instant;
+
+    /// A ~2 MB document must not be slow enough to ever block the UI:
+    /// counting runs off the main thread (`spawn_blocking`), but the pure
+    /// work itself stays well under a second (implementer-prompt
+    /// responsiveness requirement).
+    #[test]
+    fn two_megabyte_document_counts_quickly() {
+        let para = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
+                    Sed do eiusmod tempor incididunt ut labore.\n\n";
+        let mut text = String::with_capacity(2_200_000);
+        while text.len() < 2_000_000 {
+            text.push_str(para);
+        }
+        let start = Instant::now();
+        let stats = compute(&text);
+        let elapsed = start.elapsed();
+        assert!(stats.words > 100_000);
+        assert!(
+            elapsed.as_millis() < 1_000,
+            "counting 2 MB took {} ms",
+            elapsed.as_millis()
+        );
     }
 }

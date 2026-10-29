@@ -172,6 +172,14 @@ impl SearchBar {
                 sb.refresh_from_start();
             });
         }
+        // Esc emits stop-search on the entry; close the bar with it
+        // (`04-keyboard-shortcuts.md`, 17-accessibility.md §1).
+        {
+            let sb = self.clone_handles();
+            self.entry.connect_stop_search(move |_| {
+                sb.bar.set_search_mode(false);
+            });
+        }
         // Escape closes the bar (SearchBar handles it when the entry has
         // focus) and returns focus to the editor.
         {

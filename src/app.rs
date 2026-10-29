@@ -108,10 +108,44 @@ impl GriffelApp {
                     .add_resource_path(&format!("/{}/icons", APP_ID));
             }
             crate::appearance::apply();
+            // System text scaling changes re-layout every editor column
+            // (`17-accessibility.md` §4).
+            if let Some(gs) = gtk::Settings::default() {
+                gs.connect_notify_local(Some("gtk-xft-dpi"), move |_, _| {
+                    for w in window_registry() {
+                        let width = w.root.width();
+                        if width > 0 {
+                            w.editor.relayout_column(
+                                width,
+                                crate::settings::settings().integer("characters-per-line"),
+                                crate::settings::settings().boolean("bigger-text"),
+                            );
+                            w.editor.apply_focus_margins();
+                        }
+                    }
+                });
+            }
             // Scheme changes restyle every open editor immediately.
             crate::settings::settings().changed(move |_s, key| {
                 if key == "color-scheme" {
                     crate::appearance::apply();
+            // System text scaling changes re-layout every editor column
+            // (`17-accessibility.md` §4).
+            if let Some(gs) = gtk::Settings::default() {
+                gs.connect_notify_local(Some("gtk-xft-dpi"), move |_, _| {
+                    for w in window_registry() {
+                        let width = w.root.width();
+                        if width > 0 {
+                            w.editor.relayout_column(
+                                width,
+                                crate::settings::settings().integer("characters-per-line"),
+                                crate::settings::settings().boolean("bigger-text"),
+                            );
+                            w.editor.apply_focus_margins();
+                        }
+                    }
+                });
+            }
                     for w in window_registry() {
                         w.editor.recolor();
                         w.editor.highlight_now();
@@ -295,6 +329,7 @@ fn register_accels(app: &gtk::Application) {
         ("win.find-replace", vec!["<primary>h"]),
         ("win.toggle-spellcheck", vec!["F7"]),
         ("win.toggle-preview", vec!["<primary>p"]),
+        ("win.toggle-fullscreen", vec!["F11"]),
         ("win.focus-mode", vec!["<primary>d"]),
         ("win.hemingway-mode", vec!["<primary>t"]),
         ("win.preferences", vec!["<primary>comma"]),

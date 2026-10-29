@@ -123,8 +123,23 @@ impl Editor {
             return;
         }
         let half = (self.scroll.vadjustment().page_size() / 2.0).round() as i32;
-        self.view.set_top_margin(half);
+        self.view.set_top_margin(half + self.bar_comp.get());
         self.view.set_bottom_margin(half);
+    }
+
+    /// Update the bar-space compensation and re-apply the top margin
+    /// (`14-presentation-details.md` §2).
+    pub fn set_bar_comp(&self, h: i32) {
+        let delta = h - self.bar_comp.get();
+        if delta == 0 {
+            return;
+        }
+        self.bar_comp.set(h);
+        if self.focus_active.get() {
+            self.apply_focus_margins();
+        } else {
+            self.view.set_top_margin(self.view.top_margin() + delta);
+        }
     }
 
     /// Re-evaluate dimming and typewriter scrolling (cursor moved or the

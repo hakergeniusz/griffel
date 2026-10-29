@@ -33,6 +33,10 @@ pub struct Editor {
     pub spell_persist_target: std::rc::Rc<std::cell::RefCell<Option<gio::File>>>,
     /// Font size chosen by the last relayout (px).
     font_px: std::cell::Cell<i32>,
+    /// Top-margin compensation for the auto-hiding top bar
+    /// (`14-presentation-details.md` §2). Shared so every Editor clone
+    /// adjusts against the same baseline.
+    pub bar_comp: std::rc::Rc<std::cell::Cell<i32>>,
     /// Character width of the current font (px).
     char_px: std::cell::Cell<f64>,
     /// Focus Mode is on (dimming + typewriter scrolling).
@@ -117,6 +121,7 @@ impl Editor {
             spell_enabled,
             spell_persist_target: std::rc::Rc::new(std::cell::RefCell::new(None)),
             font_px: std::cell::Cell::new(16),
+            bar_comp: std::rc::Rc::new(std::cell::Cell::new(0)),
             char_px: std::cell::Cell::new(9.6),
             focus_active: std::cell::Cell::new(false),
             saved_top_margin: std::cell::Cell::new(34),
@@ -224,13 +229,26 @@ impl Editor {
     fn apply_font_size(&self, px: i32) {
         // Rebuild the whole widget CSS so colors persist across size steps.
         editor_widget_css(&self.font_provider, &crate::appearance::effective_palette());
+        let scaled = px as f64 * Self::text_scale();
         self.font_provider
             .load_from_string(&format!(
-                ".editor-view {{ font-family: 'Monospace'; font-size: {px}px; }}"
+                ".editor-view {{ font-family: 'Monospace'; font-size: {scaled:.0}px; }}"
             ));
     }
 
+    /// The system text scaling factor (gtk-xft-dpi over its 96 dpi base).
+    /// Absolute pixel fonts ignore it, so it is applied explicitly to keep
+    /// column metrics and rendering in step with the system setting
+    /// (`17-accessibility.md` §4).
+    fn text_scale() -> f64 {
+        gtk::Settings::default()
+            .map(|s| f64::from(s.property::<i32>("gtk-xft-dpi")) / (96.0 * 1024.0))
+            .unwrap_or(1.0)
+            .clamp(0.25, 8.0)
+    }
+
     fn measure_char_width(&self, px: i32) -> f64 {
+        let px = (px as f64 * Self::text_scale()) as i32;
         let mut desc = pango::FontDescription::from_string("Monospace");
         desc.set_absolute_size(px as f64 * f64::from(pango::SCALE));
         let context = self.view.pango_context();

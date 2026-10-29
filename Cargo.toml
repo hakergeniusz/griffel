@@ -16,4 +16,5 @@ percent-encoding = "2.3.2"
 regex = "1.13.1"
 sourceview5 = { version = "0.10", features = ["v5_4"] }
 unicode-segmentation = "1.13.3"
+libc = "0.2"
 webkit6 = { version = "0.5", features = ["v2_42"] }

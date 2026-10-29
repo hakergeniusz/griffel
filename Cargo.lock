@@ -347,6 +347,7 @@ dependencies = [
  "glib",
  "gtk4",
  "libadwaita",
+ "libc",
  "pango",
  "percent-encoding",
  "regex",
