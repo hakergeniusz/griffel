@@ -97,7 +97,11 @@ impl GriffelApp {
             std::ops::ControlFlow::Continue(())
         });
 
-        app.connect_startup(|_app| {
+        app.connect_startup(|app| {
+            // Accelerators must be registered here: startup runs on every
+            // launch path, while with HANDLES_COMMAND_LINE a plain launch
+            // never reaches activate or open.
+            register_accels(app);
             gtk::Window::set_default_icon_name(ICON_NAME);
             if let Some(display) = gdk::Display::default() {
                 gtk::IconTheme::for_display(&display)
@@ -153,12 +157,10 @@ impl GriffelApp {
                     w.preview_on();
                 }
             }
-            register_accels(app);
         });
 
         app.connect_open(|app, files, _hint| {
             crate::files::open_files(app, &files);
-            register_accels(app);
         });
 
         app.connect_command_line(|app, cmd| {
