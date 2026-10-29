@@ -261,6 +261,12 @@ pub fn update_logout_inhibition() {
         .iter()
         .any(|w| w.state.document.borrow().dirty);
     let app = gtk::Application::default();
+    // Inhibition contacts the session manager; on an unregistered
+    // application (no session bus) gtk_application_inhibit crashes instead
+    // of failing gracefully, so skip it there.
+    if !app.is_registered() {
+        return;
+    }
     let current = COOKIE.get();
     if dirty && current.is_none() {
         let cookie = app.inhibit(
