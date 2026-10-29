@@ -96,6 +96,13 @@ impl GriffelApp {
                         }
                     }
                 }
+                // F7 / preferences: every editor's spell state follows.
+                if key == "spellcheck" {
+                    let on = crate::settings::settings().boolean("spellcheck");
+                    for w in window_registry() {
+                        w.editor.set_spell_enabled(on);
+                    }
+                }
             });
         });
 

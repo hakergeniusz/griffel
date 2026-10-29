@@ -2,12 +2,14 @@
 
 mod app;
 mod appearance;
+mod dict;
 mod dialogs;
 mod editor;
 mod export;
 mod format;
 mod files;
 mod markdown;
+mod peek;
 mod preview;
 mod search;
 mod settings;

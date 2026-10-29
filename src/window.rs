@@ -53,6 +53,7 @@ pub struct WindowState {
     preview_window: RefCell<Option<gtk::Window>>,
     preview_generation: std::cell::Cell<u64>,
     stats_generation: std::cell::Cell<u64>,
+    spell_generation: std::cell::Cell<u64>,
     /// Bars currently faded out (auto-hide).
     pub bars_hidden: Cell<bool>,
     /// A blocked-deletion shake animation is running.
@@ -307,6 +308,7 @@ impl AppWindow {
                 preview_window: RefCell::new(None),
                 preview_generation: std::cell::Cell::new(0),
                 stats_generation: std::cell::Cell::new(0),
+                spell_generation: std::cell::Cell::new(0),
                 bars_hidden: Cell::new(false),
                 shaking: Cell::new(false),
                 blocked_attempts: RefCell::new(VecDeque::new()),
@@ -409,6 +411,19 @@ impl AppWindow {
         glib::timeout_add_local(std::time::Duration::from_millis(150), move || {
             if win.state.highlight_generation.get() == generation {
                 win.editor.highlight_now();
+            }
+            glib::ControlFlow::Break
+        });
+    }
+
+    /// Debounced spell rescan (~250 ms after the last edit).
+    fn schedule_spell(&self) {
+        let generation = self.state.spell_generation.get() + 1;
+        self.state.spell_generation.set(generation);
+        let win = self.clone();
+        glib::timeout_add_local(std::time::Duration::from_millis(250), move || {
+            if win.state.spell_generation.get() == generation {
+                win.editor.spell_now();
             }
             glib::ControlFlow::Break
         });
@@ -587,6 +602,8 @@ impl AppWindow {
                     .unwrap_or(false);
                 action.set_state(&new.to_variant());
                 win_ref.editor.set_focus_mode(new);
+                // Focus Mode temporarily disables spell checking (§4).
+                win_ref.editor.refresh_spell();
             });
         }
         actions.add_action(&focus_mode);
@@ -621,11 +638,27 @@ impl AppWindow {
         }
         actions.add_action(&about);
 
-        let toggle_spell = gio::SimpleAction::new("toggle-spellcheck", None);
+        // Spell-check toggle (F7 and the context-menu checkbox): the
+        // preference is global; every window's editor follows it.
+        let toggle_spell = gio::SimpleAction::new_stateful(
+            "toggle-spellcheck",
+            None,
+            &settings().boolean("spellcheck").to_variant(),
+        );
         {
             toggle_spell.connect_activate(move |_, _| {
                 let cur = settings().boolean("spellcheck");
-                settings().set_boolean("spellcheck", !cur);
+                let new = !cur;
+                settings().set_boolean("spellcheck", new);
+                for w in crate::app::window_registry() {
+                    if let Some(a) = w
+                        .root
+                        .lookup_action("toggle-spellcheck")
+                        .and_then(|o| o.downcast::<gio::SimpleAction>().ok())
+                    {
+                        a.set_state(&new.to_variant());
+                    }
+                }
             });
         }
         actions.add_action(&toggle_spell);
@@ -643,6 +676,7 @@ impl AppWindow {
                 .connect_changed(move |_| {
                     win.set_dirty_from_edit();
                     win.schedule_highlight();
+                    win.schedule_spell();
                     win.schedule_preview();
                     win.maybe_autohide_bars();
                     win.editor.focus_update();
@@ -834,6 +868,10 @@ impl AppWindow {
         files::monitor::install(self, file);
         *self.editor.flags.doc_dir.borrow_mut() =
             file.parent().and_then(|p| p.path());
+        // Per-file spell language (`05-…persistence.md` §4).
+        *self.editor.spell_persist_target.borrow_mut() = Some(file.clone());
+        let lang = files::metadata::load_language(file);
+        self.editor.set_spell_language(lang);
         self.editor.highlight_now();
         if self.state.preview_active.get() {
             self.preview.evaluate_security(&decoded.text, false);
@@ -854,6 +892,8 @@ impl AppWindow {
             doc.dirty = true;
         }
         self.update_title();
+        *self.editor.spell_persist_target.borrow_mut() = None;
+        self.editor.set_spell_language(None);
         self.editor.highlight_now();
     }
 
@@ -878,6 +918,8 @@ impl AppWindow {
             doc.recovered = false;
         }
         *self.editor.flags.doc_dir.borrow_mut() = None;
+        *self.editor.spell_persist_target.borrow_mut() = None;
+        self.editor.set_spell_language(None);
         self.update_title();
     }
 
@@ -912,6 +954,11 @@ impl AppWindow {
                 }
                 *self.editor.flags.doc_dir.borrow_mut() =
                     file.parent().and_then(|p| p.path());
+                // A session-chosen spell language persists on first save.
+                if let Some(lang) = self.editor.spell_language.borrow().clone() {
+                    files::metadata::store_language(&file, &lang);
+                }
+                *self.editor.spell_persist_target.borrow_mut() = Some(file.clone());
                 self.update_title();
                 recents::add(&file);
                 files::delete_snapshot(self);

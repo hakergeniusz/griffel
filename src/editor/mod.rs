@@ -4,6 +4,8 @@
 pub mod focus;
 pub mod highlight;
 pub mod input;
+pub mod menu;
+pub mod spellcheck;
 pub use input::InputFlags;
 
 use gtk::prelude::*;
@@ -20,6 +22,15 @@ pub struct Editor {
     pub blocked_callback: std::rc::Rc<input::BlockedCallback>,
     font_provider: gtk::CssProvider,
     highlighter: highlight::Highlighter,
+    /// Spell checking (background misspelled-word scan).
+    pub spell: spellcheck::SpellRunner,
+    /// Per-document spell language (None = system default).
+    pub spell_language: std::rc::Rc<std::cell::RefCell<Option<String>>>,
+    /// The spellcheck preference for this editor (Focus Mode suspends it).
+    pub spell_enabled: std::rc::Rc<std::cell::Cell<bool>>,
+    /// The backing file for spell-language persistence (None while the
+    /// document is unsaved).
+    pub spell_persist_target: std::rc::Rc<std::cell::RefCell<Option<gio::File>>>,
     /// Font size chosen by the last relayout (px).
     font_px: std::cell::Cell<i32>,
     /// Character width of the current font (px).
@@ -90,6 +101,9 @@ impl Editor {
             .add_provider(&font_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 3);
         editor_widget_css(&font_provider, &crate::appearance::effective_palette());
 
+        let spell_enabled = std::rc::Rc::new(std::cell::Cell::new(
+            crate::settings::settings().boolean("spellcheck"),
+        ));
         let editor = Self {
             view,
             buffer,
@@ -98,6 +112,10 @@ impl Editor {
             blocked_callback,
             font_provider,
             highlighter,
+            spell: spellcheck::SpellRunner::default(),
+            spell_language: std::rc::Rc::new(std::cell::RefCell::new(None)),
+            spell_enabled,
+            spell_persist_target: std::rc::Rc::new(std::cell::RefCell::new(None)),
             font_px: std::cell::Cell::new(16),
             char_px: std::cell::Cell::new(9.6),
             focus_active: std::cell::Cell::new(false),
@@ -106,6 +124,9 @@ impl Editor {
             typewriter_generation: std::cell::Cell::new(0),
         };
         editor.highlight_now();
+        spellcheck::ensure_tag(&editor.buffer);
+        menu::install(&editor);
+        editor.spell_now();
 
         // Focus Mode: re-evaluate dimming and typewriter centering when
         // the cursor moves (the insert mark is set); no-op when off.
@@ -126,6 +147,37 @@ impl Editor {
     pub fn highlight_now(&self) {
         let text = self.full_text();
         self.highlighter.schedule(&self.buffer, text);
+    }
+
+    /// Run a (debounced by the caller) spell scan with the current
+    /// language and effective enabled state.
+    pub fn spell_now(&self) {
+        let text = self.full_text();
+        let lang = self.spell_language.borrow().clone();
+        let enabled = self.spell_enabled.get() && !self.focus_active.get();
+        self.spell.schedule(&self.buffer, text, lang, enabled);
+    }
+
+    /// Apply a spellcheck-preference change (Focus Mode suspends it).
+    pub fn set_spell_enabled(&self, on: bool) {
+        self.spell_enabled.set(on);
+        self.refresh_spell();
+    }
+
+    /// Recompute the effective spell state after a Focus Mode toggle.
+    pub fn refresh_spell(&self) {
+        if self.spell_enabled.get() && !self.focus_active.get() {
+            self.spell_now();
+        } else {
+            spellcheck::clear(&self.buffer);
+        }
+    }
+
+    /// Set the per-document spell language (None = system default) and
+    /// rescan.
+    pub fn set_spell_language(&self, lang: Option<String>) {
+        *self.spell_language.borrow_mut() = lang;
+        self.spell_now();
     }
 
     /// Re-apply tag colors and widget colors after a scheme change.
