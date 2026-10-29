@@ -184,6 +184,9 @@ impl AppWindow {
         headerbar_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
         headerbar_revealer.set_transition_duration(450);
         headerbar_revealer.set_child(Some(&headerbar));
+        // Revealers start with the child unmapped until a reveal transition
+        // runs; state it explicitly so the bars are visible from startup.
+        headerbar_revealer.set_reveal_child(true);
 
         // --- bottom bar ----------------------------------------------------
         let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
@@ -215,6 +218,7 @@ impl AppWindow {
         bottom_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
         bottom_revealer.set_transition_duration(450);
         bottom_revealer.set_child(Some(&bottom_bar));
+        bottom_revealer.set_reveal_child(true);
         bottom_revealer.set_halign(gtk::Align::Fill);
         bottom_revealer.set_valign(gtk::Align::End);
 

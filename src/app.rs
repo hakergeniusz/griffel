@@ -38,6 +38,32 @@ pub struct GriffelApp {
     app: gtk::Application,
 }
 
+/// Temporary diagnostics: print the widget tree with visibility.
+fn dump_tree<W: glib::object::IsA<gtk::Widget>>(w: &W, depth: usize) {
+    dump_widget(w.upcast_ref(), depth)
+}
+
+fn dump_widget(w: &gtk::Widget, depth: usize) {
+    let name = w.widget_name();
+    let vis = w.is_visible();
+    let mapped = w.is_mapped();
+    let alloc = w.allocation();
+    eprintln!(
+        "{:indent$}{name} visible={vis} mapped={mapped} alloc={}x{}+{}+{}",
+        "",
+        alloc.width(),
+        alloc.height(),
+        alloc.x(),
+        alloc.y(),
+        indent = depth * 2
+    );
+    let mut child = w.first_child();
+    while let Some(c) = child {
+        dump_widget(&c, depth + 1);
+        child = c.next_sibling();
+    }
+}
+
 impl GriffelApp {
     pub fn new() -> Self {
         let app = gtk::Application::builder()
@@ -117,7 +143,10 @@ impl GriffelApp {
             if std::env::var("GRIFFEL_OPEN").ok().as_deref() == Some("tutorial") {
                 crate::files::open_tutorial(app);
             } else {
-                win.present_window();
+                    win.present_window();
+            }
+            if std::env::var("GRIFFEL_DEBUG_TREE").is_ok() {
+                dump_tree(&win.root, 0);
             }
             if std::env::var("GRIFFEL_PREVIEW").is_ok() {
                 if let Some(w) = window_registry().last() {
@@ -164,6 +193,16 @@ impl GriffelApp {
             if files.is_empty() && !new_window && app.windows().is_empty() {
                 let win = AppWindow::new(app);
                 win.present_window();
+            }
+            if std::env::var("GRIFFEL_DEBUG_TREE").is_ok() {
+                let win = app.windows().first().cloned();
+                glib::timeout_add_local(std::time::Duration::from_millis(1500), move || {
+                    if let Some(w) = &win {
+                        eprintln!("GRIFFEL-TREE-POST-LAYOUT");
+                        dump_tree(w, 0);
+                    }
+                    glib::ControlFlow::Break
+                });
             }
             0.into()
         });
