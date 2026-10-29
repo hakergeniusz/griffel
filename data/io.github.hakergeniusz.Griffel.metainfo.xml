@@ -5,6 +5,42 @@
   <summary>A distraction-free Markdown editor</summary>
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>
-  <description><p>Griffel is a distraction-free Markdown editor.</p></description>
+  <developer id="io.github.hakergeniusz">
+    <name>hakergeniusz</name>
+  </developer>
+  <description>
+    <p>Griffel is a distraction-free Markdown editor for the Linux desktop.
+    Text lives in a centered column while the interface fades away as you
+    write, and returns when you need it.</p>
+    <ul>
+      <li>In-place Markdown highlighting while the source stays unchanged</li>
+      <li>Live preview powered by Pandoc, beside, below, or in its own window</li>
+      <li>Focus Mode dims everything but the current sentence</li>
+      <li>Hemingway Mode keeps you moving forward by blocking deletions</li>
+      <li>Spell checking with per-document languages</li>
+      <li>Peek popovers for formulas, images, links, footnotes and word
+      definitions</li>
+      <li>Statistics, search and replace, snapshots, and export to PDF, HTML,
+      ODT and more</li>
+    </ul>
+  </description>
   <launchable type="desktop-id">io.github.hakergeniusz.Griffel.desktop</launchable>
+  <provides>
+    <id>io.github.hakergeniusz.Griffel</id>
+    <binary>griffel</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-29">
+      <description>
+        <p>Initial release: editing, in-place highlighting, live preview,
+        Focus and Hemingway modes, spell checking, peek popovers, export,
+        snapshots and recovery.</p>
+      </description>
+    </release>
+  </releases>
+  <url type="homepage">https://github.com/hakergeniusz/griffel</url>
+  <url type="bugtracker">https://github.com/hakergeniusz/griffel/issues</url>
+  <url type="donation">https://github.com/sponsors/hakergeniusz</url>
+  <url type="translate">https://github.com/hakergeniusz/griffel</url>
 </component>

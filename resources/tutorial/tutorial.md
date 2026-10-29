@@ -38,6 +38,24 @@ Two writing modes help you concentrate:
 - **Focus Mode** (Ctrl+D) dims everything but the sentence you are writing.
 - **Hemingway Mode** (Ctrl+T) blocks deletions so you keep moving forward.
 
+## Help while writing
+
+Misspelled words are underlined; right-click a word for suggestions, or
+press **F7** to turn spell checking off. Right-clicking also offers a
+**Peek** item — and Ctrl+click does the same — to preview what is under the
+cursor: formulas, images, links, footnotes, or a dictionary definition of
+any word.
+
+Find and replace lives behind **Ctrl+F**. The button at the bottom right
+keeps count of characters, words, sentences, paragraphs, or reading time —
+pick your favorite in its menu.
+
+## Making it yours
+
+The ☰ menu has a Preferences dialog (spell checking, input format, preview
+security), light/sepia/dark color schemes, a keyboard shortcuts overview,
+and an about dialog.
+
 ## Files and export
 
 Save with **Ctrl+S**. If the app ever crashes, your unsaved work is restored

@@ -198,16 +198,28 @@ fn add_shortcut(group: &gtk::ShortcutsGroup, accel: &str, title: &str) {
 }
 
 pub fn show_about(parent: &adw::ApplicationWindow) {
-    let dialog = gtk::AboutDialog::new();
+    // Standard GNOME about window (`02-ui-layout.md` §11). The Details
+    // page carries the platform diagnostics (toolkit versions, OS,
+    // windowing system, renderer); donation and translation links live in
+    // the AppStream metainfo (logged deviation: AdwAboutWindow has no
+    // donate/translate slots).
+    let dialog = adw::AboutWindow::new();
     dialog.set_transient_for(Some(parent));
     dialog.set_modal(true);
-    dialog.set_program_name(Some("Griffel"));
-    dialog.set_version(Some(env!("CARGO_PKG_VERSION")));
-    dialog.set_comments(Some("A distraction-free Markdown editor"));
-    dialog.set_website(Some("https://github.com/hakergeniusz/griffel"));
-    dialog.set_website_label("Website");
+    dialog.set_application_name("Griffel");
+    dialog.set_application_icon(crate::app::ICON_NAME);
+    dialog.set_version(env!("CARGO_PKG_VERSION"));
+    dialog.set_comments("A distraction-free Markdown editor");
+    dialog.set_developer_name("hakergeniusz");
+    dialog.set_copyright("© 2026 hakergeniusz");
     dialog.set_license_type(gtk::License::MitX11);
-    dialog.set_logo_icon_name(Some(crate::app::ICON_NAME));
-    dialog.set_authors(&["hakergeniusz"]);
+    dialog.set_website("https://github.com/hakergeniusz/griffel");
+    dialog.set_issue_url("https://github.com/hakergeniusz/griffel/issues");
+    dialog.set_release_notes_version(env!("CARGO_PKG_VERSION"));
+    dialog.set_release_notes(
+        "<p>Initial release: editing, in-place highlighting, live preview,\n         \
+         Focus and Hemingway modes, spell checking, peek popovers, export,\n         \
+         snapshots and recovery.</p>",
+    );
     dialog.set_visible(true);
 }
