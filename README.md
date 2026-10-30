@@ -76,6 +76,11 @@ To cut a release, bump the version in `Cargo.toml` together with
 `packaging/flatpak/generate-sources.py` if dependencies changed, then tag
 `v<version>` and push the tag.
 
+## Credits
+
+Griffel is inspired by [Apostrophe](https://gitlab.gnome.org/World/apostrophe),
+the distraction-free Markdown editor for GNOME.
+
 ## License
 
 MIT — see `LICENSE`.
