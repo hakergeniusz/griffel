@@ -33,7 +33,6 @@ Prebuilt packages are attached to each
 - **Fedora / RHEL** — `griffel-*.rpm` (install with
   `sudo dnf install ./griffel-*.rpm`)
 - **Arch / Manjaro** — build from `packaging/arch/PKGBUILD` with `makepkg -si`
-  (or install a `griffel` package from the AUR once published)
 - **Any distro** — `griffel-*-x86_64.flatpak` (install with
   `flatpak install ./griffel-*.flatpak`), or the standalone
   `griffel-*-linux-x86_64.tar.xz` tarball
