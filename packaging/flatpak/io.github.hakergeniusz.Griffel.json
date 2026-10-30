@@ -1,0 +1,39 @@
+{
+  "id": "io.github.hakergeniusz.Griffel",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "49",
+  "sdk": "org.gnome.Sdk",
+  "command": "griffel",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri",
+    "--share=network",
+    "--filesystem=home",
+    "--filesystem=xdg-data/hunspell:ro"
+  ],
+  "modules": [
+    {
+      "name": "griffel",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p .cargo && cp packaging/flatpak/cargo-vendor-config.toml .cargo/config.toml",
+        "cargo build --offline --release --locked",
+        "install -Dm755 target/release/griffel ${FLATPAK_DEST}/bin/griffel",
+        "install -Dm644 data/io.github.hakergeniusz.Griffel.desktop ${FLATPAK_DEST}/share/applications/io.github.hakergeniusz.Griffel.desktop",
+        "install -Dm644 data/io.github.hakergeniusz.Griffel.metainfo.xml ${FLATPAK_DEST}/share/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml",
+        "install -Dm644 resources/icons/io.github.hakergeniusz.Griffel.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.hakergeniusz.Griffel.svg",
+        "install -Dm644 resources/icons/io.github.hakergeniusz.Griffel-symbolic.svg ${FLATPAK_DEST}/share/icons/hicolor/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../..",
+          "skip": [".git", "target", "builddir"]
+        },
+        "generated-sources.json"
+      ]
+    }
+  ]
+}

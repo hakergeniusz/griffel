@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+	cargo build --release --locked
+
+override_dh_auto_test:
+	./target/release/griffel --version
+
+override_dh_auto_install:
+	install -Dm755 target/release/griffel \
+		debian/griffel/usr/bin/griffel
+	install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
+		debian/griffel/usr/share/applications/io.github.hakergeniusz.Griffel.desktop
+	install -Dm644 data/io.github.hakergeniusz.Griffel.metainfo.xml \
+		debian/griffel/usr/share/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml
+	install -Dm644 resources/icons/io.github.hakergeniusz.Griffel.svg \
+		debian/griffel/usr/share/icons/hicolor/scalable/apps/io.github.hakergeniusz.Griffel.svg
+	install -Dm644 resources/icons/io.github.hakergeniusz.Griffel-symbolic.svg \
+		debian/griffel/usr/share/icons/hicolor/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg

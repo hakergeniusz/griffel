@@ -1,0 +1,29 @@
+Source: griffel
+Section: editors
+Priority: optional
+Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/hakergeniusz/griffel
+Build-Depends:
+  debhelper-compat (= 13),
+  cargo,
+  libgtk-4-dev (>= 4.10),
+  libadwaita-1-dev (>= 1.4),
+  libgtksourceview-5-dev (>= 5.4),
+  libwebkitgtk-6.0-dev
+
+Package: griffel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: pandoc
+Description: Distraction-free Markdown editor for the Linux desktop
+ Griffel shows your document as a centered column of plain Markdown
+ while the interface fades away as you write, and returns when you
+ need it. It offers live HTML preview, in-place markup highlighting,
+ Focus and Hemingway writing modes, spell checking, peek popovers,
+ statistics, crash-recovery snapshots, and export to PDF, HTML, ODT
+ and more through Pandoc.
+ .
+ Pandoc (recommended) powers live preview and export; the app degrades
+ gracefully when it is missing.

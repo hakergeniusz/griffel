@@ -1,0 +1,144 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    name: Release build, tarball, deb
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-4-dev \
+            libadwaita-1-dev \
+            libgtksourceview-5-dev \
+            libwebkitgtk-6.0-dev \
+            libenchant-2-dev \
+            debhelper
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Smoke test (--version)
+        run: ./target/release/griffel --version
+
+      - name: Build Debian package
+        run: |
+          dpkg-buildpackage -us -uc -b
+          mv ../griffel_*.deb ./
+          ls -l *.deb
+
+      - name: Package release tarball
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          mkdir "griffel-${V}"
+          cp target/release/griffel README.md LICENSE "griffel-${V}/"
+          tar -cJf "griffel-${V}-linux-x86_64.tar.xz" "griffel-${V}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86_64
+          path: |
+            *.tar.xz
+            *.deb
+          if-no-files-found: error
+
+  rpm:
+    name: RPM package (Fedora)
+    runs-on: ubuntu-24.04
+    container: fedora:latest
+    steps:
+      - name: Install build tools
+        run: |
+          dnf install -y git cargo rpm-build \
+            gtk4-devel libadwaita-devel gtksourceview5-devel \
+            webkitgtk6.0-devel enchant2
+
+      - uses: actions/checkout@v4
+
+      - name: Build RPM
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          mkdir -p "$HOME/rpmbuild/SOURCES"
+          tar --exclude-vcs -czf "$HOME/rpmbuild/SOURCES/griffel-${V}.tar.gz" \
+            --transform "s,^,griffel-${V}/," .
+          rpmbuild -bb --define "_topdir $HOME/rpmbuild" packaging/fedora/griffel.spec
+          cp "$HOME/rpmbuild/RPMS/x86_64/"griffel-*.rpm ./
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpm-x86_64
+          path: "*.rpm"
+          if-no-files-found: error
+
+  flatpak:
+    name: Flatpak bundle
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub \
+            https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      - name: Install GNOME runtime and SDK
+        run: |
+          flatpak install --user -y --noninteractive flathub \
+            org.gnome.Platform//49 org.gnome.Sdk//49
+
+      - name: Build
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          flatpak-builder --user --install-deps-from=flathub \
+            --force-clean --repo=repo builddir \
+            packaging/flatpak/io.github.hakergeniusz.Griffel.json
+          flatpak build-bundle repo "griffel-${V}-x86_64.flatpak" \
+            io.github.hakergeniusz.Griffel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-x86_64
+          path: "*.flatpak"
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: [linux, rpm, flatpak]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l dist
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "Griffel ${GITHUB_REF_NAME#v}" \
+            --notes "First public beta of Griffel, a distraction-free Markdown editor for the Linux desktop.
+
+          See the README for installation options (Debian, Fedora, Arch, Flatpak bundle, or a standalone tarball). Pandoc is required for live preview and export and is not included in the packages." \
+            --latest

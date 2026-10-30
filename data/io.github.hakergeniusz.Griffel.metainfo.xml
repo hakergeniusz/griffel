@@ -31,11 +31,12 @@
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>
-    <release version="0.1.0" date="2026-10-29">
+    <release version="0.1.0-beta.1" date="2026-10-30">
       <description>
-        <p>Initial release: editing, in-place highlighting, live preview,
+        <p>First public beta: editing, in-place highlighting, live preview,
         Focus and Hemingway modes, spell checking, peek popovers, export,
-        snapshots and recovery.</p>
+        snapshots and recovery, autosave, and adaptive dark, sepia and light
+        appearances.</p>
       </description>
     </release>
   </releases>

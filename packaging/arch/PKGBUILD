@@ -1,0 +1,48 @@
+# AUR-style PKGBUILD for Griffel. The git tag, Cargo.toml,
+# debian/changelog and the Fedora spec must be bumped together.
+# AUR submission is manual: copy this file to the AUR (or submit via
+# git) and replace sha256sums SKIP with the real checksum of the tag
+# tarball.
+# Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
+
+pkgname=griffel
+_tag=v0.1.0-beta.1
+pkgver=0.1.0beta1
+pkgrel=1
+pkgdesc="Distraction-free Markdown editor for the Linux desktop"
+arch=('x86_64')
+url="https://github.com/hakergeniusz/griffel"
+license=('MIT')
+depends=('gtk4' 'libadwaita' 'gtksourceview5' 'webkitgtk-6.0' 'enchant')
+optdepends=('pandoc: live preview and export'
+            'typst: Typst PDF export'
+            'texlive-xetex: LaTeX PDF export')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
+sha256sums=('SKIP')
+options=('!lto')
+
+build() {
+  cd "$pkgname-0.1.0-beta.1"
+  export CARGO_TARGET_DIR="target"
+  cargo build --release --locked
+}
+
+check() {
+  cd "$pkgname-0.1.0-beta.1"
+  ./target/release/griffel --version
+}
+
+package() {
+  cd "$pkgname-0.1.0-beta.1"
+  install -Dm755 target/release/griffel -t "$pkgdir/usr/bin"
+  install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
+    "$pkgdir/usr/share/applications/io.github.hakergeniusz.Griffel.desktop"
+  install -Dm644 data/io.github.hakergeniusz.Griffel.metainfo.xml \
+    "$pkgdir/usr/share/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml"
+  install -Dm644 resources/icons/io.github.hakergeniusz.Griffel.svg \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/io.github.hakergeniusz.Griffel.svg"
+  install -Dm644 resources/icons/io.github.hakergeniusz.Griffel-symbolic.svg \
+    "$pkgdir/usr/share/icons/hicolor/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/griffel/LICENSE"
+}

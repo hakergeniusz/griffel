@@ -10,6 +10,21 @@ use crate::window::AppWindow;
 pub const APP_ID: &str = "io.github.hakergeniusz.Griffel";
 pub const ICON_NAME: &str = APP_ID;
 
+/// `--version` output (packaging smoke tests run this headless).
+pub fn version_string() -> String {
+    format!("Griffel {}\n", env!("CARGO_PKG_VERSION"))
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn version_string_has_app_name_and_crate_version() {
+        let v = super::version_string();
+        assert!(v.starts_with("Griffel "));
+        assert!(v.trim_end().ends_with(env!("CARGO_PKG_VERSION")));
+    }
+}
+
 /// Registry of live document windows. `AppWindow` is a plain struct, so
 /// strong clones are kept here; entries are removed when their window
 /// closes. The registry never blocks the process from exiting (the app
@@ -104,8 +119,22 @@ impl GriffelApp {
             "Open a new empty window",
             None,
         );
+        app.add_main_option(
+            "version",
+            glib::Char::from(b'V'),
+            glib::OptionFlags::NONE,
+            glib::OptionArg::None,
+            "Print version information and exit",
+            None,
+        );
 
         app.connect_handle_local_options(|_, dict| {
+            if dict.contains("version") {
+                print!("{}", version_string());
+                // Exit before startup: no display is needed for --version,
+                // which is what packaging smoke tests rely on.
+                return std::ops::ControlFlow::Break(glib::ExitCode::SUCCESS);
+            }
             if dict.contains("verbose") {
                 crate::verbose::enable();
             }

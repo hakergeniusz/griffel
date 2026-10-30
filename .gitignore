@@ -1,3 +1,12 @@
 /target
 *.gresource
 *.rs.bk
+/dist
+/debian/.debhelper
+/debian/debhelper-build-stamp
+/debian/files
+/debian/griffel/
+/debian/griffel.debhelper.log
+/debian/substvars
+/builddir
+/.flatpak-builder
