@@ -143,7 +143,8 @@ impl AppWindow {
         let save_button = gtk::Button::new();
         save_button.set_label("Save");
         save_button.set_tooltip_text(Some("Save"));
-        save_button.add_css_class("flat");
+        // Raised, like the dropdown half: with `.linked` the two halves
+        // render as one split button with the same background.
         save_button.set_action_name(Some("win.save"));
         let save_menu = gtk::MenuButton::new();
         save_menu.set_icon_name("pan-down-symbolic");
