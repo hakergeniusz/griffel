@@ -1,8 +1,7 @@
-# AUR-style PKGBUILD for Griffel. The git tag, Cargo.toml,
-# debian/changelog and the Fedora spec must be bumped together.
-# AUR submission is manual: copy this file to the AUR (or submit via
-# git) and replace sha256sums SKIP with the real checksum of the tag
-# tarball.
+# AUR-style PKGBUILD for Griffel, following the Arch/Rust package
+# guidelines. The git tag, Cargo.toml, debian/changelog and the Fedora
+# spec must be bumped together; on a version bump, update sha256sums
+# (updpkgsums) along with pkgver/_tag.
 # Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
 
 pkgname=griffel
@@ -18,18 +17,29 @@ optdepends=('pandoc: live preview and export'
             'typst: Typst PDF export'
             'texlive-xetex: LaTeX PDF export')
 makedepends=('cargo')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
-sha256sums=('SKIP')
 options=('!lto')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
+sha256sums=('be5dd4ea8b920c59a0a6e751d0115426602e6390d8084213337160f144cc3771')
+
+prepare() {
+  cd "$pkgname-0.1.0-beta.1"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
 
 build() {
   cd "$pkgname-0.1.0-beta.1"
+  export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="target"
-  cargo build --release --locked
+  # --frozen = --locked --offline: deps are pinned and already fetched.
+  cargo build --frozen --release
 }
 
 check() {
   cd "$pkgname-0.1.0-beta.1"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR="target"
+  cargo test --frozen
   ./target/release/griffel --version
 }
 
