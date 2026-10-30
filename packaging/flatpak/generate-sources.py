@@ -33,6 +33,9 @@ for block in lock_path.read_text().split("[[package]]")[1:]:
     sources.append(
         {
             "type": "archive",
+            # flatpak-builder detects archive format by extension only and
+            # does not know ".crate" (a gzipped tar).
+            "archive-type": "tar-gzip",
             "url": f"https://static.crates.io/crates/{name}/{crate}.crate",
             "sha256": checksum,
             "dest": f"cargo/vendor/{crate}",

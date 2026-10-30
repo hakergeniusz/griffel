@@ -15,6 +15,7 @@ BuildRequires:  pkgconfig(gtk4) >= 4.10
 BuildRequires:  pkgconfig(libadwaita-1) >= 1.4
 BuildRequires:  pkgconfig(gtksourceview-5) >= 5.4
 BuildRequires:  pkgconfig(webkitgtk-6.0)
+BuildRequires:  pkgconfig(enchant-2)
 Recommends:     pandoc
 
 %global _description %{expand:

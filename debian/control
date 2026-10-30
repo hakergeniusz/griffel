@@ -11,7 +11,8 @@ Build-Depends:
   libgtk-4-dev (>= 4.10),
   libadwaita-1-dev (>= 1.4),
   libgtksourceview-5-dev (>= 5.4),
-  libwebkitgtk-6.0-dev
+  libwebkitgtk-6.0-dev,
+  libenchant-2-dev
 
 Package: griffel
 Architecture: any
