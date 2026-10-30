@@ -230,10 +230,16 @@ impl GriffelApp {
             if !files.is_empty() {
                 crate::files::open_files(app, &files);
             }
-            // Ensure an empty window exists on a plain launch.
+            // Ensure an empty window exists on a plain launch — or the
+            // tutorial, when requested (debug hook; activate never fires on
+            // this path, so it is handled here too).
             if files.is_empty() && !new_window && app.windows().is_empty() {
-                let win = AppWindow::new(app);
-                win.present_window();
+                if std::env::var("GRIFFEL_OPEN").ok().as_deref() == Some("tutorial") {
+                    crate::files::open_tutorial(app);
+                } else {
+                    let win = AppWindow::new(app);
+                    win.present_window();
+                }
             }
             if std::env::var("GRIFFEL_DEBUG_TREE").is_ok() {
                 let win = app.windows().first().cloned();
