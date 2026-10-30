@@ -327,8 +327,11 @@ fn editor_widget_css(
     p: &crate::appearance::EditorPalette,
     scaled_font_px: f64,
 ) {
+    // caret-color is pinned to the foreground: left to the platform theme,
+    // the caret can end up light-on-light or dark-on-dark (the caret does
+    // not follow the `color` property on every theme).
     provider.load_from_string(&format!(
-        ".editor-view, .editor-view text {{ background-color: {bg}; color: {fg}; }}\n\
+        ".editor-view, .editor-view text {{ background-color: {bg}; color: {fg}; caret-color: {fg}; }}\n\
          .editor-view text selection, .editor-view selection {{ background-color: {sel}; }}\n\
          .editor-view {{ font-family: 'Monospace'; font-size: {font:.0}px; }}",
         bg = p.background,
