@@ -30,16 +30,26 @@ for block in lock_path.read_text().split("[[package]]")[1:]:
     if not (name and version and checksum):
         continue  # workspace member or non-registry dependency
     crate = f"{name}-{version}"
-    sources.append(
-        {
-            "type": "archive",
-            # flatpak-builder detects archive format by extension only and
-            # does not know ".crate" (a gzipped tar).
-            "archive-type": "tar-gzip",
-            "url": f"https://static.crates.io/crates/{name}/{crate}.crate",
-            "sha256": checksum,
-            "dest": f"cargo/vendor/{crate}",
-        }
+    sources.extend(
+        [
+            {
+                "type": "archive",
+                # flatpak-builder detects archive format by extension only and
+                # does not know ".crate" (a gzipped tar).
+                "archive-type": "tar-gzip",
+                "url": f"https://static.crates.io/crates/{name}/{crate}.crate",
+                "sha256": checksum,
+                "dest": f"cargo/vendor/{crate}",
+            },
+            # cargo requires a checksum manifest in every vendored crate; raw
+            # .crate archives do not ship one, so it is synthesized here.
+            {
+                "type": "inline",
+                "contents": json.dumps({"package": checksum, "files": {}}),
+                "dest": f"cargo/vendor/{crate}",
+                "dest-filename": ".cargo-checksum.json",
+            },
+        ]
     )
 
 if not sources:
