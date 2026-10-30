@@ -234,7 +234,9 @@ impl AppWindow {
 
         let stats_button = gtk::MenuButton::new();
         stats_button.set_label("0 Words");
-        stats_button.add_css_class("flat");
+        // Raised, like the toolbar toggle beside it: it floats over the
+        // editor text, so a transparent background would let the document
+        // show through.
         stats_button.set_halign(gtk::Align::End);
         stats_button.set_valign(gtk::Align::End);
         stats_button.set_margin_end(6);
