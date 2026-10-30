@@ -103,7 +103,11 @@ impl Editor {
         let font_provider = gtk::CssProvider::new();
         view.style_context()
             .add_provider(&font_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 3);
-        editor_widget_css(&font_provider, &crate::appearance::effective_palette());
+        editor_widget_css(
+            &font_provider,
+            &crate::appearance::effective_palette(),
+            16.0 * Self::text_scale(),
+        );
 
         let spell_enabled = std::rc::Rc::new(std::cell::Cell::new(
             crate::settings::settings().boolean("spellcheck"),
@@ -189,7 +193,11 @@ impl Editor {
     pub fn recolor(&self) {
         highlight::update_palette(&self.buffer, &crate::appearance::effective_palette());
         focus::update_palette(&self.buffer, &crate::appearance::effective_palette());
-        editor_widget_css(&self.font_provider, &crate::appearance::effective_palette());
+        editor_widget_css(
+            &self.font_provider,
+            &crate::appearance::effective_palette(),
+            self.font_px.get() as f64 * Self::text_scale(),
+        );
     }
 
     /// Adaptive typography (`01-editing.md` §6): choose the largest font
@@ -227,13 +235,12 @@ impl Editor {
     }
 
     fn apply_font_size(&self, px: i32) {
-        // Rebuild the whole widget CSS so colors persist across size steps.
-        editor_widget_css(&self.font_provider, &crate::appearance::effective_palette());
         let scaled = px as f64 * Self::text_scale();
-        self.font_provider
-            .load_from_string(&format!(
-                ".editor-view {{ font-family: 'Monospace'; font-size: {scaled:.0}px; }}"
-            ));
+        editor_widget_css(
+            &self.font_provider,
+            &crate::appearance::effective_palette(),
+            scaled,
+        );
     }
 
     /// The system text scaling factor (gtk-xft-dpi over its 96 dpi base).
@@ -310,13 +317,23 @@ impl Default for Editor {
 
 /// Widget-level CSS for the editor surface: paper background, text color,
 /// selection, and monospace family. Widget-level so it reliably overrides
-/// the theme regardless of the platform style.
-fn editor_widget_css(provider: &gtk::CssProvider, p: &crate::appearance::EditorPalette) {
+/// the theme regardless of the platform style. The `text` child node must
+/// be styled too: the theme paints the text window there, covering the
+/// `textview` node's own background. This is the ONLY writer of the
+/// provider — `load_from_string` replaces the whole sheet, so palette and
+/// font rules always go together or the last writer erases the other.
+fn editor_widget_css(
+    provider: &gtk::CssProvider,
+    p: &crate::appearance::EditorPalette,
+    scaled_font_px: f64,
+) {
     provider.load_from_string(&format!(
-        ".editor-view {{ background-color: {bg}; color: {fg}; }}\n\
-         .editor-view selection {{ background-color: {sel}; }}",
+        ".editor-view, .editor-view text {{ background-color: {bg}; color: {fg}; }}\n\
+         .editor-view text selection, .editor-view selection {{ background-color: {sel}; }}\n\
+         .editor-view {{ font-family: 'Monospace'; font-size: {font:.0}px; }}",
         bg = p.background,
         fg = p.foreground,
         sel = p.selection,
+        font = scaled_font_px,
     ));
 }
