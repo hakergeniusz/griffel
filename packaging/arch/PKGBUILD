@@ -5,8 +5,8 @@
 # Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
 
 pkgname=griffel
-_tag=v0.1.0-beta.1
-pkgver=0.1.0beta1
+_tag=v0.1.0-beta.2
+pkgver=0.1.0beta2
 pkgrel=1
 pkgdesc="Distraction-free Markdown editor for the Linux desktop"
 arch=('x86_64')
