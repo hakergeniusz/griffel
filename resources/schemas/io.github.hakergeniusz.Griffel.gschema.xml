@@ -107,6 +107,10 @@
       <default>false</default>
       <summary>Whether the formatting row is expanded</summary>
     </key>
+    <key name="autosave" type="b">
+      <default>false</default>
+      <summary>Save the document automatically a few seconds after typing stops</summary>
+    </key>
     <key name="autosave-period" type="i">
       <default>5</default>
       <summary>Snapshot interval in seconds</summary>

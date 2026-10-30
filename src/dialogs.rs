@@ -38,11 +38,18 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     let _ = settings().inner().bind("bigger-text", &large_text_row, "active").build();
     group.add(&large_text_row);
 
+    // 4. Autosave (user-added setting; not in `03/10`)
+    let autosave_row = adw::SwitchRow::new();
+    autosave_row.set_title("Autosave");
+    autosave_row.set_subtitle("Save the document five seconds after you stop typing");
+    let _ = settings().inner().bind("autosave", &autosave_row, "active").build();
+    group.add(&autosave_row);
+
     let format_group = adw::PreferencesGroup::new();
     format_group.set_title("Formatting &amp; Preview");
     page.add(&format_group);
 
-    // 4. Input format ComboRow
+    // 5. Input format ComboRow
     let formats = InputFormat::ALL;
     let names: Vec<&str> = formats.iter().map(|f| f.display_name()).collect();
     let model = gtk::StringList::new(&names);
@@ -85,7 +92,7 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     format_row.add_suffix(&help_button);
     format_group.add(&format_row);
 
-    // 5. Preview security ComboRow
+    // 6. Preview security ComboRow
     let security_policies = PreviewSecurity::ALL;
     let sec_names: Vec<&str> = security_policies.iter().map(|p| match p {
         PreviewSecurity::Ask => "Always ask",

@@ -68,6 +68,8 @@ pub struct WindowState {
     pub monitor: RefCell<Option<gio::FileMonitor>>,
     pub snapshot_timer: RefCell<Option<glib::SourceId>>,
     pub snapshot_file: RefCell<Option<std::path::PathBuf>>,
+    /// Debounce timer for the autosave preference.
+    autosave_timer: RefCell<Option<glib::SourceId>>,
 }
 
 impl Clone for AppWindow {
@@ -339,6 +341,7 @@ impl AppWindow {
                 monitor: RefCell::new(None),
                 snapshot_timer: RefCell::new(None),
                 snapshot_file: RefCell::new(None),
+                autosave_timer: RefCell::new(None),
             }),
             preview: crate::preview::PreviewPane::new(),
         };
@@ -819,6 +822,7 @@ impl AppWindow {
                 glib::spawn_future_local(async move {
                     if win.confirm_close().await {
                         win.cancel_snapshot_timer();
+                        win.cancel_autosave_timer();
                         if let Some(m) = win.state.monitor.borrow_mut().take() {
                             m.cancel();
                         }
@@ -841,11 +845,51 @@ impl AppWindow {
         if *self.state.suppress_dirty.borrow() {
             return;
         }
+        self.schedule_autosave();
         if !self.state.document.borrow().dirty {
             self.state.document.borrow_mut().dirty = true;
             self.update_title();
             files::schedule_snapshot(self);
             crate::app::update_logout_inhibition();
+        }
+    }
+
+    /// Autosave preference: save a few seconds after the last edit
+    /// (user-added setting, not in `03/10`). Debounced per edit; skipped
+    /// for untitled documents (nothing to save to) and while an
+    /// external-change conflict is pending the user's choice.
+    fn schedule_autosave(&self) {
+        if !settings().boolean("autosave") {
+            return;
+        }
+        self.cancel_autosave_timer();
+        let win = self.clone();
+        let id = glib::timeout_add_seconds_local(5, move || {
+            win.state.autosave_timer.borrow_mut().take();
+            win.autosave_now();
+            glib::ControlFlow::Break
+        });
+        *self.state.autosave_timer.borrow_mut() = Some(id);
+    }
+
+    fn cancel_autosave_timer(&self) {
+        if let Some(id) = self.state.autosave_timer.borrow_mut().take() {
+            id.remove();
+        }
+    }
+
+    fn autosave_now(&self) {
+        if !settings().boolean("autosave") {
+            return;
+        }
+        if !self.state.document.borrow().dirty {
+            return;
+        }
+        if self.file_changed_bar.is_revealed() {
+            return;
+        }
+        if let Some(file) = self.state.document.borrow().file.clone() {
+            self.save_to(file);
         }
     }
 
