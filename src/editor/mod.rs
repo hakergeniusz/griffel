@@ -56,7 +56,12 @@ impl Editor {
         let view = sourceview5::View::with_buffer(&buffer);
         view.set_editable(true);
         view.set_cursor_visible(true);
-        view.set_wrap_mode(gtk::WrapMode::None);
+        // Soft wrap, vertical scrolling only: the user-requested behavior is
+        // that a horizontal scrollbar never appears (deviates from 02 §3's
+        // "non-wrapping-horizontally" wording). WordChar (not Word) so an
+        // over-long word breaks at the edge instead of overflowing out of
+        // the now scrollbar-less view.
+        view.set_wrap_mode(gtk::WrapMode::WordChar);
         view.set_property("tab-width", 4u32);
         view.set_property("insert-spaces-instead-of-tabs", false);
         view.set_property("auto-indent", false);
@@ -69,7 +74,7 @@ impl Editor {
 
         let scroll = gtk::ScrolledWindow::new();
         scroll.set_child(Some(&view));
-        scroll.set_policy(gtk::PolicyType::Automatic, gtk::PolicyType::Automatic);
+        scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
         scroll.set_hexpand(true);
         scroll.set_vexpand(true);
 
