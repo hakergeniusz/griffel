@@ -129,23 +129,6 @@ impl GriffelApp {
             crate::settings::settings().changed(move |_s, key| {
                 if key == "color-scheme" {
                     crate::appearance::apply();
-            // System text scaling changes re-layout every editor column
-            // (`17-accessibility.md` §4).
-            if let Some(gs) = gtk::Settings::default() {
-                gs.connect_notify_local(Some("gtk-xft-dpi"), move |_, _| {
-                    for w in window_registry() {
-                        let width = w.root.width();
-                        if width > 0 {
-                            w.editor.relayout_column(
-                                width,
-                                crate::settings::settings().integer("characters-per-line"),
-                                crate::settings::settings().boolean("bigger-text"),
-                            );
-                            w.editor.apply_focus_margins();
-                        }
-                    }
-                });
-            }
                     for w in window_registry() {
                         w.editor.recolor();
                         w.editor.highlight_now();
@@ -189,6 +172,17 @@ impl GriffelApp {
             if std::env::var("GRIFFEL_PREVIEW").is_ok() {
                 if let Some(w) = window_registry().last() {
                     w.preview_on();
+                }
+            }
+            // Debug hook: switch the scheme after startup through the same
+            // action the menu item activates (runtime recolor path).
+            if let Ok(scheme) = std::env::var("GRIFFEL_SCHEME") {
+                if let Some(w) = window_registry().last() {
+                    let up: &gtk::Window = w.root.upcast_ref();
+                    up.activate_action(
+                        "win.color-scheme",
+                        Some(&glib::Variant::from(scheme.as_str())),
+                    );
                 }
             }
         });
@@ -239,6 +233,17 @@ impl GriffelApp {
                     }
                     glib::ControlFlow::Break
                 });
+            }
+            // Debug hook: switch the scheme after startup through the same
+            // action the menu item activates (runtime recolor path).
+            if let Ok(scheme) = std::env::var("GRIFFEL_SCHEME") {
+                if let Some(w) = window_registry().last() {
+                    let up: &gtk::Window = w.root.upcast_ref();
+                    up.activate_action(
+                        "win.color-scheme",
+                        Some(&glib::Variant::from(scheme.as_str())),
+                    );
+                }
             }
             0.into()
         });
