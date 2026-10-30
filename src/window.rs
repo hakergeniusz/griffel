@@ -218,7 +218,7 @@ impl AppWindow {
         let toolbar_row = gtk::Box::new(gtk::Orientation::Horizontal, 2);
         toolbar_row.add_css_class("toolbar-row");
         let toolbar_toggle = gtk::ToggleButton::new();
-        toolbar_toggle.set_icon_name("pan-down-symbolic");
+        toolbar_toggle.set_icon_name("pan-end-symbolic");
         toolbar_toggle.set_tooltip_text(Some("Show formatting"));
         // The row reveals with a slide so toggling reads as motion.
         let toolbar_row_revealer = gtk::Revealer::new();
@@ -1226,15 +1226,16 @@ fn build_toolbar(win: &AppWindow, row: &gtk::Box, row_revealer: &gtk::Revealer, 
     row.append(&table_button);
 
     // Chevron toggle: show/hide the row; state persisted (`02-ui-layout.md`
-    // §5). The arrow flips with the state: pan-down invites opening the row,
-    // pan-up collapses it. The toggle trails the row (it sits right after
-    // it), so it moves with the row's end.
+    // §5). The row slides out horizontally, so the arrow is horizontal too:
+    // pan-end invites expanding the row, pan-start collapses it back. The
+    // toggle trails the row (it sits right after it), so it moves with the
+    // row's end.
     let visible = settings().boolean("toolbar-visible");
     toggle.set_active(visible);
     toggle.set_icon_name(if visible {
-        "pan-up-symbolic"
+        "pan-start-symbolic"
     } else {
-        "pan-down-symbolic"
+        "pan-end-symbolic"
     });
     toggle.set_tooltip_text(Some(if visible {
         "Hide formatting"
@@ -1248,9 +1249,9 @@ fn build_toolbar(win: &AppWindow, row: &gtk::Box, row_revealer: &gtk::Revealer, 
             let active = t.is_active();
             row_revealer.set_reveal_child(active);
             t.set_icon_name(if active {
-                "pan-up-symbolic"
+                "pan-start-symbolic"
             } else {
-                "pan-down-symbolic"
+                "pan-end-symbolic"
             });
             t.set_tooltip_text(Some(if active {
                 "Hide formatting"
