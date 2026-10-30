@@ -18,6 +18,8 @@ override_dh_auto_install:
 		debian/griffel/usr/bin/griffel
 	install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
 		debian/griffel/usr/share/applications/io.github.hakergeniusz.Griffel.desktop
+	install -Dm644 data/io.github.hakergeniusz.Griffel.service \
+		debian/griffel/usr/share/dbus-1/services/io.github.hakergeniusz.Griffel.service
 	install -Dm644 data/io.github.hakergeniusz.Griffel.metainfo.xml \
 		debian/griffel/usr/share/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml
 	install -Dm644 resources/icons/io.github.hakergeniusz.Griffel.svg \

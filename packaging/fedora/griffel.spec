@@ -37,6 +37,8 @@ cargo build --release --locked
 install -Dm755 target/release/griffel %{buildroot}%{_bindir}/griffel
 install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
   %{buildroot}%{_datadir}/applications/io.github.hakergeniusz.Griffel.desktop
+install -Dm644 data/io.github.hakergeniusz.Griffel.service \
+  %{buildroot}%{_datadir}/dbus-1/services/io.github.hakergeniusz.Griffel.service
 install -Dm644 data/io.github.hakergeniusz.Griffel.metainfo.xml \
   %{buildroot}%{_datadir}/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml
 install -Dm644 resources/icons/io.github.hakergeniusz.Griffel.svg \
@@ -52,6 +54,7 @@ install -Dm644 resources/icons/io.github.hakergeniusz.Griffel-symbolic.svg \
 %doc README.md
 %{_bindir}/griffel
 %{_datadir}/applications/io.github.hakergeniusz.Griffel.desktop
+%{_datadir}/dbus-1/services/io.github.hakergeniusz.Griffel.service
 %{_datadir}/metainfo/io.github.hakergeniusz.Griffel.metainfo.xml
 %{_datadir}/icons/hicolor/scalable/apps/io.github.hakergeniusz.Griffel.svg
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg
