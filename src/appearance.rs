@@ -85,8 +85,8 @@ thread_local! {
 }
 
 /// Apply the current scheme to the whole application: chrome style manager
-/// state plus the sepia chrome override stylesheet and the editor palette.
-/// Re-run on scheme change; replaces previously applied providers.
+/// state, the palette-driven bottom-bar stylesheet, and the sepia chrome
+/// override. Re-run on scheme change; replaces previously applied providers.
 pub fn apply() {
     let scheme = settings().color_scheme();
     let manager = adw::StyleManager::default();
@@ -105,9 +105,10 @@ pub fn apply() {
 
     // Chrome override for sepia: warm paper tones over the light style.
     let chrome_css = match scheme {
-        ColorScheme::Sepia => SEPIA_CHROME_CSS,
-        _ => "",
+        ColorScheme::Sepia => SEPIA_CHROME_CSS.to_owned(),
+        _ => String::new(),
     };
+    let css = format!("{}\n{}", bottom_bar_css(&effective_palette()), chrome_css);
     PROVIDERS.with(|providers| {
         {
             let mut list = providers.borrow_mut();
@@ -119,17 +120,30 @@ pub fn apply() {
             }
         }
         let mut list = providers.borrow_mut();
-        if !chrome_css.is_empty() {
-            let p = gtk::CssProvider::new();
-            p.load_from_string(chrome_css);
-            gtk::style_context_add_provider_for_display(
-                &gdk::Display::default().expect("no display"),
-                &p,
-                gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
-            );
-            list.push(p);
-        }
+        let p = gtk::CssProvider::new();
+        p.load_from_string(&css);
+        gtk::style_context_add_provider_for_display(
+            &gdk::Display::default().expect("no display"),
+            &p,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
+        );
+        list.push(p);
     });
+}
+
+/// The bottom toolbar row sits on a subtle card (`02-ui-layout.md` §5);
+/// its colors follow the editor palette so every scheme matches.
+fn bottom_bar_css(p: &EditorPalette) -> String {
+    format!(
+        ".toolbar-row {{\
+            background-color: {bg};\
+            border: 1px solid alpha({border}, 0.55);\
+            border-radius: 10px;\
+            padding: 3px 4px;\
+        }}",
+        bg = p.code_background,
+        border = p.dimmed,
+    )
 }
 
 const SEPIA_CHROME_CSS: &str = r#"

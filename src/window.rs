@@ -18,7 +18,7 @@ pub struct AppWindow {
     title_label: gtk::Label,
     subtitle_label: gtk::Label,
     pub editor: Editor,
-    bottom_bar: gtk::Box,
+    toolbar_cluster: gtk::Box,
     find_button: gtk::ToggleButton,
     layout_button: gtk::MenuButton,
     save_progress: gtk::Revealer,
@@ -34,7 +34,6 @@ pub struct AppWindow {
     toolbar_view: adw::ToolbarView,
     /// Auto-hide wrappers for the header and bottom bars.
     headerbar_revealer: gtk::Revealer,
-    bottom_revealer: gtk::Revealer,
     recovery_bar: gtk::InfoBar,
     file_changed_bar: gtk::InfoBar,
     file_changed_reload: gtk::Button,
@@ -79,7 +78,7 @@ impl Clone for AppWindow {
             title_label: self.title_label.clone(),
             subtitle_label: self.subtitle_label.clone(),
             editor: self.editor.clone(),
-            bottom_bar: self.bottom_bar.clone(),
+            toolbar_cluster: self.toolbar_cluster.clone(),
             find_button: self.find_button.clone(),
             layout_button: self.layout_button.clone(),
             save_progress: self.save_progress.clone(),
@@ -93,7 +92,6 @@ impl Clone for AppWindow {
             exit_fullscreen: self.exit_fullscreen.clone(),
             toolbar_view: self.toolbar_view.clone(),
             headerbar_revealer: self.headerbar_revealer.clone(),
-            bottom_revealer: self.bottom_revealer.clone(),
             recovery_bar: self.recovery_bar.clone(),
             file_changed_bar: self.file_changed_bar.clone(),
             file_changed_reload: self.file_changed_reload.clone(),
@@ -205,38 +203,39 @@ impl AppWindow {
         headerbar_revealer.set_reveal_child(true);
 
         // --- bottom bar ----------------------------------------------------
-        let bottom_bar = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-        bottom_bar.add_css_class("bottom-bar");
-        bottom_bar.set_halign(gtk::Align::Fill);
-        bottom_bar.set_valign(gtk::Align::End);
-        bottom_bar.set_margin_start(6);
-        bottom_bar.set_margin_end(6);
-        bottom_bar.set_margin_bottom(6);
+        // Two overlay clusters (toolbar + chevron at the left, stats at the
+        // right) leave the middle genuinely empty, so clicks there pass
+        // through to the editor (`13-autohide.md` §3). A full-width bar
+        // widget would swallow those clicks, and `can_target(false)` would
+        // make its whole subtree unpickable.
+        let toolbar_cluster = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+        toolbar_cluster.add_css_class("bottom-bar");
+        toolbar_cluster.set_halign(gtk::Align::Start);
+        toolbar_cluster.set_valign(gtk::Align::End);
+        toolbar_cluster.set_margin_start(6);
+        toolbar_cluster.set_margin_bottom(6);
 
         let toolbar_row = gtk::Box::new(gtk::Orientation::Horizontal, 2);
         toolbar_row.add_css_class("toolbar-row");
-        toolbar_row.set_hexpand(true);
         let toolbar_toggle = gtk::ToggleButton::new();
         toolbar_toggle.set_icon_name("pan-down-symbolic");
-        toolbar_toggle.set_tooltip_text(Some("Formatting"));
-        bottom_bar.append(&toolbar_row);
-        bottom_bar.append(&toolbar_toggle);
+        toolbar_toggle.set_tooltip_text(Some("Show formatting"));
+        // The row reveals with a slide so toggling reads as motion.
+        let toolbar_row_revealer = gtk::Revealer::new();
+        toolbar_row_revealer.set_transition_type(gtk::RevealerTransitionType::SlideLeft);
+        toolbar_row_revealer.set_transition_duration(250);
+        toolbar_row_revealer.set_child(Some(&toolbar_row));
+        toolbar_row_revealer.set_reveal_child(false);
+        toolbar_cluster.append(&toolbar_row_revealer);
+        toolbar_cluster.append(&toolbar_toggle);
 
         let stats_button = gtk::MenuButton::new();
         stats_button.set_label("0 Words");
         stats_button.add_css_class("flat");
         stats_button.set_halign(gtk::Align::End);
-        stats_button.set_valign(gtk::Align::Center);
-        bottom_bar.append(&stats_button);
-
-        // --- auto-hide revealer for the bottom bar --------------------------
-        let bottom_revealer = gtk::Revealer::new();
-        bottom_revealer.set_transition_type(gtk::RevealerTransitionType::Crossfade);
-        bottom_revealer.set_transition_duration(450);
-        bottom_revealer.set_child(Some(&bottom_bar));
-        bottom_revealer.set_reveal_child(true);
-        bottom_revealer.set_halign(gtk::Align::Fill);
-        bottom_revealer.set_valign(gtk::Align::End);
+        stats_button.set_valign(gtk::Align::End);
+        stats_button.set_margin_end(6);
+        stats_button.set_margin_bottom(6);
 
         // --- recovery & file-changed banners (infobars) ---------------------
         let recovery_bar = gtk::InfoBar::new();
@@ -261,8 +260,10 @@ impl AppWindow {
         // --- content -------------------------------------------------------
         let overlay = gtk::Overlay::new();
         overlay.set_child(Some(&editor.scroll));
-        overlay.add_overlay(&bottom_revealer);
-        overlay.set_measure_overlay(&bottom_revealer, true);
+        overlay.add_overlay(&toolbar_cluster);
+        overlay.add_overlay(&stats_button);
+        overlay.set_measure_overlay(&toolbar_cluster, true);
+        overlay.set_measure_overlay(&stats_button, true);
 
         // Preview layouts: the editor page hosts the editor overlay; the
         // panes host it together with the preview pane. Widgets are moved
@@ -302,7 +303,7 @@ impl AppWindow {
             title_label,
             subtitle_label,
             editor,
-            bottom_bar,
+            toolbar_cluster,
             find_button,
             layout_button,
             save_progress,
@@ -314,7 +315,6 @@ impl AppWindow {
             search,
             stats_button: stats_button.clone(),
             headerbar_revealer,
-            bottom_revealer,
             recovery_bar,
             file_changed_bar,
             file_changed_reload,
@@ -391,7 +391,7 @@ impl AppWindow {
             move || files::open_dialog(&win)
         })));
 
-        build_toolbar(&win, &toolbar_row, &toolbar_toggle);
+        build_toolbar(&win, &toolbar_row, &toolbar_row_revealer, &toolbar_toggle);
 
         win.install_actions();
         win.connect_signals();
@@ -1167,7 +1167,7 @@ fn tool_button(win: &AppWindow, row: &gtk::Box, icon_or_label: &str, tooltip: &s
     row.append(&button);
 }
 
-fn build_toolbar(win: &AppWindow, row: &gtk::Box, toggle: &gtk::ToggleButton) {
+fn build_toolbar(win: &AppWindow, row: &gtk::Box, row_revealer: &gtk::Revealer, toggle: &gtk::ToggleButton) {
     let buffer = win.editor.buffer.clone();
 
     tool_button(win, row, "format-text-bold-symbolic", "Bold", |w| {
@@ -1225,14 +1225,39 @@ fn build_toolbar(win: &AppWindow, row: &gtk::Box, toggle: &gtk::ToggleButton) {
     table_button.add_css_class("flat");
     row.append(&table_button);
 
-    // Chevron toggle: show/hide the row; state persisted.
-    toggle.set_active(settings().boolean("toolbar-visible"));
-    row.set_visible(toggle.is_active());
+    // Chevron toggle: show/hide the row; state persisted (`02-ui-layout.md`
+    // §5). The arrow flips with the state: pan-down invites opening the row,
+    // pan-up collapses it. The toggle trails the row (it sits right after
+    // it), so it moves with the row's end.
+    let visible = settings().boolean("toolbar-visible");
+    toggle.set_active(visible);
+    toggle.set_icon_name(if visible {
+        "pan-up-symbolic"
+    } else {
+        "pan-down-symbolic"
+    });
+    toggle.set_tooltip_text(Some(if visible {
+        "Hide formatting"
+    } else {
+        "Show formatting"
+    }));
+    row_revealer.set_reveal_child(visible);
     {
-        let row = row.clone();
+        let row_revealer = row_revealer.clone();
         toggle.connect_toggled(move |t| {
-            row.set_visible(t.is_active());
-            settings().set_boolean("toolbar-visible", t.is_active());
+            let active = t.is_active();
+            row_revealer.set_reveal_child(active);
+            t.set_icon_name(if active {
+                "pan-up-symbolic"
+            } else {
+                "pan-down-symbolic"
+            });
+            t.set_tooltip_text(Some(if active {
+                "Hide formatting"
+            } else {
+                "Show formatting"
+            }));
+            settings().set_boolean("toolbar-visible", active);
         });
     }
 }
@@ -1532,7 +1557,8 @@ impl AppWindow {
             self.state.bar_height.get()
         };
         self.toolbar_view.set_reveal_top_bars(!hiding);
-        self.bottom_bar.set_visible(true);
+        self.toolbar_cluster.set_visible(true);
+        self.stats_button.set_visible(true);
         let (start, end) = if hiding { (0, h) } else { (h, 0) };
         let win = self.clone();
         let generation = self.state.comp_generation.get() + 1;
@@ -1548,13 +1574,16 @@ impl AppWindow {
             let eased = 1.0 - (1.0 - t) * (1.0 - t);
             let v = (f64::from(start) + f64::from(end - start) * eased).round() as i32;
             let o = if hiding { 1.0 - eased } else { eased };
-            win.bottom_bar.set_opacity(o.clamp(0.0, 1.0));
+            win.toolbar_cluster.set_opacity(o.clamp(0.0, 1.0));
+            win.stats_button.set_opacity(o.clamp(0.0, 1.0));
             win.editor.set_bar_comp(v);
             win.preview.root.set_margin_top(v);
             if i >= steps {
                 if hiding {
-                    win.bottom_bar.set_visible(false);
-                    win.bottom_bar.set_opacity(1.0);
+                    win.toolbar_cluster.set_visible(false);
+                    win.toolbar_cluster.set_opacity(1.0);
+                    win.stats_button.set_visible(false);
+                    win.stats_button.set_opacity(1.0);
                 }
                 glib::ControlFlow::Break
             } else {
