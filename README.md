@@ -80,6 +80,13 @@ To cut a release, bump the version in `Cargo.toml` together with
 Griffel is inspired by [Apostrophe](https://gitlab.gnome.org/World/apostrophe),
 the distraction-free Markdown editor for GNOME.
 
+## Contributing
+
+Contributions are welcome — but note that Griffel is developed **clean-room**
+from the specification in `docs/`: contributors must declare that they have
+never read Apostrophe's source code. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for the full policy.
+
 ## License
 
 MIT — see `LICENSE`.

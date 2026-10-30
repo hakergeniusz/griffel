@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest an improvement to Griffel
+labels: ["enhancement"]
+body:
+  - type: checkboxes
+    id: cleanroom
+    attributes:
+      label: Clean-room declaration (required)
+      description: |
+        Griffel is developed clean-room from the specification in `docs/` — see
+        [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md). Please confirm:
+      options:
+        - label: I declare that I have never read, studied, or otherwise accessed the source code, assets, or any other implementation material of Apostrophe, and that this request contains nothing derived from them.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the behavior you'd like in terms of Griffel's own UI and workflows.
+    validations:
+      required: true
