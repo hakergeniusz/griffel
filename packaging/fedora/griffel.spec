@@ -16,6 +16,9 @@ BuildRequires:  pkgconfig(libadwaita-1) >= 1.4
 BuildRequires:  pkgconfig(gtksourceview-5) >= 5.4
 BuildRequires:  pkgconfig(webkitgtk-6.0)
 BuildRequires:  pkgconfig(enchant-2)
+# No -debuginfo/-debugsource subpackages: the release pipeline ships the
+# main RPM only.
+%define debug_package %{nil}
 Recommends:     pandoc
 
 %global _description %{expand:
