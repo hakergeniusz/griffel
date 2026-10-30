@@ -58,10 +58,6 @@ impl Settings {
         })
     }
 
-    pub fn bind_widget(&self, key: &str, object: &impl IsA<glib::Object>, property: &str) {
-        self.s.bind(key, object, property);
-    }
-
     pub fn changed<F: Fn(&Settings, &str) + 'static>(&self, f: F) -> glib::SignalHandlerId {
         self.s.connect_changed(None::<&str>, move |_, key| f(settings(), key))
     }

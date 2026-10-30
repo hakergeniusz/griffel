@@ -34,6 +34,23 @@ pub fn window_registry() -> Vec<crate::window::AppWindow> {
     WINDOWS.with(|w| w.borrow().clone())
 }
 
+/// Re-run the adaptive column layout in every open window: text-scale
+/// changes (`17-accessibility.md` §4) and the Large text preference
+/// (`03/10`) both take effect immediately.
+fn relayout_all_editors() {
+    for w in window_registry() {
+        let width = w.root.width();
+        if width > 0 {
+            w.editor.relayout_column(
+                width,
+                crate::settings::settings().integer("characters-per-line"),
+                crate::settings::settings().boolean("bigger-text"),
+            );
+            w.editor.apply_focus_margins();
+        }
+    }
+}
+
 pub struct GriffelApp {
     app: gtk::Application,
 }
@@ -112,17 +129,7 @@ impl GriffelApp {
             // (`17-accessibility.md` §4).
             if let Some(gs) = gtk::Settings::default() {
                 gs.connect_notify_local(Some("gtk-xft-dpi"), move |_, _| {
-                    for w in window_registry() {
-                        let width = w.root.width();
-                        if width > 0 {
-                            w.editor.relayout_column(
-                                width,
-                                crate::settings::settings().integer("characters-per-line"),
-                                crate::settings::settings().boolean("bigger-text"),
-                            );
-                            w.editor.apply_focus_margins();
-                        }
-                    }
+                    relayout_all_editors();
                 });
             }
             // Scheme changes restyle every open editor immediately.
@@ -149,6 +156,10 @@ impl GriffelApp {
                     for w in window_registry() {
                         w.editor.set_spell_enabled(on);
                     }
+                }
+                // Large text takes effect immediately (`03/10`).
+                if key == "bigger-text" {
+                    relayout_all_editors();
                 }
             });
         });

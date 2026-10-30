@@ -21,21 +21,21 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     let spell_row = adw::SwitchRow::new();
     spell_row.set_title("Check spelling");
     spell_row.set_subtitle("Live spell checking in the editor");
-    let _ = settings().inner().bind("spellcheck", &spell_row, "active");
+    let _ = settings().inner().bind("spellcheck", &spell_row, "active").build();
     group.add(&spell_row);
 
     // 2. Auto-hide header bar
     let autohide_row = adw::SwitchRow::new();
     autohide_row.set_title("Auto-hide header bar");
     autohide_row.set_subtitle("Hide header and bottom bars while typing");
-    let _ = settings().inner().bind("autohide-headerbar", &autohide_row, "active");
+    let _ = settings().inner().bind("autohide-headerbar", &autohide_row, "active").build();
     group.add(&autohide_row);
 
     // 3. Large text
     let large_text_row = adw::SwitchRow::new();
     large_text_row.set_title("Large text");
     large_text_row.set_subtitle("Use a larger editor font and wider margins");
-    let _ = settings().inner().bind("bigger-text", &large_text_row, "active");
+    let _ = settings().inner().bind("bigger-text", &large_text_row, "active").build();
     group.add(&large_text_row);
 
     let format_group = adw::PreferencesGroup::new();
