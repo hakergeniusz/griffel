@@ -192,6 +192,16 @@ impl GriffelApp {
                         }
                     }
                 }
+                // Hemingway (F2): deletions block in every window's
+                // editors, like the other modes.
+                if key == "hemingway-mode" {
+                    let on = crate::settings::settings().boolean("hemingway-mode");
+                    for w in window_registry() {
+                        for t in w.tabs() {
+                            t.editor.flags.hemingway.set(on);
+                        }
+                    }
+                }
                 // Code Mode (F8): every editor switches behavior and column
                 // geometry together.
                 if key == "code-mode" {

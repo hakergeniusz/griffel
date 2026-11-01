@@ -110,6 +110,10 @@ pub struct WindowState {
     shaking: Cell<bool>,
     /// Recent blocked-deletion instants (Hemingway toast frequency rule).
     blocked_attempts: RefCell<VecDeque<std::time::Instant>>,
+    /// Focus Mode is per-window and unpersisted; new tabs read this
+    /// instead of the action (the "win" group is not reachable through
+    /// the root's action map).
+    focus_mode: Cell<bool>,
 }
 
 impl Clone for AppWindow {
@@ -226,13 +230,7 @@ impl AppWindow {
             tab.editor.apply_focus_margins();
         }
         // Focus Mode is a window-wide state; new tabs follow it.
-        let focus_on = self
-            .root
-            .lookup_action("focus-mode")
-            .and_then(|o| o.downcast::<gio::SimpleAction>().ok())
-            .and_then(|a| a.state().and_then(|v| v.get::<bool>()))
-            .unwrap_or(false);
-        if focus_on {
+        if self.state.focus_mode.get() {
             tab.editor.set_focus_mode(true);
             tab.editor.refresh_spell();
         }
@@ -485,6 +483,7 @@ impl AppWindow {
                 comp_generation: Cell::new(0),
                 shaking: Cell::new(false),
                 blocked_attempts: RefCell::new(VecDeque::new()),
+                focus_mode: Cell::new(false),
             }),
             preview: crate::preview::PreviewPane::new(),
         };
@@ -833,6 +832,7 @@ impl AppWindow {
                     .and_then(|v| v.get::<bool>())
                     .unwrap_or(false);
                 action.set_state(&new.to_variant());
+                win_ref.state.focus_mode.set(new);
                 for tab in win_ref.tabs() {
                     tab.editor.set_focus_mode(new);
                     // Focus Mode temporarily disables spell checking (§4).
@@ -843,26 +843,21 @@ impl AppWindow {
         actions.add_action(&focus_mode);
 
         // Hemingway Mode (03/04 §2): deletions blocked; the state is
-        // remembered across sessions.
+        // remembered across sessions. The preference is the single source
+        // of truth — deriving the toggle from it (not from the action
+        // state) stays correct no matter which window, the preferences
+        // dialog, or gsettings moved the key. The editors follow through
+        // the settings-changed handler in app.rs.
         let hemingway = gio::SimpleAction::new_stateful(
             "hemingway-mode",
             None,
             &settings().boolean("hemingway-mode").to_variant(),
         );
-        {
-            let win_ref = self.clone();
-            hemingway.connect_activate(move |action, _| {
-                let new = !action
-                    .state()
-                    .and_then(|v| v.get::<bool>())
-                    .unwrap_or(false);
-                action.set_state(&new.to_variant());
-                settings().set_boolean("hemingway-mode", new);
-                for tab in win_ref.tabs() {
-                    tab.editor.flags.hemingway.set(new);
-                }
-            });
-        }
+        hemingway.connect_activate(move |action, _| {
+            let new = !settings().boolean("hemingway-mode");
+            action.set_state(&new.to_variant());
+            settings().set_boolean("hemingway-mode", new);
+        });
         actions.add_action(&hemingway);
 
         // Code Mode (F8, main menu): line numbers, editor-style pairing,
@@ -875,24 +870,11 @@ impl AppWindow {
             None,
             &settings().boolean("code-mode").to_variant(),
         );
-        {
-            code_mode.connect_activate(move |action, _| {
-                let new = !action
-                    .state()
-                    .and_then(|v| v.get::<bool>())
-                    .unwrap_or(false);
-                settings().set_boolean("code-mode", new);
-                for w in crate::app::window_registry() {
-                    if let Some(a) = w
-                        .root
-                        .lookup_action("code-mode")
-                        .and_then(|o| o.downcast::<gio::SimpleAction>().ok())
-                    {
-                        a.set_state(&new.to_variant());
-                    }
-                }
-            });
-        }
+        code_mode.connect_activate(move |action, _| {
+            let new = !settings().boolean("code-mode");
+            action.set_state(&new.to_variant());
+            settings().set_boolean("code-mode", new);
+        });
         actions.add_action(&code_mode);
 
         let about = gio::SimpleAction::new("about", None);
@@ -911,23 +893,32 @@ impl AppWindow {
             None,
             &settings().boolean("spellcheck").to_variant(),
         );
-        {
-            toggle_spell.connect_activate(move |_, _| {
-                let cur = settings().boolean("spellcheck");
-                let new = !cur;
-                settings().set_boolean("spellcheck", new);
-                for w in crate::app::window_registry() {
-                    if let Some(a) = w
-                        .root
-                        .lookup_action("toggle-spellcheck")
-                        .and_then(|o| o.downcast::<gio::SimpleAction>().ok())
-                    {
-                        a.set_state(&new.to_variant());
-                    }
+        toggle_spell.connect_activate(move |action, _| {
+            let new = !settings().boolean("spellcheck");
+            action.set_state(&new.to_variant());
+            settings().set_boolean("spellcheck", new);
+        });
+        actions.add_action(&toggle_spell);
+
+        // Each window owns its own stateful action instance, and a state
+        // set on one window's instance never reaches the others (the "win"
+        // group is not visible through the root's action map, so a
+        // cross-window lookup finds nothing). Mirror the preference into
+        // every action on change: menu checkboxes stay right in windows
+        // that did not originate the toggle, and the mirrors cannot fight
+        // the activate handlers because those read the preference, not
+        // the state.
+        for (key, action) in [
+            ("hemingway-mode", hemingway.clone()),
+            ("code-mode", code_mode.clone()),
+            ("spellcheck", toggle_spell.clone()),
+        ] {
+            settings().changed(move |s, k| {
+                if k == key {
+                    action.set_state(&s.boolean(key).to_variant());
                 }
             });
         }
-        actions.add_action(&toggle_spell);
 
         self.root.insert_action_group("win", Some(&actions));
     }
