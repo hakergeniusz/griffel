@@ -497,10 +497,14 @@ impl AppWindow {
                 if let Some(mode) = PreviewMode::parse(&v) {
                     settings().set_preview_mode(mode);
                     preview_mode_state.set_state(&v.to_variant());
-                    // Re-arrange immediately when the preview is visible.
+                    // Choosing a layout with the preview off turns the preview
+                    // on in that layout — otherwise the switcher would do
+                    // nothing visible at all.
                     let win2 = win_ref.clone();
                     if win2.state.preview_active.get() {
                         win2.apply_preview_mode(mode);
+                    } else {
+                        win2.preview_on();
                     }
                 }
             });
@@ -1433,7 +1437,11 @@ impl AppWindow {
     }
 
     fn detach_preview_window(&self) {
-        if let Some(win) = self.state.preview_window.borrow_mut().take() {
+        // Take the window out of the cell before closing it: the close
+        // request handler reads the same cell, and the `if let` form below
+        // would hold the mutable borrow across close().
+        let win = self.state.preview_window.borrow_mut().take();
+        if let Some(win) = win {
             win.close();
         }
     }
@@ -1499,10 +1507,21 @@ impl AppWindow {
                     let win_self = self.clone();
                     let preview_win = win.clone();
                     win.connect_close_request(move |_| {
-                        if win_self.state.preview_active.get() {
+                        // Only a close of the still-tracked preview window is
+                        // the user turning the preview off. Mode switches call
+                        // detach_preview_window() first, which untracks the
+                        // window before closing it — that close must not
+                        // deactivate the preview that is about to be
+                        // rearranged.
+                        let tracked = win_self
+                            .state
+                            .preview_window
+                            .borrow()
+                            .as_ref()
+                            .is_some_and(|w| w.as_ptr() == preview_win.as_ptr());
+                        if tracked && win_self.state.preview_active.get() {
                             win_self.preview_off();
                         }
-                        let _ = &preview_win;
                         glib::Propagation::Proceed
                     });
                 }
