@@ -334,10 +334,13 @@ fn editor_widget_css(
 ) {
     // caret-color is pinned to the foreground: left to the platform theme,
     // the caret can end up light-on-light or dark-on-dark (the caret does
-    // not follow the `color` property on every theme).
+    // not follow the `color` property on every theme). The selection text
+    // color needs the same pinning: with only a background set, the selected
+    // glyphs render in the theme's selection foreground and can vanish
+    // against the palette's highlight.
     provider.load_from_string(&format!(
         ".editor-view, .editor-view text {{ background-color: {bg}; color: {fg}; caret-color: {fg}; }}\n\
-         .editor-view text selection, .editor-view selection {{ background-color: {sel}; }}\n\
+         .editor-view text selection, .editor-view selection {{ background-color: {sel}; color: {fg}; }}\n\
          .editor-view {{ font-family: 'Monospace'; font-size: {font:.0}px; }}",
         bg = p.background,
         fg = p.foreground,
