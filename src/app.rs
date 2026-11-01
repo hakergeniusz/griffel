@@ -56,12 +56,14 @@ fn relayout_all_editors() {
     for w in window_registry() {
         let width = w.editor_width();
         if width > 0 {
-            w.editor.relayout_column(
-                width,
-                crate::settings::settings().integer("characters-per-line"),
-                crate::settings::settings().boolean("bigger-text"),
-            );
-            w.editor.apply_focus_margins();
+            for t in w.tabs() {
+                t.editor.relayout_column(
+                    width,
+                    crate::settings::settings().integer("characters-per-line"),
+                    crate::settings::settings().boolean("bigger-text"),
+                );
+                t.editor.apply_focus_margins();
+            }
         }
     }
 }
@@ -166,8 +168,10 @@ impl GriffelApp {
                 if key == "color-scheme" {
                     crate::appearance::apply();
                     for w in window_registry() {
-                        w.editor.recolor();
-                        w.editor.highlight_now();
+                        for t in w.tabs() {
+                            t.editor.recolor();
+                            t.editor.highlight_now();
+                        }
                     }
                 }
                 // Flavor, scroll-sync and scheme changes reload previews
@@ -183,7 +187,9 @@ impl GriffelApp {
                 if key == "spellcheck" {
                     let on = crate::settings::settings().boolean("spellcheck");
                     for w in window_registry() {
-                        w.editor.set_spell_enabled(on);
+                        for t in w.tabs() {
+                            t.editor.set_spell_enabled(on);
+                        }
                     }
                 }
                 // Code Mode (F8): every editor switches behavior and column
@@ -191,15 +197,17 @@ impl GriffelApp {
                 if key == "code-mode" {
                     let on = crate::settings::settings().boolean("code-mode");
                     for w in window_registry() {
-                        w.editor.set_code_mode(on);
                         let width = w.editor_width();
-                        if width > 0 {
-                            w.editor.relayout_column(
-                                width,
-                                crate::settings::settings().integer("characters-per-line"),
-                                crate::settings::settings().boolean("bigger-text"),
-                            );
-                            w.editor.apply_focus_margins();
+                        for t in w.tabs() {
+                            t.editor.set_code_mode(on);
+                            if width > 0 {
+                                t.editor.relayout_column(
+                                    width,
+                                    crate::settings::settings().integer("characters-per-line"),
+                                    crate::settings::settings().boolean("bigger-text"),
+                                );
+                                t.editor.apply_focus_margins();
+                            }
                         }
                     }
                 }
@@ -363,7 +371,7 @@ pub fn update_logout_inhibition() {
     }
     let dirty = window_registry()
         .iter()
-        .any(|w| w.state.document.borrow().dirty);
+        .any(|w| w.tabs().iter().any(|t| t.doc().dirty));
     let app = gtk::Application::default();
     // Inhibition contacts the session manager; on an unregistered
     // application (no session bus) gtk_application_inhibit crashes instead
@@ -387,12 +395,16 @@ pub fn update_logout_inhibition() {
 
 fn register_accels(app: &gtk::Application) {
     for (action, accels) in [
-        ("app.new-window", vec!["<primary>n"]),
+        // Ctrl+N opens a document tab; Shift+Ctrl+N a window. Ctrl+W closes
+        // the current tab; Shift+Ctrl+W the window.
+        ("app.new-window", vec!["<primary><shift>n"]),
+        ("win.new-tab", vec!["<primary>n"]),
+        ("win.close-tab", vec!["<primary>w"]),
+        ("win.close-window", vec!["<primary><shift>w"]),
         ("app.quit", vec!["<primary>q"]),
         ("win.open", vec!["<primary>o"]),
         ("win.save", vec!["<primary>s"]),
         ("win.save-as", vec!["<primary><shift>s"]),
-        ("win.close", vec!["<primary>w"]),
         ("win.find", vec!["<primary>f"]),
         ("win.find-replace", vec!["<primary>h"]),
         ("win.toggle-spellcheck", vec!["F7"]),

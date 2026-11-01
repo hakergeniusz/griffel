@@ -1,14 +1,14 @@
 //! Autosave snapshots and crash recovery (`03-behavior/06-files.md` §5).
 
 use crate::app;
-use crate::files;
 use crate::files::monitor;
 use crate::settings;
-use crate::window::AppWindow;
+use crate::window::{AppWindow, TabState};
 use gtk::gio;
 use gtk::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 fn snapshot_dir() -> PathBuf {
     let base = std::env::var("XDG_STATE_HOME")
@@ -37,35 +37,34 @@ fn is_snapshot_file(path: &Path) -> bool {
     path.is_file() && !path.to_string_lossy().ends_with(".orig")
 }
 
-pub fn schedule(window: &AppWindow) {
-    if window.state.snapshot_timer.borrow().is_some() {
+pub fn schedule(window: &AppWindow, tab: &Rc<TabState>) {
+    if tab.snapshot_timer.borrow().is_some() {
         return;
     }
     let period = settings::settings().integer("autosave-period").max(1) as u32;
-    let win = window.clone();
+    let tab = tab.clone();
+    let timer_tab = tab.clone();
     let id = glib::timeout_add_seconds_local(period, move || {
-        let dirty = win.state.document.borrow().dirty;
+        let dirty = timer_tab.doc().dirty;
         if !dirty {
-            *win.state.snapshot_timer.borrow_mut() = None;
+            *timer_tab.snapshot_timer.borrow_mut() = None;
             return glib::ControlFlow::Break;
         }
-        let text = win.editor.full_text();
+        let text = timer_tab.editor.full_text();
         if text.trim().is_empty() {
             return glib::ControlFlow::Continue;
         }
         // Reuse an existing snapshot file for this document if possible.
-        let path = if let Some(p) = win.state.snapshot_file.borrow().clone() {
+        let path = if let Some(p) = timer_tab.snapshot_file.borrow().clone() {
             p
         } else {
             let p = snapshot_dir().join(glib::uuid_string_random().to_string());
-            *win.state.snapshot_file.borrow_mut() = Some(p.clone());
+            *timer_tab.snapshot_file.borrow_mut() = Some(p.clone());
             p
         };
         if fs::write(&path, text.as_bytes()).is_ok() {
-            let orig = win
-                .state
-                .document
-                .borrow()
+            let orig = timer_tab
+                .doc()
                 .file
                 .clone()
                 .and_then(|f| f.path().map(|p| p.display().to_string()));
@@ -81,15 +80,36 @@ pub fn schedule(window: &AppWindow) {
         }
         glib::ControlFlow::Continue
     });
-    *window.state.snapshot_timer.borrow_mut() = Some(id);
+    *tab.snapshot_timer.borrow_mut() = Some(id);
 }
 
-pub fn delete(window: &AppWindow) {
-    window.cancel_snapshot_timer();
-    if let Some(path) = window.state.snapshot_file.borrow_mut().take() {
+pub fn delete(window: &AppWindow, tab: &Rc<TabState>) {
+    window.cancel_snapshot_timer(tab);
+    if let Some(path) = tab.snapshot_file.borrow_mut().take() {
         let _ = fs::remove_file(&path);
         let _ = fs::remove_file(companion(&path));
     }
+}
+
+/// The first tab in any open window that is empty and clean (no backing
+/// file, no edits, no recovery banner yet) — recovery reuses it instead of
+/// stacking up tabs.
+fn empty_unmodified_tab() -> Option<(AppWindow, Rc<TabState>)> {
+    for w in app::window_registry() {
+        for t in w.tabs() {
+            let free = {
+                let doc = t.doc();
+                doc.file.is_none()
+                    && !doc.dirty
+                    && !doc.recovered
+                    && t.editor.buffer().char_count() == 0
+            };
+            if free {
+                return Some((w, t));
+            }
+        }
+    }
+    None
 }
 
 pub fn recover_snapshots(app: &gtk::Application) {
@@ -116,26 +136,30 @@ pub fn recover_snapshots(app: &gtk::Application) {
             .filter(|s| !s.is_empty());
         let file = original.map(|p| gio::File::for_path(&p));
 
-        let win = app::window_registry().into_iter().find(|w| {
-            let doc = w.state.document.borrow();
-            doc.file.is_none() && !doc.dirty && !doc.recovered && w.editor.buffer().char_count() == 0
-        }).unwrap_or_else(|| AppWindow::new(app));
+        // Recover into an existing free tab when there is one; further
+        // snapshots then open as tabs of that window.
+        let (win, tab) = empty_unmodified_tab().unwrap_or_else(|| {
+            let win = AppWindow::new(app);
+            let tab = win.active_tab();
+            (win, tab)
+        });
 
-        *win.state.suppress_dirty.borrow_mut() = true;
-        win.editor.set_full_text(&text);
-        *win.state.suppress_dirty.borrow_mut() = false;
+        *tab.suppress_dirty.borrow_mut() = true;
+        tab.editor.set_full_text(&text);
+        *tab.suppress_dirty.borrow_mut() = false;
         {
-            let mut doc = win.state.document.borrow_mut();
+            let mut doc = tab.doc_mut();
             doc.file = file.clone();
             doc.encoding = "UTF-8";
             doc.dirty = true;
             doc.recovered = true;
         }
         win.update_title();
-        win.editor.highlight_now();
+        win.update_tab_title(&tab);
+        tab.editor.highlight_now();
         win.show_recovery_banner();
         if let Some(f) = file {
-            monitor::install(&win, &f);
+            monitor::install_tab(&win, &tab, &f);
         }
         win.present_window();
     }

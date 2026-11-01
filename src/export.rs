@@ -449,9 +449,9 @@ fn perform_export(
     output: &Path,
 ) -> Result<(), String> {
     let assets = Assets::materialize()?;
-    let mut text = win.editor.full_text();
+    let mut text = win.editor().full_text();
     if opts.rel_to_abs {
-        if let Some(dir) = win.editor.flags.doc_dir.borrow().as_deref() {
+        if let Some(dir) = win.editor().flags.doc_dir.borrow().as_deref() {
             text = rewrite_relative_to_absolute(&text, dir);
         }
     }
@@ -464,7 +464,7 @@ fn perform_export(
     }
     // Relative document resources resolve against the document's folder
     // (same mechanism as the preview).
-    let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+    let doc_dir = win.editor().flags.doc_dir.borrow().clone();
     let result = run_pandoc(&text, output, &args, doc_dir.as_deref());
     if fmt.kind == Kind::Reveal && result.is_ok() {
         if let Some(parent) = output.parent() {
@@ -520,8 +520,8 @@ fn run_quick_html(win: &AppWindow, output: &Path) {
             "-o".into(),
             output.display().to_string(),
         ];
-        let text = win.editor.full_text();
-        let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+        let text = win.editor().full_text();
+        let doc_dir = win.editor().flags.doc_dir.borrow().clone();
         run_pandoc(&text, output, &args, doc_dir.as_deref())
     })();
 
@@ -536,7 +536,7 @@ fn run_quick_html(win: &AppWindow, output: &Path) {
 // ---------------------------------------------------------------------------
 
 fn document_stem(win: &AppWindow) -> String {
-    let name = win.state.document.borrow().display_name();
+    let name = win.active_tab().doc().display_name();
     match name.rfind('.') {
         Some(dot) if dot > 0 => name[..dot].to_string(),
         _ => name,
@@ -555,9 +555,8 @@ fn save_dialog(win: &AppWindow, title: &str, fmt: &FormatDef, opts: Options) {
     dialog.set_filters(Some(&filters));
     dialog.set_initial_name(Some(&format!("{}.{}", document_stem(win), fmt.ext)));
     let initial_folder = win
-        .state
-        .document
-        .borrow()
+        .active_tab()
+        .doc()
         .parent_path()
         .map(gio::File::for_path)
         .or_else(crate::files::default_folder);
@@ -632,9 +631,8 @@ fn quick(win: &AppWindow, index: usize, title: &str) {
     dialog.set_filters(Some(&filters));
     dialog.set_initial_name(Some(&format!("{}.{}", document_stem(win), fmt.ext)));
     let initial_folder = win
-        .state
-        .document
-        .borrow()
+        .active_tab()
+        .doc()
         .parent_path()
         .map(gio::File::for_path)
         .or_else(crate::files::default_folder);
@@ -678,9 +676,9 @@ pub fn quick_odt(win: &AppWindow) {
 /// Copy HTML (§3): the document fragment (no standalone wrapper), same
 /// flavor preference, on the clipboard.
 pub fn copy_html(win: &AppWindow) {
-    let text = win.editor.full_text();
+    let text = win.editor().full_text();
     let flavor = settings().input_format();
-    let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+    let doc_dir = win.editor().flags.doc_dir.borrow().clone();
     let tmp =
         converter::temp_dir().join(format!("griffel-copyhtml-{}.md", std::process::id()));
     if fs::write(&tmp, text.as_bytes()).is_err() {

@@ -1,6 +1,7 @@
 //! Document files: document state, open routing, save pipeline, recents.
 //!
-//! One window holds one document (`03-behavior/06-files.md`).
+//! One tab holds one document; a window holds one or more tabs
+//! (`03-behavior/06-files.md`).
 
 pub mod encoding;
 pub mod metadata;
@@ -11,9 +12,10 @@ pub mod snapshots;
 
 use gtk::prelude::*;
 use gtk::gio;
+use std::rc::Rc;
 
 use crate::app::window_registry;
-use crate::window::AppWindow;
+use crate::window::{AppWindow, TabState};
 
 /// A document's file state.
 #[derive(Default)]
@@ -65,19 +67,33 @@ impl Document {
 // ---------------------------------------------------------------------------
 
 /// Application-level open routing (`03-behavior/06-files.md` §2.1):
-/// - a file already open in a window is presented, not duplicated;
-/// - otherwise it loads into an existing empty unmodified window if any;
-/// - otherwise a new window is created;
+/// - a file already open in a tab (of any window) is presented, not
+///   duplicated;
+/// - otherwise it loads into an existing empty unmodified tab if any;
+/// - otherwise a new tab opens in the most recent window (or, when no
+///   window is open, a new window);
 /// - files that do not exist are skipped with a log warning.
 pub fn open_files(app: &gtk::Application, files: &[gio::File]) {
     for file in files {
-        if let Some(existing) = window_showing(app, file) {
-            existing.present_window();
+        if let Some((win, tab)) = tab_showing(file) {
+            win.present_window();
+            win.select_tab(&tab);
             continue;
         }
         if file.query_exists(gio::Cancellable::NONE) {
-            let win = empty_unmodified_window(app).unwrap_or_else(|| AppWindow::new(app));
-            win.load_file(file);
+            if let Some((win, tab)) = empty_unmodified_tab() {
+                win.load_file_into(&tab, file);
+                win.present_window();
+                win.select_tab(&tab);
+                continue;
+            }
+            let win = window_registry()
+                .last()
+                .cloned()
+                .unwrap_or_else(|| AppWindow::new(app));
+            win.open_tab();
+            let tab = win.active_tab();
+            win.load_file_into(&tab, file);
             win.present_window();
         } else {
             glib::g_warning!("griffel", "skipping missing file: {}", file.uri());
@@ -85,32 +101,51 @@ pub fn open_files(app: &gtk::Application, files: &[gio::File]) {
     }
 }
 
-/// The window already showing `file`, if any (G6).
-fn window_showing(app: &gtk::Application, file: &gio::File) -> Option<AppWindow> {
+/// The tab already showing `file`, with its window, if any (G6).
+fn tab_showing(file: &gio::File) -> Option<(AppWindow, Rc<TabState>)> {
     let this_uri = file.uri();
-    window_registry()
-        .into_iter()
-        .find(|w| {
-            w.state.document
-                .borrow()
+    for w in window_registry() {
+        for t in w.tabs() {
+            let showing = t
+                .doc()
                 .file
                 .as_ref()
-                .is_some_and(|f| f.uri() == this_uri)
-        })
+                .is_some_and(|f| f.uri() == this_uri);
+            if showing {
+                return Some((w, t));
+            }
+        }
+    }
+    None
 }
 
-/// The first window that is empty (no backing file), unmodified, and has no
-/// recovery banner.
-fn empty_unmodified_window(app: &gtk::Application) -> Option<AppWindow> {
-    window_registry().into_iter().find(|w| {
-        let doc = w.state.document.borrow();
-        doc.file.is_none() && !doc.dirty && !doc.recovered && w.editor.buffer().char_count() == 0
-    })
+/// The first tab in any open window that is empty (no backing file),
+/// unmodified, and has no recovery banner.
+fn empty_unmodified_tab() -> Option<(AppWindow, Rc<TabState>)> {
+    for w in window_registry() {
+        for t in w.tabs() {
+            let free = {
+                let doc = t.doc();
+                doc.file.is_none()
+                    && !doc.dirty
+                    && !doc.recovered
+                    && t.editor.buffer().char_count() == 0
+            };
+            if free {
+                return Some((w, t));
+            }
+        }
+    }
+    None
 }
 
-/// Load `file` into the window's editor (§2.2). On failure an error dialog
-/// is shown and the window resets to a new empty document.
-pub fn load_into(window: &AppWindow, file: &gio::File) -> Result<(), String> {
+/// Load `file` into `tab` (§2.2). On failure the caller shows an error
+/// dialog and resets the tab to a new empty document.
+pub fn load_into_tab(
+    window: &AppWindow,
+    tab: &Rc<TabState>,
+    file: &gio::File,
+) -> Result<(), String> {
     let bytes = read_file_bytes(file)?;
     let decoded = encoding::decode(&bytes).map_err(|e| {
         format!(
@@ -122,7 +157,7 @@ pub fn load_into(window: &AppWindow, file: &gio::File) -> Result<(), String> {
         )
     })?;
 
-    window.apply_loaded(file, &decoded);
+    window.apply_loaded(tab, file, &decoded);
     Ok(())
 }
 
@@ -216,8 +251,10 @@ pub fn write_to(file: &gio::File, text: &str, encoding: &str) -> Result<String, 
 }
 
 /// Save As: native dialog, then write and associate the backing file.
-pub fn save_as_dialog(window: &AppWindow) {
-    let doc = window.state.document.borrow();
+/// Operates on `tab`, which need not be the active one (the unsaved-changes
+/// confirmation can ask for a Save As of a background tab).
+pub fn save_as_dialog(window: &AppWindow, tab: &Rc<TabState>) {
+    let doc = tab.doc();
     let initial_name = {
         let mut name = doc.display_name();
         if !name.ends_with(".md") && !name.contains('.') {
@@ -252,13 +289,14 @@ pub fn save_as_dialog(window: &AppWindow) {
     dialog.set_filters(Some(&filters));
 
     let win = window.clone();
+    let tab = tab.clone();
     let parent = win.root.clone();
     dialog.save(
         Some(&parent),
         gio::Cancellable::NONE,
         move |result| match result {
             Ok(file) => {
-                win.save_to(file);
+                win.save_tab_to(tab, file);
             }
             Err(_) => {
                 // Cancelled.
@@ -272,17 +310,39 @@ pub(crate) fn default_folder() -> Option<gio::File> {
 }
 
 // ---------------------------------------------------------------------------
-// Snapshots (stub until milestone 11)
+// Snapshots
 // ---------------------------------------------------------------------------
 
 pub fn recover_snapshots(app: &gtk::Application) {
     snapshots::recover_snapshots(app);
 }
 
-pub fn delete_snapshot(window: &AppWindow) {
-    snapshots::delete(window);
+pub fn delete_snapshot_tab(window: &AppWindow, tab: &Rc<TabState>) {
+    snapshots::delete(window, tab);
 }
 
-pub fn schedule_snapshot(window: &AppWindow) {
-    snapshots::schedule(window);
+pub fn schedule_snapshot_tab(window: &AppWindow, tab: &Rc<TabState>) {
+    snapshots::schedule(window, tab);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn document_display_names() {
+        let doc = Document::new();
+        assert_eq!(doc.display_name(), "New File");
+        assert!(doc.path_string().is_none());
+        assert!(doc.parent_path().is_none());
+
+        let file = gio::File::for_path("/tmp/notes.md");
+        let doc = Document {
+            file: Some(file),
+            ..Document::default()
+        };
+        assert_eq!(doc.display_name(), "notes.md");
+        assert_eq!(doc.parent_path().as_deref(), Some("/tmp"));
+        assert_eq!(doc.path_string().as_deref(), Some("/tmp/notes.md"));
+    }
 }

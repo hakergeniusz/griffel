@@ -1,10 +1,14 @@
 //! Find and replace bar (`03-behavior/07-search-and-replace.md`,
 //! `02-ui-layout.md` §6). Search state is per window; matching uses the
-//! platform search context (highlighting, regex, replacement).
+//! platform search context (highlighting, regex, replacement). The context
+//! is bound to one buffer for its lifetime, so the slot is swapped for a
+//! fresh context whenever the search targets another tab's document; all
+//! contexts share one `SearchSettings`, so the query and options follow.
 
 use gtk::prelude::*;
-use gtk::glib;
 use sourceview5::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct SearchBar {
@@ -19,8 +23,19 @@ pub struct SearchBar {
     case_toggle: gtk::ToggleButton,
     regex_toggle: gtk::ToggleButton,
     replace_toggle: gtk::ToggleButton,
-    context: sourceview5::SearchContext,
+    /// The context for the buffer the search currently targets. Shared by
+    /// value across all clones of this struct.
+    context: Rc<RefCell<sourceview5::SearchContext>>,
     settings: sourceview5::SearchSettings,
+}
+
+fn make_context(
+    buffer: &sourceview5::Buffer,
+    settings: &sourceview5::SearchSettings,
+) -> sourceview5::SearchContext {
+    let context = sourceview5::SearchContext::new(buffer, Some(settings));
+    context.set_highlight(true);
+    context
 }
 
 impl SearchBar {
@@ -29,8 +44,7 @@ impl SearchBar {
         settings.set_case_sensitive(false);
         settings.set_regex_enabled(false);
 
-        let context = sourceview5::SearchContext::new(buffer, Some(&settings));
-        context.set_highlight(true);
+        let context = Rc::new(RefCell::new(make_context(buffer, &settings)));
 
         let bar = gtk::SearchBar::new();
         bar.set_show_close_button(true);
@@ -98,6 +112,20 @@ impl SearchBar {
         sb
     }
 
+    fn context(&self) -> sourceview5::SearchContext {
+        self.context.borrow().clone()
+    }
+
+    /// Swap the context over to `buffer`'s document. The old context's
+    /// highlighting is switched off first so background tabs do not keep
+    /// scanning for matches.
+    fn swap_context(&self, buffer: &sourceview5::Buffer) {
+        if let Ok(mut slot) = self.context.try_borrow_mut() {
+            slot.set_highlight(false);
+            *slot = make_context(buffer, &self.settings);
+        }
+    }
+
     fn wire(&self, _view: &sourceview5::View, _buffer: &sourceview5::Buffer) {
         // Live search updates.
         {
@@ -142,9 +170,10 @@ impl SearchBar {
         {
             let sb = self.clone_handles();
             self.replace_button.connect_clicked(move |_| {
-                let buffer = sb.context.buffer();
+                let context = sb.context();
+                let buffer = context.buffer();
                 let start = buffer.iter_at_mark(&buffer.get_insert());
-                let Some((ms, me, _)) = sb.context.forward(&start) else {
+                let Some((ms, me, _)) = context.forward(&start) else {
                     return;
                 };
                 let mut ms = ms;
@@ -155,7 +184,7 @@ impl SearchBar {
                     .unwrap_or(false);
                 if exact {
                     let replacement = sb.replacement_for(&ms, &me);
-                    if sb.context.replace(&mut ms, &mut me, &replacement).is_ok() {
+                    if context.replace(&mut ms, &mut me, &replacement).is_ok() {
                         sb.jump_next();
                     }
                 } else {
@@ -168,7 +197,7 @@ impl SearchBar {
             let sb = self.clone_handles();
             self.replace_all_button.connect_clicked(move |_| {
                 let replacement = sb.replace_entry.text().to_string();
-                let _count = sb.context.replace_all(&replacement);
+                let _count = sb.context().replace_all(&replacement);
                 sb.refresh_from_start();
             });
         }
@@ -188,12 +217,13 @@ impl SearchBar {
                 Some("search-mode-enabled"),
                 move |bar, _pspec| {
                     let visible = bar.is_search_mode();
+                    let context = sb.context();
                     if !visible {
-                        sb.context.set_highlight(false);
+                        context.set_highlight(false);
                         sb.replace_row.set_reveal_child(false);
                         sb.replace_toggle.set_active(false);
                     } else {
-                        sb.context.set_highlight(true);
+                        context.set_highlight(true);
                     }
                 },
             );
@@ -225,7 +255,7 @@ impl SearchBar {
         let count = if text.is_empty() {
             -1
         } else {
-            self.context.occurrences_count()
+            self.context().occurrences_count()
         };
         let no_match = count == 0;
         self.entry
@@ -243,7 +273,7 @@ impl SearchBar {
     }
 
     fn selected_match_start(&self, _buffer: &sourceview5::Buffer) -> Option<gtk::TextIter> {
-        let buffer = self.context.buffer();
+        let buffer = self.context().buffer();
         let insert = buffer.iter_at_mark(&buffer.get_insert());
         Some(insert)
     }
@@ -259,7 +289,7 @@ impl SearchBar {
             return raw;
         }
         let matched: String = self
-            .context
+            .context()
             .buffer()
             .text(start, end, true)
             .into();
@@ -271,18 +301,20 @@ impl SearchBar {
     }
 
     pub fn jump_next(&self) {
-        let buffer = self.context.buffer();
+        let context = self.context();
+        let buffer = context.buffer();
         let insert = buffer.iter_at_mark(&buffer.get_insert());
-        if let Some((ms, me, _wrap)) = self.context.forward(&insert) {
+        if let Some((ms, me, _wrap)) = context.forward(&insert) {
             buffer.select_range(&ms, &me);
             self.scroll_to(&me);
         }
     }
 
     pub fn jump_prev(&self) {
-        let buffer = self.context.buffer();
+        let context = self.context();
+        let buffer = context.buffer();
         let insert = buffer.iter_at_mark(&buffer.get_insert());
-        if let Some((ms, me, _wrap)) = self.context.backward(&insert) {
+        if let Some((ms, me, _wrap)) = context.backward(&insert) {
             buffer.select_range(&ms, &me);
             self.scroll_to(&ms);
         }
@@ -295,8 +327,10 @@ impl SearchBar {
     }
 
     /// Open find (optionally with the replace row revealed), pre-filling
-    /// the entry with the selection when present.
+    /// the entry with the selection when present. The search context is
+    /// retargeted to `buffer` (the active tab's document).
     pub fn open(&self, with_replace: bool, buffer: &sourceview5::Buffer) {
+        self.swap_context(buffer);
         self.replace_row.set_reveal_child(with_replace);
         self.replace_toggle.set_active(with_replace);
         self.bar.set_search_mode(true);
@@ -308,6 +342,14 @@ impl SearchBar {
             self.refresh_from_start();
         }
         self.entry.grab_focus();
+    }
+
+    /// Point the search at another buffer (tab switch) without opening the
+    /// bar; matches re-resolve lazily against the new document.
+    pub fn retarget(&self, buffer: &sourceview5::Buffer) {
+        if self.bar.is_search_mode() {
+            self.swap_context(buffer);
+        }
     }
 
     pub fn close(&self) {

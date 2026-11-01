@@ -135,11 +135,13 @@ pub fn show_shortcuts(parent: &adw::ApplicationWindow) {
     let general = gtk::ShortcutsGroup::builder()
         .title("General")
         .build();
-    add_shortcut(&general, "<primary>n", "New window");
+    add_shortcut(&general, "<primary>n", "New tab");
+    add_shortcut(&general, "<primary><shift>n", "New window");
     add_shortcut(&general, "<primary>o", "Open file");
     add_shortcut(&general, "<primary>s", "Save document");
     add_shortcut(&general, "<primary><shift>s", "Save As");
-    add_shortcut(&general, "<primary>w", "Close document");
+    add_shortcut(&general, "<primary>w", "Close tab");
+    add_shortcut(&general, "<primary><shift>w", "Close window");
     add_shortcut(&general, "<primary>q", "Quit application");
     add_shortcut(&general, "<primary>comma", "Open preferences");
     add_shortcut(&general, "F7", "Toggle spell checking");
