@@ -167,7 +167,8 @@ fn handle_character(
 }
 
 /// Code Mode pairing: skip over an existing closer, wrap a selection in
-/// the pair, or insert a pair per `autopair::code_should_pair`.
+/// the pair, insert a lone fence backtick, or insert a pair per
+/// `autopair::code_should_pair`.
 fn handle_character_code(
     buffer: &sourceview5::Buffer,
     ch: char,
@@ -178,6 +179,18 @@ fn handle_character_code(
     let Some(closing) = autopair::code_closing_for(ch) else {
         return glib::Propagation::Proceed;
     };
+
+    // A backtick that would become the third of a run is a ``` fence
+    // delimiter, not a pair: it must land alone. Left to the rules below,
+    // the first backtick pairs and the second skips over, so the third
+    // pairs again — a fence comes out doubled with the cursor stranded
+    // inside it.
+    if !has_selection && is_fence_backtick(&insert, ch) {
+        buffer.begin_user_action();
+        buffer.insert_at_cursor(&ch.to_string());
+        buffer.end_user_action();
+        return glib::Propagation::Stop;
+    }
 
     // Typing the closer that is already under the cursor skips over it.
     if !has_selection && autopair::code_is_closing(ch) && next_char == ch {
@@ -216,6 +229,20 @@ fn handle_character_code(
     }
     buffer.end_user_action();
     glib::Propagation::Stop
+}
+
+/// Whether typing `ch` at `insert` would make it the third backtick of a
+/// consecutive run — the fence delimiter case. A newline between backticks
+/// breaks the run, so only a same-line ``` counts.
+fn is_fence_backtick(insert: &gtk::TextIter, ch: char) -> bool {
+    if ch != '`' {
+        return false;
+    }
+    let mut before = *insert;
+    before.backward_char()
+        && before.char() == '`'
+        && before.backward_char()
+        && before.char() == '`'
 }
 
 /// Backspace between an empty auto-paired pair deletes both halves
@@ -532,7 +559,7 @@ mod tests {
     }
 
     #[test]
-    fn empty_pair_backspace() {
+    fn code_mode_buffer_interactions() {
         // GTK's initialized check is thread-local and cargo test runs each
         // #[test] on its own thread, so all buffer work stays in this one
         // test. Headless environments (CI) have no display and skip.
@@ -551,5 +578,38 @@ mod tests {
         let buf = buf_with("()", 2);
         assert!(!delete_empty_pair(&buf));
         assert_eq!(text(&buf), "()");
+
+        // Fence typing: ``` at end of line must come out as exactly three
+        // backticks with the cursor after them — the first pairs, the
+        // second skips over, and the third, the fence delimiter, has to
+        // go in alone.
+        let buf = sourceview5::Buffer::new(None::<&gtk::TextTagTable>);
+        for _ in 0..3 {
+            assert_eq!(
+                handle_character_code(&buf, '`', false),
+                glib::Propagation::Stop
+            );
+        }
+        assert_eq!(text(&buf), "```");
+        assert_eq!(buf.iter_at_mark(&buf.get_insert()).offset(), 3);
+
+        // The closing fence after a code line comes out the same way.
+        buf.insert_at_cursor("\nlet x = 1;\n");
+        for _ in 0..3 {
+            handle_character_code(&buf, '`', false);
+        }
+        assert!(text(&buf).ends_with("\nlet x = 1;\n```"));
+
+        // A fourth backtick extends the fence instead of pairing too.
+        handle_character_code(&buf, '`', false);
+        assert!(text(&buf).ends_with("````"));
+
+        // Inline code still pairs and skips: `x`.
+        let buf = sourceview5::Buffer::new(None::<&gtk::TextTagTable>);
+        handle_character_code(&buf, '`', false);
+        assert_eq!(text(&buf), "``");
+        buf.insert_at_cursor("x");
+        handle_character_code(&buf, '`', false);
+        assert_eq!(text(&buf), "`x`");
     }
 }
