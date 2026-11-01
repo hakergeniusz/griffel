@@ -3,6 +3,7 @@
 //! guidance, the reveal.js folder export, and Copy HTML. All conversions
 //! run through the external converter; nothing is bundled from it.
 
+use crate::converter;
 use crate::settings::{settings, ColorScheme, InputFormat};
 use crate::window::AppWindow;
 use adw::prelude::*;
@@ -10,14 +11,13 @@ use gdk;
 use gtk::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 // ---------------------------------------------------------------------------
 // Converter availability
 // ---------------------------------------------------------------------------
 
 pub fn has_tex() -> bool {
-    Command::new("xelatex")
+    converter::command("xelatex", None)
         .arg("--version")
         .status()
         .map(|s| s.success())
@@ -25,7 +25,7 @@ pub fn has_tex() -> bool {
 }
 
 fn has_typst() -> bool {
-    Command::new("typst")
+    converter::command("typst", None)
         .arg("--version")
         .status()
         .map(|s| s.success())
@@ -49,7 +49,9 @@ fn resource_bytes(path: &str) -> Result<Vec<u8>, String> {
 /// template/reference paths, not resource URIs.
 fn extract_resource(path: &str, name: &str) -> Result<PathBuf, String> {
     let bytes = resource_bytes(path)?;
-    let out = std::env::temp_dir().join(format!("griffel-{}-{name}", std::process::id()));
+    // Host-visible scratch dir: inside Flatpak the host-side converter
+    // reads these paths.
+    let out = converter::temp_dir().join(format!("griffel-{}-{name}", std::process::id()));
     fs::write(&out, bytes).map_err(|e| e.to_string())?;
     Ok(out)
 }
@@ -367,7 +369,7 @@ fn papersize_var(opts: &Options) -> String {
 /// Fetch the converter's bundled DZSlides template into a temp file at
 /// export time (it is used, not redistributed).
 fn dzslides_template() -> Result<PathBuf, String> {
-    let out = Command::new("pandoc")
+    let out = converter::command("pandoc", None)
         .arg("-D")
         .arg("dzslides")
         .output()
@@ -375,7 +377,7 @@ fn dzslides_template() -> Result<PathBuf, String> {
     if !out.status.success() {
         return Err("could not obtain the DZSlides template".into());
     }
-    let path = std::env::temp_dir().join(format!("griffel-{}-dzslides.tpl", std::process::id()));
+    let path = converter::temp_dir().join(format!("griffel-{}-dzslides.tpl", std::process::id()));
     fs::write(&path, &out.stdout).map_err(|e| e.to_string())?;
     Ok(path)
 }
@@ -384,11 +386,14 @@ fn dzslides_template() -> Result<PathBuf, String> {
 // Conversion execution
 // ---------------------------------------------------------------------------
 
-fn run_pandoc(input: &str, output: &Path, extra: &[String]) -> Result<(), String> {
+/// Run pandoc over `input`, writing to `output`. Relative document
+/// resources resolve against `cwd` (the document's folder); inside Flatpak
+/// the wrapper carries that working directory to the host process.
+fn run_pandoc(input: &str, output: &Path, extra: &[String], cwd: Option<&Path>) -> Result<(), String> {
     let input_path =
-        std::env::temp_dir().join(format!("griffel-export-{}.md", std::process::id()));
+        converter::temp_dir().join(format!("griffel-export-{}.md", std::process::id()));
     fs::write(&input_path, input.as_bytes()).map_err(|e| e.to_string())?;
-    let mut cmd = Command::new("pandoc");
+    let mut cmd = converter::command("pandoc", cwd);
     cmd.arg(&input_path);
     cmd.args(extra);
     cmd.arg("-o").arg(output);
@@ -396,6 +401,8 @@ fn run_pandoc(input: &str, output: &Path, extra: &[String]) -> Result<(), String
     let _ = fs::remove_file(&input_path);
     if status.success() {
         Ok(())
+    } else if converter::in_flatpak() && status.code() == Some(127) {
+        Err(converter::missing_converter_message())
     } else {
         Err(format!("converter exited with status {status}"))
     }
@@ -457,10 +464,8 @@ fn perform_export(
     }
     // Relative document resources resolve against the document's folder
     // (same mechanism as the preview).
-    if let Some(dir) = win.editor.flags.doc_dir.borrow().as_deref() {
-        let _ = std::env::set_current_dir(dir);
-    }
-    let result = run_pandoc(&text, output, &args);
+    let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+    let result = run_pandoc(&text, output, &args, doc_dir.as_deref());
     if fmt.kind == Kind::Reveal && result.is_ok() {
         if let Some(parent) = output.parent() {
             extract_reveal_library(parent)?;
@@ -488,7 +493,7 @@ fn quick_html_template() -> Result<PathBuf, String> {
          <body>\n$body$\n</body>\n</html>\n"
     );
     let path =
-        std::env::temp_dir().join(format!("griffel-{}-html-template.html", std::process::id()));
+        converter::temp_dir().join(format!("griffel-{}-html-template.html", std::process::id()));
     fs::write(&path, tpl).map_err(|e| e.to_string())?;
     Ok(path)
 }
@@ -516,10 +521,8 @@ fn run_quick_html(win: &AppWindow, output: &Path) {
             output.display().to_string(),
         ];
         let text = win.editor.full_text();
-        if let Some(dir) = win.editor.flags.doc_dir.borrow().as_deref() {
-            let _ = std::env::set_current_dir(dir);
-        }
-        run_pandoc(&text, output, &args)
+        let doc_dir = win.editor.flags.doc_dir.borrow().clone();
+        run_pandoc(&text, output, &args, doc_dir.as_deref())
     })();
 
     win.root.set_cursor(None);
@@ -678,18 +681,16 @@ pub fn copy_html(win: &AppWindow) {
     let text = win.editor.full_text();
     let flavor = settings().input_format();
     let doc_dir = win.editor.flags.doc_dir.borrow().clone();
-    let tmp = std::env::temp_dir().join(format!("griffel-copyhtml-{}.md", std::process::id()));
+    let tmp =
+        converter::temp_dir().join(format!("griffel-copyhtml-{}.md", std::process::id()));
     if fs::write(&tmp, text.as_bytes()).is_err() {
         return;
     }
-    let mut cmd = Command::new("pandoc");
+    let mut cmd = converter::command("pandoc", doc_dir.as_deref());
     cmd.arg("--from").arg(flavor.pandoc_format(false));
     cmd.arg("--to").arg("html5");
     cmd.arg("--mathml");
     cmd.arg("--wrap=none");
-    if let Some(dir) = doc_dir {
-        cmd.current_dir(dir);
-    }
     cmd.arg(&tmp);
     let output = cmd.output();
     let _ = fs::remove_file(&tmp);

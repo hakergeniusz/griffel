@@ -6,6 +6,7 @@
 use std::path::Path;
 use std::process::Command;
 
+use crate::converter;
 use crate::settings::InputFormat;
 
 /// Converter flavor identifiers accepted by Pandoc.
@@ -35,16 +36,13 @@ pub fn to_html_fragment(
     restricted: bool,
     doc_dir: Option<&Path>,
 ) -> Result<String, String> {
-    let mut cmd = Command::new("pandoc");
+    let mut cmd = converter::command("pandoc", doc_dir);
     cmd.arg("--from")
         .arg(flavor.pandoc_format(restricted))
         .arg("--to")
         .arg("html5")
         .arg("--mathml")
         .arg("--wrap=none");
-    if let Some(dir) = doc_dir {
-        cmd.current_dir(dir);
-    }
     run_converter(&mut cmd, text)
 }
 
@@ -87,8 +85,7 @@ fn run_converter(cmd: &mut Command, input: &str) -> Result<String, String> {
         .spawn()
         .map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
-                "The document converter (pandoc) is not installed. Install it to use the preview and export."
-                    .to_owned()
+                converter::missing_converter_message()
             } else {
                 format!("cannot start the converter: {e}")
             }
@@ -101,6 +98,11 @@ fn run_converter(cmd: &mut Command, input: &str) -> Result<String, String> {
         .wait_with_output()
         .map_err(|e| format!("converter failed: {e}"))?;
     if !output.status.success() {
+        // Inside Flatpak a missing host converter is reported by the `sh`
+        // wrapper as exit 127, not as a spawn failure.
+        if converter::in_flatpak() && output.status.code() == Some(127) {
+            return Err(converter::missing_converter_message());
+        }
         let stderr = String::from_utf8_lossy(&output.stderr);
         return Err(format!(
             "conversion failed: {}",

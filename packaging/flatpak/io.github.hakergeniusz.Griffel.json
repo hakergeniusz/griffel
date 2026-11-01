@@ -21,7 +21,8 @@
     "--device=dri",
     "--share=network",
     "--filesystem=home",
-    "--filesystem=xdg-data/hunspell:ro"
+    "--filesystem=xdg-data/hunspell:ro",
+    "--talk-name=org.freedesktop.Flatpak"
   ],
   "modules": [
     {
