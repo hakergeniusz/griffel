@@ -54,7 +54,7 @@ pub fn window_registry() -> Vec<crate::window::AppWindow> {
 /// (`03/10`) both take effect immediately.
 fn relayout_all_editors() {
     for w in window_registry() {
-        let width = w.root.width();
+        let width = w.editor_width();
         if width > 0 {
             w.editor.relayout_column(
                 width,

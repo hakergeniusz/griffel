@@ -411,7 +411,11 @@ impl AppWindow {
     fn start_layout_polling(&self) {
         let win = self.clone();
         glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
-            let width = win.root.width();
+            // The column is laid out for the editor's own width, not the
+            // window's: in the beside layout the editor only gets half the
+            // window, and a layout switch changes the editor's width
+            // without the window changing at all.
+            let width = win.editor_overlay_handle.width();
             if width > 0 && width != win.state.last_layout_width.get() {
                 win.state.last_layout_width.set(width);
                 win.editor.relayout_column(
@@ -510,6 +514,15 @@ impl AppWindow {
             });
         }
         actions.add_action(&preview_mode);
+
+        let preview_off = gio::SimpleAction::new("preview-off", None);
+        {
+            let win2 = win_ref2.clone();
+            preview_off.connect_activate(move |_, _| {
+                win2.preview_off();
+            });
+        }
+        actions.add_action(&preview_off);
 
         macro_rules! bind {
             ($name:expr, $f:expr) => {{
@@ -1111,6 +1124,13 @@ impl AppWindow {
         dialog.present(Some(&self.root));
     }
 
+    /// The editor overlay's current width — what the adaptive column
+    /// layout is sized against. Not the window's width in the beside
+    /// and below preview layouts.
+    pub fn editor_width(&self) -> i32 {
+        self.editor_overlay_handle.width()
+    }
+
     pub fn present_window(&self) {
         self.root.present();
         if self.state.preview_active.get() {
@@ -1147,6 +1167,10 @@ fn preview_layout_button() -> gtk::MenuButton {
         );
     }
     menu.append_section(None, &section);
+
+    let off = gio::Menu::new();
+    off.append(Some("No Preview"), Some("win.preview-off"));
+    menu.append_section(None, &off);
 
     let button = gtk::MenuButton::new();
     button.set_icon_name("view-right-pane-symbolic");
@@ -1467,6 +1491,32 @@ impl AppWindow {
         }
     }
 
+    /// Place a pane divider at half the window. On the startup-restore
+    /// path the layout switch runs before the window's first allocation,
+    /// so the width read at that moment is not the real one — retry until
+    /// it is.
+    fn queue_pane_position(&self, pane: &gtk::Paned, horizontal: bool) {
+        let win = self.clone();
+        let pane = pane.clone();
+        let tries = std::rc::Rc::new(std::cell::Cell::new(0));
+        glib::timeout_add_local(std::time::Duration::from_millis(50), move || {
+            let tries = tries.get() + 1;
+            let size = if horizontal {
+                win.root.width()
+            } else {
+                win.root.height()
+            };
+            if size > 1 {
+                pane.set_position(size / 2);
+                glib::ControlFlow::Break
+            } else if tries > 100 {
+                glib::ControlFlow::Break
+            } else {
+                glib::ControlFlow::Continue
+            }
+        });
+    }
+
     /// Arrange editor and preview per `mode` (§2, `02-ui-layout.md` §4).
     pub fn apply_preview_mode(&self, mode: PreviewMode) {
         self.detach(&self.editor_overlay_handle);
@@ -1480,12 +1530,14 @@ impl AppWindow {
                 self.hpaned.set_start_child(Some(&self.editor_overlay_handle));
                 self.hpaned.set_end_child(Some(&self.preview.root));
                 self.hpaned.set_position(width / 2);
+                self.queue_pane_position(&self.hpaned, true);
                 self.content_stack.set_visible_child_name("half-width");
             }
             PreviewMode::HalfHeight => {
                 self.vpaned.set_start_child(Some(&self.editor_overlay_handle));
                 self.vpaned.set_end_child(Some(&self.preview.root));
                 self.vpaned.set_position(height / 2);
+                self.queue_pane_position(&self.vpaned, false);
                 self.content_stack.set_visible_child_name("half-height");
             }
             PreviewMode::FullWidth => {
