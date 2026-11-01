@@ -1,3 +1,12 @@
+griffel (0.1.0~beta3-1) unstable; urgency=medium
+
+  * Keep selected text visible: pin the selection text color to the
+    palette foreground (was a solid bar on the dark scheme).
+  * Fix the Arch PKGBUILD build/check functions referencing the beta.1
+    source directory.
+
+ -- hakergeniusz <hakergeniusz@users.noreply.github.com>  Sun, 01 Nov 2026 12:00:00 +0000
+
 griffel (0.1.0~beta2-1) unstable; urgency=medium
 
   * Make the Save split button and the words counter opaque.

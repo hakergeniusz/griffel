@@ -2,13 +2,13 @@
 # the git tag (v0.1.0-beta.1 -> Version 0.1.0~beta1); bump them together
 # with Cargo.toml, debian/changelog and the AUR PKGBUILD on each release.
 Name:           griffel
-Version:        0.1.0~beta2
+Version:        0.1.0~beta3
 Release:        1%{?dist}
 Summary:        Distraction-free Markdown editor for the Linux desktop
 
 License:        MIT
 URL:            https://github.com/hakergeniusz/griffel
-Source0:        %{url}/archive/refs/tags/v0.1.0-beta.2/griffel-0.1.0-beta.2.tar.gz
+Source0:        %{url}/archive/refs/tags/v0.1.0-beta.3/griffel-0.1.0-beta.3.tar.gz
 
 BuildRequires:  cargo
 BuildRequires:  pkgconfig(gtk4) >= 4.10
@@ -31,7 +31,7 @@ snapshots, and export to PDF, HTML, ODT and more through Pandoc.}
 %description %{_description}
 
 %prep
-%autosetup -n griffel-0.1.0-beta.2
+%autosetup -n griffel-0.1.0-beta.3
 
 %build
 cargo build --release --locked
