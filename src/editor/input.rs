@@ -16,6 +16,8 @@ use crate::markdown::{autopair, lists};
 pub struct InputFlags {
     /// Hemingway Mode: user deletions are blocked (milestone 9).
     pub hemingway: Cell<bool>,
+    /// Code Mode: editor-style pairing, plain Enter/Tab, no list magic.
+    pub code_mode: Cell<bool>,
     /// The document's folder, for relative link paths on drop.
     pub doc_dir: RefCell<Option<PathBuf>>,
 }
@@ -89,9 +91,16 @@ fn handle_key(
             handle_tab(buffer, flags, blocked_callback, true)
         }
         // Hemingway Mode (03/04 §2): backspace and delete are blocked.
+        // Code Mode: backspace between an empty auto-paired pair deletes
+        // both halves (only reached when Hemingway is off).
         gdk::Key::BackSpace | gdk::Key::Delete | gdk::Key::KP_Delete => {
             if flags.hemingway.get() {
                 notify_blocked(blocked_callback);
+                glib::Propagation::Stop
+            } else if keyval == gdk::Key::BackSpace
+                && flags.code_mode.get()
+                && delete_empty_pair(buffer)
+            {
                 glib::Propagation::Stop
             } else {
                 glib::Propagation::Proceed
@@ -122,6 +131,11 @@ fn handle_character(
         notify_blocked(blocked_callback);
         return glib::Propagation::Stop;
     }
+
+    if flags.code_mode.get() {
+        return handle_character_code(buffer, ch, has_selection);
+    }
+
     let insert = buffer.iter_at_mark(&buffer.get_insert());
     let next_char = insert.char();
 
@@ -152,6 +166,81 @@ fn handle_character(
     glib::Propagation::Proceed
 }
 
+/// Code Mode pairing: skip over an existing closer, wrap a selection in
+/// the pair, or insert a pair per `autopair::code_should_pair`.
+fn handle_character_code(
+    buffer: &sourceview5::Buffer,
+    ch: char,
+    has_selection: bool,
+) -> glib::Propagation {
+    let insert = buffer.iter_at_mark(&buffer.get_insert());
+    let next_char = insert.char();
+    let Some(closing) = autopair::code_closing_for(ch) else {
+        return glib::Propagation::Proceed;
+    };
+
+    // Typing the closer that is already under the cursor skips over it.
+    if !has_selection && autopair::code_is_closing(ch) && next_char == ch {
+        let insert_mark = buffer.get_insert();
+        let mut iter = buffer.iter_at_mark(&insert_mark);
+        iter.forward_char();
+        buffer.place_cursor(&iter);
+        return glib::Propagation::Stop;
+    }
+
+    // End of line counts as "nothing follows"; a '\n' under the cursor is
+    // whitespace anyway, so only the buffer end needs the None case.
+    let next = if insert.is_end() { None } else { Some(next_char) };
+
+    buffer.begin_user_action();
+    if has_selection {
+        // Wrap the selection: opener, selection, closer; the cursor ends
+        // up right after the selection, before the closer.
+        let (start, end) = buffer.selection_bounds().unwrap();
+        let end_off = end.offset();
+        let mut at = start;
+        buffer.insert(&mut at, &ch.to_string());
+        let mut after = buffer.iter_at_offset(end_off + 1);
+        buffer.insert(&mut after, &closing.to_string());
+        let cursor = buffer.iter_at_offset(end_off + 1);
+        buffer.place_cursor(&cursor);
+    } else if autopair::code_should_pair(next, ch) {
+        buffer.insert_at_cursor(&format!("{ch}{closing}"));
+        let insert_mark = buffer.get_insert();
+        let mut iter = buffer.iter_at_mark(&insert_mark);
+        iter.backward_char();
+        buffer.place_cursor(&iter);
+    } else {
+        buffer.end_user_action();
+        return glib::Propagation::Proceed;
+    }
+    buffer.end_user_action();
+    glib::Propagation::Stop
+}
+
+/// Backspace between an empty auto-paired pair deletes both halves
+/// (Code Mode). Returns false when the plain backspace should proceed.
+fn delete_empty_pair(buffer: &sourceview5::Buffer) -> bool {
+    let insert = buffer.iter_at_mark(&buffer.get_insert());
+    if buffer.has_selection() {
+        return false;
+    }
+    let mut before = insert;
+    if !before.backward_char() {
+        return false;
+    }
+    if autopair::code_empty_pair(before.char(), insert.char()) {
+        // Delete both halves: [before, one char past the cursor).
+        let mut after = insert;
+        after.forward_char();
+        buffer.begin_user_action();
+        buffer.delete(&mut before.clone(), &mut after);
+        buffer.end_user_action();
+        return true;
+    }
+    false
+}
+
 // ---------------------------------------------------------------------------
 // Enter: list continuation
 // ---------------------------------------------------------------------------
@@ -167,6 +256,11 @@ fn handle_enter(
     // deletion (§2).
     if has_selection && flags.hemingway.get() {
         return glib::Propagation::Stop;
+    }
+
+    // Code Mode: no list magic, Enter is a plain newline.
+    if flags.code_mode.get() {
+        return insert_plain(buffer, "\n");
     }
 
     // Magic applies only at the end of a line with no selection.
@@ -271,13 +365,16 @@ fn handle_tab(
         }
     } else {
         // Plain Tab inserts a tab; an empty list item is rewritten deeper.
-        if let Some(new_line) = lists::indent_empty_item(&line) {
-            rewrite_line(buffer, line_no, &new_line);
-            if let Some(mut iter) = buffer.iter_at_line(line_no) {
-                iter.forward_to_line_end();
-                buffer.place_cursor(&iter);
+        // Code Mode: no list magic.
+        if !flags.code_mode.get() {
+            if let Some(new_line) = lists::indent_empty_item(&line) {
+                rewrite_line(buffer, line_no, &new_line);
+                if let Some(mut iter) = buffer.iter_at_line(line_no) {
+                    iter.forward_to_line_end();
+                    buffer.place_cursor(&iter);
+                }
+                return glib::Propagation::Stop;
             }
-            return glib::Propagation::Stop;
         }
         buffer.begin_user_action();
         buffer.insert_at_cursor("\t");
@@ -407,5 +504,52 @@ fn markdown_for_uri(flags: &Rc<InputFlags>, file: &gio::File) -> String {
         format!("![{label}]({link})")
     } else {
         format!("[{label}]({link})")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Buffer-level autopair tests need GTK initialized; headless
+    /// environments (CI) have no display, so they skip there.
+    fn gtk_ready() -> bool {
+        use std::sync::OnceLock;
+        static READY: OnceLock<bool> = OnceLock::new();
+        *READY.get_or_init(|| gtk::init().is_ok())
+    }
+
+    fn buf_with(text: &str, cursor: i32) -> sourceview5::Buffer {
+        let buf = sourceview5::Buffer::new(None::<&gtk::TextTagTable>);
+        buf.insert_at_cursor(text);
+        let iter = buf.iter_at_offset(cursor);
+        buf.place_cursor(&iter);
+        buf
+    }
+
+    fn text(buf: &sourceview5::Buffer) -> String {
+        buf.text(&buf.start_iter(), &buf.end_iter(), true).into()
+    }
+
+    #[test]
+    fn empty_pair_backspace() {
+        // GTK's initialized check is thread-local and cargo test runs each
+        // #[test] on its own thread, so all buffer work stays in this one
+        // test. Headless environments (CI) have no display and skip.
+        if !gtk_ready() {
+            return;
+        }
+        for (pair, cursor) in [("()", 1), ("{}", 1), ("[]", 1), ("''", 1), ("\"\"", 1), ("``", 1)] {
+            let buf = buf_with(pair, cursor);
+            assert!(delete_empty_pair(&buf), "pair {pair}");
+            assert_eq!(text(&buf), "");
+        }
+        // Only one half of a pair at the cursor: untouched.
+        let buf = buf_with("(x)", 2);
+        assert!(!delete_empty_pair(&buf));
+        assert_eq!(text(&buf), "(x)");
+        let buf = buf_with("()", 2);
+        assert!(!delete_empty_pair(&buf));
+        assert_eq!(text(&buf), "()");
     }
 }

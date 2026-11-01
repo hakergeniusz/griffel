@@ -686,6 +686,36 @@ impl AppWindow {
         }
         actions.add_action(&hemingway);
 
+        // Code Mode (F8, main menu): line numbers, editor-style pairing,
+        // plain Enter/Tab, code-token colors in fenced blocks. The state
+        // is remembered across sessions; the editors follow the preference
+        // through the global settings-changed handler in app.rs, which
+        // also re-runs the column layout (prose ↔ code geometry).
+        let code_mode = gio::SimpleAction::new_stateful(
+            "code-mode",
+            None,
+            &settings().boolean("code-mode").to_variant(),
+        );
+        {
+            code_mode.connect_activate(move |action, _| {
+                let new = !action
+                    .state()
+                    .and_then(|v| v.get::<bool>())
+                    .unwrap_or(false);
+                settings().set_boolean("code-mode", new);
+                for w in crate::app::window_registry() {
+                    if let Some(a) = w
+                        .root
+                        .lookup_action("code-mode")
+                        .and_then(|o| o.downcast::<gio::SimpleAction>().ok())
+                    {
+                        a.set_state(&new.to_variant());
+                    }
+                }
+            });
+        }
+        actions.add_action(&code_mode);
+
         let about = gio::SimpleAction::new("about", None);
         {
             let root = self.root.clone();
@@ -1200,6 +1230,7 @@ fn main_menu_button() -> gtk::MenuButton {
     let modes = gio::Menu::new();
     modes.append(Some("Hemingway Mode"), Some("win.hemingway-mode"));
     modes.append(Some("Focus Mode"), Some("win.focus-mode"));
+    modes.append(Some("Code Mode"), Some("win.code-mode"));
     menu.append_section(None, &modes);
 
     let actions = gio::Menu::new();

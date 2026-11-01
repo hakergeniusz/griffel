@@ -20,6 +20,11 @@ pub struct EditorPalette {
     pub selection: String,
     /// Color used by Focus Mode for non-active text.
     pub dim_focus: String,
+    /// Code Mode token colors inside fenced code blocks.
+    pub code_string: String,
+    pub code_number: String,
+    pub code_comment: String,
+    pub code_keyword: String,
 }
 
 fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
@@ -33,6 +38,10 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_foreground: "#cfd3d9".into(),
             selection: "#37546e".into(),
             dim_focus: "#5c636d".into(),
+            code_string: "#8ff0a4".into(),
+            code_number: "#ffbe6f".into(),
+            code_comment: "#8a909b".into(),
+            code_keyword: "#dc8add".into(),
         },
         (ColorScheme::System, _) | (ColorScheme::Light, _) => EditorPalette {
             background: "#ffffff".into(),
@@ -43,6 +52,10 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_foreground: "#3a4048".into(),
             selection: "#cfe0f5".into(),
             dim_focus: "#b3b9c2".into(),
+            code_string: "#1f7a4d".into(),
+            code_number: "#c64600".into(),
+            code_comment: "#8a919c".into(),
+            code_keyword: "#613583".into(),
         },
         (ColorScheme::Sepia, _) => EditorPalette {
             background: "#f4ecd8".into(),
@@ -53,6 +66,10 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_foreground: "#5c4a2c".into(),
             selection: "#e3d3a8".into(),
             dim_focus: "#cbbf9e".into(),
+            code_string: "#5c722d".into(),
+            code_number: "#a84a10".into(),
+            code_comment: "#a2916f".into(),
+            code_keyword: "#7d4a8a".into(),
         },
         (ColorScheme::Dark, _) => EditorPalette {
             background: "#1e2126".into(),
@@ -63,6 +80,10 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_foreground: "#cfd3d9".into(),
             selection: "#37546e".into(),
             dim_focus: "#5c636d".into(),
+            code_string: "#8ff0a4".into(),
+            code_number: "#ffbe6f".into(),
+            code_comment: "#8a909b".into(),
+            code_keyword: "#dc8add".into(),
         },
     }
 }

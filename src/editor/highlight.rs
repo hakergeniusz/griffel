@@ -16,12 +16,13 @@ pub const TAG_NAMES: &[&str] = &[
     "md-body", "md-bold", "md-italic", "md-strike", "md-code", "md-link-label",
     "md-dim", "md-rule", "md-heading", "md-heading-1", "md-heading-2",
     "md-heading-3", "md-heading-4", "md-heading-5", "md-heading-6", "md-quote",
-    "md-fence",
+    "md-fence", "md-code-str", "md-code-num", "md-code-comment", "md-code-keyword",
 ];
 
 /// Create the highlighting tags on `buffer` if missing. Creation order is
 /// priority order: `md-body` (low) first so outdenting tags can override
-/// its column margin per paragraph.
+/// its column margin per paragraph; the Code Mode token tags come last so
+/// their foreground wins over the fence background tag.
 pub fn ensure_tags(buffer: &sourceview5::Buffer) {
     let table = buffer.tag_table();
     let mut create = |name: &str, setup: &dyn Fn(&gtk::TextTag)| {
@@ -46,6 +47,10 @@ pub fn ensure_tags(buffer: &sourceview5::Buffer) {
     }
     create("md-quote", &|_t| {});
     create("md-fence", &|_t| {});
+    create("md-code-str", &|_t| {});
+    create("md-code-num", &|_t| {});
+    create("md-code-comment", &|t| t.set_property("style", pango::Style::Italic));
+    create("md-code-keyword", &|_t| {});
 }
 
 /// Update tag colors from the palette (scheme change).
@@ -67,6 +72,10 @@ pub fn update_palette(buffer: &sourceview5::Buffer, palette: &EditorPalette) {
     set_fg("md-dim", &palette.dimmed);
     set_bg("md-fence", &palette.code_background);
     set_fg("md-fence", &palette.code_foreground);
+    set_fg("md-code-str", &palette.code_string);
+    set_fg("md-code-num", &palette.code_number);
+    set_fg("md-code-comment", &palette.code_comment);
+    set_fg("md-code-keyword", &palette.code_keyword);
 }
 
 pub(crate) fn parse_color(hex: &str) -> gdk::RGBA {
@@ -110,6 +119,11 @@ pub enum SpanKind {
     Heading(u8),
     Quote,
     Fence,
+    /// Code Mode token inside a fenced block.
+    CodeStr,
+    CodeNum,
+    CodeComment,
+    CodeKeyword,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -152,8 +166,10 @@ fn patterns() -> &'static Patterns {
     })
 }
 
-/// Scan the document and produce styled ranges in char offsets.
-pub fn scan(text: &str) -> Vec<Span> {
+/// Scan the document and produce styled ranges in char offsets. With
+/// `code_mode`, fenced code block interiors additionally get lightweight
+/// code-token colors (strings, numbers, comments, keywords).
+pub fn scan(text: &str, code_mode: bool) -> Vec<Span> {
     let mut spans: Vec<Span> = Vec::new();
     let mut occupied: Vec<(usize, usize)> = Vec::new();
     let lines: Vec<&str> = text.split('\n').collect();
@@ -212,6 +228,9 @@ pub fn scan(text: &str) -> Vec<Span> {
         }
         if in_fence.is_some() {
             spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Fence });
+            if code_mode {
+                scan_code_line(line, line_start, &mut spans);
+            }
             prev_line = Some((line_start, line_end, false));
             char_pos += line_len + 1;
             continue;
@@ -261,6 +280,105 @@ pub fn scan(text: &str) -> Vec<Span> {
     }
 
     spans
+}
+
+/// Sorted keyword list for the Code Mode tokenizer (binary searched).
+/// Deliberately cross-language and small: "some code colors", not a
+/// grammar.
+const CODE_KEYWORDS: &[&str] = &[
+    "False", "None", "True", "abstract", "and", "as", "async", "await", "bool",
+    "break", "case", "catch", "char", "class", "const", "continue", "def",
+    "default", "del", "do", "double", "elif", "else", "end", "enum", "except",
+    "extends", "false", "final", "finally", "float", "fn", "for", "from",
+    "func", "function", "if", "impl", "import", "in", "include", "int",
+    "interface", "is", "lambda", "let", "long", "match", "mod", "mut", "new",
+    "nil", "not", "null", "of", "or", "package", "pass", "print", "priv",
+    "private", "protected", "pub", "public", "raise", "return", "self",
+    "static", "str", "struct", "super", "switch", "then", "this", "throw",
+    "throws", "trait", "true", "try", "type", "typedef", "union", "unsigned",
+    "use", "var", "void", "while", "with", "yield",
+];
+
+/// Color strings, comments, numbers and keywords on one fenced-block line
+/// (Code Mode). Line-local and deliberately simple; token spans never
+/// overlap because the scan is a single left-to-right pass.
+fn scan_code_line(line: &str, base: usize, spans: &mut Vec<Span>) {
+    let chars: Vec<char> = line.chars().collect();
+    let len = chars.len();
+    let mut i = 0usize;
+    while i < len {
+        let c = chars[i];
+        let prev_wordish = i > 0 && (chars[i - 1].is_alphanumeric() || chars[i - 1] == '_');
+
+        // `#` comments only when followed by whitespace/EOL, so C-style
+        // `#include` stays out; `//` comments skip `://` in URLs.
+        if c == '#' && (i + 1 >= len || chars[i + 1].is_whitespace()) {
+            spans.push(Span { start: base + i, end: base + len, kind: SpanKind::CodeComment });
+            return;
+        }
+        if c == '/' && i + 1 < len && chars[i + 1] == '/' && (i == 0 || chars[i - 1] != ':') {
+            spans.push(Span { start: base + i, end: base + len, kind: SpanKind::CodeComment });
+            return;
+        }
+        if c == '"' || c == '\'' || c == '`' {
+            let start = i;
+            i += 1;
+            while i < len {
+                if chars[i] == '\\' {
+                    i += 2;
+                    continue;
+                }
+                if chars[i] == c {
+                    i += 1;
+                    break;
+                }
+                i += 1;
+            }
+            spans.push(Span {
+                start: base + start,
+                end: base + i.min(len),
+                kind: SpanKind::CodeStr,
+            });
+            continue;
+        }
+        if c.is_ascii_digit() && !prev_wordish {
+            let start = i;
+            if c == '0' && i + 1 < len && (chars[i + 1] == 'x' || chars[i + 1] == 'X') {
+                i += 2;
+                while i < len && chars[i].is_ascii_hexdigit() {
+                    i += 1;
+                }
+            } else {
+                while i < len && chars[i].is_ascii_digit() {
+                    i += 1;
+                }
+                if i + 1 < len && chars[i] == '.' && chars[i + 1].is_ascii_digit() {
+                    i += 1;
+                    while i < len && chars[i].is_ascii_digit() {
+                        i += 1;
+                    }
+                }
+            }
+            spans.push(Span { start: base + start, end: base + i, kind: SpanKind::CodeNum });
+            continue;
+        }
+        if (c.is_alphabetic() || c == '_') && !prev_wordish {
+            let start = i;
+            while i < len && (chars[i].is_alphanumeric() || chars[i] == '_') {
+                i += 1;
+            }
+            let word: String = chars[start..i].iter().collect();
+            if CODE_KEYWORDS.binary_search(&word.as_str()).is_ok() {
+                spans.push(Span {
+                    start: base + start,
+                    end: base + start + word.chars().count(),
+                    kind: SpanKind::CodeKeyword,
+                });
+            }
+            continue;
+        }
+        i += 1;
+    }
 }
 
 /// If `line` (indent-stripped) is a fence line, return its (char, run).
@@ -429,13 +547,13 @@ impl Highlighter {
 
     /// Schedule a scan of `text`; results are applied to `buffer` on the
     /// main loop if the text length still matches (stale results dropped).
-    pub fn schedule(&self, buffer: &sourceview5::Buffer, text: String) {
+    pub fn schedule(&self, buffer: &sourceview5::Buffer, text: String, code_mode: bool) {
         let _generation_id = self.generation_id.fetch_add(1, Ordering::SeqCst) + 1;
         let cb_buffer = buffer.clone();
         glib::spawn_future_local(async move {
             // Scan off the main thread; the buffer never leaves it.
             let len = text.chars().count();
-            let handle = gio::spawn_blocking(move || scan(&text));
+            let handle = gio::spawn_blocking(move || scan(&text, code_mode));
             let spans = handle.await.unwrap_or_default();
             if cb_buffer.char_count() as usize != len {
                 return;
@@ -477,6 +595,10 @@ pub fn apply_spans(buffer: &sourceview5::Buffer, spans: &[Span]) {
             },
             SpanKind::Quote => &["md-quote"],
             SpanKind::Fence => &["md-fence"],
+            SpanKind::CodeStr => &["md-code-str"],
+            SpanKind::CodeNum => &["md-code-num"],
+            SpanKind::CodeComment => &["md-code-comment"],
+            SpanKind::CodeKeyword => &["md-code-keyword"],
         };
         for name in names {
             buffer.apply_tag_by_name(name, &s, &e);
@@ -502,7 +624,7 @@ mod tests {
     #[test]
     fn bold_italic_strike() {
         let text = "**bold** _i_ ~~s~~";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "bold").contains(&Bold));
         assert!(kinds(&spans, text, "i").contains(&Italic));
         assert!(kinds(&spans, text, "s").contains(&Strike));
@@ -511,7 +633,7 @@ mod tests {
     #[test]
     fn bold_italic_combined() {
         let text = "***bi***";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "bi").contains(&Bold));
         assert!(kinds(&spans, text, "bi").contains(&Italic));
     }
@@ -519,14 +641,14 @@ mod tests {
     #[test]
     fn emphasis_inner_spaces_rejected() {
         let text = "a * b * c";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(spans.iter().all(|s| s.kind != Italic));
     }
 
     #[test]
     fn code_wins_over_emphasis() {
         let text = "`**not bold**`";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "not bold").contains(&Code));
         assert!(!kinds(&spans, text, "not bold").contains(&Bold));
     }
@@ -534,18 +656,18 @@ mod tests {
     #[test]
     fn headings_and_levels() {
         let text = "# One\n## Two\n### Three";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "# One").contains(&Heading(1)));
         assert!(kinds(&spans, text, "## Two").contains(&Heading(2)));
         assert!(kinds(&spans, text, "### Three").contains(&Heading(3)));
         // # hasheading without space is not a heading
-        assert!(!scan("#nospace").iter().any(|s| matches!(s.kind, Heading(_))));
+        assert!(!scan("#nospace", false).iter().any(|s| matches!(s.kind, Heading(_))));
     }
 
     #[test]
     fn quotes_rules() {
         let text = "> quoted\n\n---\n";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "> quoted").contains(&Quote));
         assert!(kinds(&spans, text, "---").contains(&Rule));
     }
@@ -553,7 +675,7 @@ mod tests {
     #[test]
     fn setext_underline_bolds_previous_line() {
         let text = "Title\n---\n\nparagraph\n\n---\n";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "Title").contains(&Heading(2)));
         // The setext underline itself is not styled; a rule after a blank
         // line is a centered rule.
@@ -563,7 +685,7 @@ mod tests {
     #[test]
     fn fence_blocks_suppress_inline() {
         let text = "```\n**not bold**\n```\n**bold**";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "**not bold**").contains(&Fence));
         assert!(!kinds(&spans, text, "**not bold**").contains(&Bold));
         assert!(kinds(&spans, text, "**bold**").contains(&Bold));
@@ -572,7 +694,7 @@ mod tests {
     #[test]
     fn front_matter_not_headings() {
         let text = "---\ntitle: x\n---\n\n# Real";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(!spans.iter().any(|s| s.start == 0 && matches!(s.kind, Rule)));
         assert!(kinds(&spans, text, "# Real").contains(&Heading(1)));
     }
@@ -580,7 +702,7 @@ mod tests {
     #[test]
     fn links_dim_label_accent() {
         let text = "see [label](https://x.example) now";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "[label](https://x.example)").contains(&Dim));
         assert!(kinds(&spans, text, "label").contains(&LinkLabel));
     }
@@ -588,7 +710,7 @@ mod tests {
     #[test]
     fn images_dim() {
         let text = "![alt](img.png)";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "![alt](img.png)").contains(&Dim));
         // The alt text inside an image is not a link label.
         assert!(!kinds(&spans, text, "alt").contains(&LinkLabel));
@@ -597,14 +719,57 @@ mod tests {
     #[test]
     fn autolinks_dim() {
         let text = "visit <https://example.com> today";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "<https://example.com>").contains(&Dim));
     }
 
     #[test]
     fn math_is_code() {
         let text = "$$E = mc^2$$";
-        let spans = scan(text);
+        let spans = scan(text, false);
         assert!(kinds(&spans, text, "$$E = mc^2$$").contains(&Code));
+    }
+
+    #[test]
+    fn code_mode_tokens_in_fences() {
+        let text = "```\nlet x = 42 # note\ny = \"hi\"\n```\nlet outside = 1";
+        let spans = scan(text, true);
+        assert!(kinds(&spans, text, "let").contains(&CodeKeyword));
+        assert!(kinds(&spans, text, "42").contains(&CodeNum));
+        assert!(kinds(&spans, text, "# note").contains(&CodeComment));
+        assert!(kinds(&spans, text, "\"hi\"").contains(&CodeStr));
+        // Outside fences nothing is tokenized.
+        assert!(!kinds(&spans, text, "outside").contains(&CodeKeyword));
+        assert!(!scan(text, false).iter().any(|s| matches!(
+            s.kind,
+            CodeStr | CodeNum | CodeComment | CodeKeyword
+        )));
+    }
+
+    #[test]
+    fn code_mode_url_not_comment() {
+        let text = "```\nfetch(https://x.example)\n```";
+        let spans = scan(text, true);
+        assert!(!spans.iter().any(|s| s.kind == CodeComment));
+        // The word `fetch` is not a keyword either.
+        assert!(!kinds(&spans, text, "fetch").contains(&CodeKeyword));
+    }
+
+    #[test]
+    fn code_mode_escapes_and_hex() {
+        let text = "```\ns = \"a\\\"b\" + 0xFF + 3.14\n```";
+        let spans = scan(text, true);
+        assert!(kinds(&spans, text, "\"a\\\"b\"").contains(&CodeStr));
+        assert!(kinds(&spans, text, "0xFF").contains(&CodeNum));
+        assert!(kinds(&spans, text, "3.14").contains(&CodeNum));
+    }
+
+    #[test]
+    fn code_mode_hash_needs_space() {
+        let text = "```\n#include <x.h>\n# real comment\n```";
+        let spans = scan(text, true);
+        assert!(kinds(&spans, text, "# real comment").contains(&CodeComment));
+        assert!(!kinds(&spans, text, "#include").contains(&CodeComment));
+        assert!(kinds(&spans, text, "include").contains(&CodeKeyword));
     }
 }

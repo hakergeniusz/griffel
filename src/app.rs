@@ -186,6 +186,23 @@ impl GriffelApp {
                         w.editor.set_spell_enabled(on);
                     }
                 }
+                // Code Mode (F8): every editor switches behavior and column
+                // geometry together.
+                if key == "code-mode" {
+                    let on = crate::settings::settings().boolean("code-mode");
+                    for w in window_registry() {
+                        w.editor.set_code_mode(on);
+                        let width = w.editor_width();
+                        if width > 0 {
+                            w.editor.relayout_column(
+                                width,
+                                crate::settings::settings().integer("characters-per-line"),
+                                crate::settings::settings().boolean("bigger-text"),
+                            );
+                            w.editor.apply_focus_margins();
+                        }
+                    }
+                }
                 // Large text takes effect immediately (`03/10`).
                 if key == "bigger-text" {
                     relayout_all_editors();
@@ -383,6 +400,7 @@ fn register_accels(app: &gtk::Application) {
         ("win.toggle-fullscreen", vec!["F11"]),
         ("win.focus-mode", vec!["<primary>d"]),
         ("win.hemingway-mode", vec!["<primary>t"]),
+        ("win.code-mode", vec!["F8"]),
         ("win.preferences", vec!["<primary>comma"]),
         // Markdown shortcuts (advertised — implemented per open question 1,
         // with Ctrl+1..6 per open question 13).

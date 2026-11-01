@@ -115,5 +115,9 @@
       <default>5</default>
       <summary>Snapshot interval in seconds</summary>
     </key>
+    <key name="code-mode" type="b">
+      <default>false</default>
+      <summary>Code Mode: line numbers, auto-pairs, no list magic, code colors</summary>
+    </key>
   </schema>
 </schemalist>

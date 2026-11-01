@@ -152,6 +152,7 @@ pub fn show_shortcuts(parent: &adw::ApplicationWindow) {
     add_shortcut(&modes, "<primary>d", "Toggle Focus Mode");
     add_shortcut(&modes, "<primary>t", "Toggle Hemingway Mode");
     add_shortcut(&modes, "<primary>p", "Toggle preview pane");
+    add_shortcut(&modes, "F8", "Toggle Code Mode");
     add_shortcut(&modes, "F11", "Toggle fullscreen");
     section.append(&modes);
 

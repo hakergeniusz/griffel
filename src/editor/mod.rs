@@ -138,6 +138,10 @@ impl Editor {
             typewriter_generation: std::cell::Cell::new(0),
         };
         editor.highlight_now();
+        // Code Mode startup state comes from the preference.
+        if crate::settings::settings().boolean("code-mode") {
+            editor.set_code_mode(true);
+        }
         spellcheck::ensure_tag(&editor.buffer);
         menu::install(&editor);
         editor.spell_now();
@@ -160,7 +164,19 @@ impl Editor {
     /// Run a (debounced by the caller) highlighting scan.
     pub fn highlight_now(&self) {
         let text = self.full_text();
-        self.highlighter.schedule(&self.buffer, text);
+        let code_mode = self.flags.code_mode.get();
+        self.highlighter.schedule(&self.buffer, text, code_mode);
+    }
+
+    /// Code Mode (user-added setting): line numbers and a current-line
+    /// highlight, editor-style auto-pairs, plain Enter/Tab, and code-token
+    /// colors in fenced blocks. The column geometry change happens in
+    /// `relayout_column`, which the caller re-runs.
+    pub fn set_code_mode(&self, on: bool) {
+        self.flags.code_mode.set(on);
+        self.view.set_show_line_numbers(on);
+        self.view.set_highlight_current_line(on);
+        self.highlight_now();
     }
 
     /// Run a (debounced by the caller) spell scan with the current
@@ -208,8 +224,22 @@ impl Editor {
     /// Adaptive typography (`01-editing.md` §6): choose the largest font
     /// step whose column (`chars_per_line` characters) fits `width` px
     /// with a small padding, then center the column with equal margins.
-    /// Returns the chosen font size in px.
+    /// Returns the chosen font size in px. In Code Mode the prose column
+    /// is replaced by a left-aligned, full-width code layout: a line-number
+    /// gutter only works when it sits next to the text.
     pub fn relayout_column(&self, width: i32, chars_per_line: i32, bigger_text: bool) -> i32 {
+        if self.flags.code_mode.get() {
+            let font = if bigger_text { 20 } else { 16 };
+            self.apply_font_size(font);
+            self.view.set_left_margin(12);
+            self.view.set_right_margin(12);
+            let char_w = self.measure_char_width(font);
+            highlight::update_indents(&self.buffer, 12, char_w.round() as i32);
+            self.font_px.set(font);
+            self.char_px.set(char_w);
+            return font;
+        }
+
         let mut sizes: Vec<i32> = if bigger_text {
             vec![26, 24, 22, 20, 18, 16, 15, 14, 13, 12]
         } else {
