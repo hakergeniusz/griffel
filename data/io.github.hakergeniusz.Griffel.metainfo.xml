@@ -31,6 +31,16 @@
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="51.0.0-rc.1" date="2026-11-02">
+      <description>
+        <p>First release candidate of the 51.0.0 series: Code Mode (F8) and
+        the spell-check toggle (F7) can now actually be switched off, typing
+        ``` fences in Code Mode no longer fights the auto-pairs, and the
+        interface is translated into German, Spanish, French, Italian,
+        Brazilian Portuguese, Dutch, Polish, Russian, Ukrainian, Simplified
+        Chinese and Japanese.</p>
+      </description>
+    </release>
     <release version="0.1.0-beta.3" date="2026-11-01">
       <description>
         <p>This release fixes selected text rendering as a solid highlight

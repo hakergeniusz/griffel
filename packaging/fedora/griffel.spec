@@ -1,14 +1,14 @@
 # Spec for building Griffel RPM packages. The version fields below track
-# the git tag (v0.1.0-beta.1 -> Version 0.1.0~beta1); bump them together
+# the git tag (v51.0.0-rc.1 -> Version 51.0.0~rc1); bump them together
 # with Cargo.toml, debian/changelog and the AUR PKGBUILD on each release.
 Name:           griffel
-Version:        0.1.0~beta3
+Version:        51.0.0~rc1
 Release:        1%{?dist}
 Summary:        Distraction-free Markdown editor for the Linux desktop
 
 License:        MIT
 URL:            https://github.com/hakergeniusz/griffel
-Source0:        %{url}/archive/refs/tags/v0.1.0-beta.3/griffel-0.1.0-beta.3.tar.gz
+Source0:        %{url}/archive/refs/tags/v51.0.0-rc.1/griffel-51.0.0-rc.1.tar.gz
 
 BuildRequires:  cargo
 BuildRequires:  pkgconfig(gtk4) >= 4.10
@@ -31,7 +31,7 @@ snapshots, and export to PDF, HTML, ODT and more through Pandoc.}
 %description %{_description}
 
 %prep
-%autosetup -n griffel-0.1.0-beta.3
+%autosetup -n griffel-51.0.0-rc.1
 
 %build
 cargo build --release --locked
@@ -63,5 +63,9 @@ install -Dm644 resources/icons/io.github.hakergeniusz.Griffel-symbolic.svg \
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg
 
 %changelog
+* Mon Nov 02 2026 hakergeniusz <hakergeniusz@users.noreply.github.com> - 51.0.0~rc1-1
+- Release candidate of the 51.0.0 series: mode toggles fixed, ``` fences
+  type literally, interface translated into eleven languages
+
 * Fri Oct 30 2026 hakergeniusz <hakergeniusz@users.noreply.github.com> - 0.1.0~beta1-1
 - First public beta

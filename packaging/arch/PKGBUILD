@@ -5,8 +5,8 @@
 # Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
 
 pkgname=griffel
-_tag=v0.1.0-beta.3
-pkgver=0.1.0beta3
+_tag=v51.0.0-rc.1
+pkgver=51.0.0rc1
 pkgrel=1
 pkgdesc="Distraction-free Markdown editor for the Linux desktop"
 arch=('x86_64')
@@ -22,13 +22,13 @@ source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
 sha256sums=('9ed9c6389fdcf6cde41fb7b3dd68af4747647de2e5e6023d832736a21a800c95')
 
 prepare() {
-  cd "$pkgname-0.1.0-beta.3"
+  cd "$pkgname-51.0.0-rc.1"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "$pkgname-0.1.0-beta.3"
+  cd "$pkgname-51.0.0-rc.1"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="target"
   # --frozen = --locked --offline: deps are pinned and already fetched.
@@ -36,7 +36,7 @@ build() {
 }
 
 check() {
-  cd "$pkgname-0.1.0-beta.3"
+  cd "$pkgname-51.0.0-rc.1"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="target"
   cargo test --frozen
@@ -44,7 +44,7 @@ check() {
 }
 
 package() {
-  cd "$pkgname-0.1.0-beta.3"
+  cd "$pkgname-51.0.0-rc.1"
   install -Dm755 target/release/griffel -t "$pkgdir/usr/bin"
   install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
     "$pkgdir/usr/share/applications/io.github.hakergeniusz.Griffel.desktop"

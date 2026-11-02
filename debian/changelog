@@ -1,3 +1,16 @@
+griffel (51.0.0~rc1-1) unstable; urgency=medium
+
+  * Release candidate of the 51.0.0 series.
+  * Fix the Code Mode (F8) and spell-check (F7) toggles never switching
+    off: the action state was set through a lookup that never resolved.
+  * Make ``` fences type literally in Code Mode: the third backtick no
+    longer auto-pairs and strands the cursor inside the fence.
+  * Add gettext translations with catalogs for German, Spanish, French,
+    Italian, Brazilian Portuguese, Dutch, Polish, Russian, Ukrainian,
+    Simplified Chinese and Japanese.
+
+ -- hakergeniusz <hakergeniusz@users.noreply.github.com>  Mon, 02 Nov 2026 12:00:00 +0000
+
 griffel (0.1.0~beta3-1) unstable; urgency=medium
 
   * Keep selected text visible: pin the selection text color to the
