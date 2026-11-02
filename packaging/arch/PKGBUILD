@@ -19,7 +19,7 @@ optdepends=('pandoc: live preview and export'
 makedepends=('cargo')
 options=('!lto')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
-sha256sums=('9ed9c6389fdcf6cde41fb7b3dd68af4747647de2e5e6023d832736a21a800c95')
+sha256sums=('01a9e254ca88eeb0ca2cecafdafa22c08b93e4f45976a1c84dd78362c36b8df6')
 
 prepare() {
   cd "$pkgname-51.0.0-rc.1"
