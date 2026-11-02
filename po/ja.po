@@ -1,0 +1,886 @@
+# ja translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 20:20+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "新しいタブ"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "開く"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "保存"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "保存とエクスポート"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "検索"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "全画面を終了"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "新規ドキュメント"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "書式ツールを表示"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} 語"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "このドキュメントは自動保存から復元されました。"
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "このファイルはディスク上で変更されました。"
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "再読み込み"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "テーブルがありません"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "カーソルがテーブルの中にありません。"
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "ファイルを開けません"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "ファイルを保存できません"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "変更を保存しますか？"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "「{}」には未保存の変更があります。閉じると変更は失われます。"
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "破棄"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "閉じる"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "名前を付けて保存…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "PDF としてエクスポート"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "HTML としてエクスポート"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "ODT としてエクスポート"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "HTML をコピー"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "詳細なエクスポート…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "エクスポート"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "エディターの代わりにプレビュー"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "エディターの横にプレビュー"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "エディターの下にプレビュー"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "プレビューを別ウィンドウで開く"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "プレビューなし"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "プレビューレイアウト"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "システムに従う"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "ライト"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "セピア"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "ダーク"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "外観"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "ヘミングウェイモード"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "集中モード"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "コードモード"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "新しいウィンドウ"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "検索と置換"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "設定"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "チュートリアルを開く"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "キーボードショートカット"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Griffel について"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "メインメニュー"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "太字"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "太字テキスト"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "斜体"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "斜体テキスト"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "取り消し線"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "取り消し線テキスト"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "見出し"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "箇条書き"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "番号付きリスト"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "チェックリスト"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "引用ブロック"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "コード"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "リンク"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "画像"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "テーブル"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "水平線"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "テーブルの配置を修正"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "書式ツールを隠す"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "テーブルの挿入"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "ヘミングウェイモードではテキストを削除できません"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "詳細"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "ヘミングウェイモードが有効な間は、テキストを追加することはできますが削除はできません。Backspace や Delete、切り取り、選択範囲の置換は何もしません。元に戻すは引き続き機能します。モードの切り替えは Ctrl+T またはメインメニューから行えます。"
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} / {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "エディターとウィンドウ"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "スペルチェック"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "エディターでリアルタイムのスペルチェックを行います"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "ヘッダーバーを自動的に隠す"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "入力中はヘッダーバーと下部バーを隠します"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "大きな文字"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "エディターのフォントを大きくし、余白を広げます"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "自動保存"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "入力を止めてから 5 秒後にドキュメントを保存します"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "書式とプレビュー"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "入力フォーマット"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "プレビューとエクスポートで使われる方言"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "このフォーマットの公式ドキュメントを開く"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "毎回確認する"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "常に制限付きを使用"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "常に無制限を使用"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "プレビューのセキュリティ"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "生の HTML を含むファイルをプレビューする際のポリシー"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "全般"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "新しいタブ"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "新しいウィンドウ"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "ファイルを開く"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "ドキュメントを保存"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "名前を付けて保存"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "タブを閉じる"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "ウィンドウを閉じる"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "アプリケーションを終了"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "設定を開く"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "スペルチェックの切り替え"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "モードと表示"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "集中モードの切り替え"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "ヘミングウェイモードの切り替え"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "プレビューペインの切り替え"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "コードモードの切り替え"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "全画面の切り替え"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "検索と置換"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "検索と置換"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Markdown 書式"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "水平線"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "箇条書き項目"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "見出し 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "見出し 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "見出し 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "見出し 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "編集"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "コピー"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "切り取り"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "貼り付け"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "すべて選択"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "元に戻す"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "やり直す"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "インデント / スマートリスト"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "インデント解除 / スマートリスト"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "気を散らさない Markdown エディター"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>初回リリース: 編集、リアルタイム強調表示、ライブプレビュー、\n         集中モードとヘミングウェイモード、スペルチェック、ピークポップオーバー、エクスポート、\n         スナップショットと復元。</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "同梱リソースが見つかりません: {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "DZSlides テンプレートを取得できませんでした"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "エクスポートに失敗しました"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "スライドショーをエクスポート"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Typst エンジンが見つかりません。\n\nPDF をエクスポートするには Typst (https://typst.app) をインストールしてください。"
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "PDF としてエクスポート（Typst エンジン）"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "相対パスを絶対パスに書き換える"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "スタンドアロンドキュメント"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "目次"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "節に番号を付ける"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "レター"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "ページサイズ"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "スライドサイズ"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "自己完結（すべてのリソースを埋め込む）"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "シンタックスハイライト"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "有効"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "箇条書きを段階的に表示"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "LaTeX ツールチェーンが見つかりません"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "インストールコマンドをコピー"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "エクスポート…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "{} にエクスポート"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "LaTeX ベースのエクスポートには TeX のインストールが必要ですが、サンドボックス内では利用できません。ソフトウェアストアまたは flatpak でサンドボックスランタイム用の TeX 拡張（例: org.freedesktop.Sdk.Extension.texlive）をインストールし、アプリケーションを再起動してください。"
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "LaTeX ベースのエクスポートには TeX のインストールが必要ですが、このシステムでは見つかりませんでした。システムのパッケージマネージャーで TeX Live（特に XeLaTeX エンジン）などの TeX ディストリビューションをインストールしてから、再試行してください。"
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "候補なし"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "システムのデフォルト"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "スペル言語"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "スペルチェック"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "ピーク"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "前の一致"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "次の一致"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "大文字と小文字を区別"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "正規表現"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "置換"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "置換後のテキスト"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "すべて置換"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "ファイル「{}」をテキストとして開けませんでした:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "ファイルを読み込めません: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "ディレクトリは開けません"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "ファイルを開く"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Markdown ファイル"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "テキストファイル"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "ファイルを保存できません: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "プレーンテキスト"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "最近開いたドキュメントはありません"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "ファイルを開く…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "最近使用した項目から削除"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "検出されたどのエンコーディングでも有効なテキストではありません"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "不明なエンコーディング: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "テキストを UTF-8 としてエンコードできません"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "コード"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "見出し"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "項目"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "引用"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "リンクテキスト"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "画像を挿入"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "画像"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "画像のキャプション"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "文字数"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "語数"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "文数"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "段落"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "読了時間"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} 文字"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} 文"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} 段落"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} の読了時間"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "一致する脚注「[^{}]」がありません。"
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX がインストールされていません。数式をプレビューするには texlive をインストールしてください。"
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "無効な数式: 「{}」"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "画像が見つかりません: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "「{}」の項目がありません。"
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "見つかりません（辞書サービスに接続できません）。"
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "プレビューを生成中…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "変換に失敗しました"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "このファイルには HTML が含まれています"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "ドキュメントには生の HTML が含まれています。無制限で読み込むとスクリプトと完全な HTML が有効になります。制限付きで読み込むと HTML はプレーンテキストとして表示されます。"
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "無制限で読み込む"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "制限付きで読み込む"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "ドキュメントコンバーター（pandoc）がインストールされていません。プレビューとエクスポートを使用するにはインストールしてください。"
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "詳細なコンソールログを有効にする"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "新しい空のウィンドウを開く"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "バージョン情報を表示して終了する"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "ドキュメントに未保存の変更があります"
