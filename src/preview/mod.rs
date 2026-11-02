@@ -73,7 +73,7 @@ impl PreviewPane {
         let spinner = gtk::Spinner::new();
         spinner.set_size_request(32, 32);
         spinner.start();
-        let label = gtk::Label::new(Some("Rendering preview…"));
+        let label = gtk::Label::new(Some(&crate::i18n::i18n("Rendering preview…")));
         label.add_css_class("dim-label");
         spinner_page.append(&spinner);
         spinner_page.append(&label);
@@ -247,7 +247,7 @@ impl PreviewPane {
             self.root.add_named(&self.warning_page, Some("warning"));
         }
         // Reuse the warning page structure with an error message.
-        set_warning_content(&self.warning_page, "Conversion failed", message, None);
+        set_warning_content(&self.warning_page, &crate::i18n::i18n("Conversion failed"), message, None);
         self.root.set_visible_child_name("warning");
     }
 
@@ -259,10 +259,10 @@ impl PreviewPane {
     pub fn setup_warning_page(&self, on_choice: std::rc::Rc<dyn Fn(SecurityLevel)>) {
         build_warning_content(
             &self.warning_page,
-            "This file contains HTML",
-            "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text.",
-            Some(("Load Unrestricted", SecurityLevel::Unrestricted, false)),
-            Some(("Load Restricted", SecurityLevel::Restricted, true)),
+            &crate::i18n::i18n("This file contains HTML"),
+            &crate::i18n::i18n("The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."),
+            Some((&crate::i18n::i18n("Load Unrestricted"), SecurityLevel::Unrestricted, false)),
+            Some((&crate::i18n::i18n("Load Restricted"), SecurityLevel::Restricted, true)),
             on_choice,
         );
     }

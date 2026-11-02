@@ -43,13 +43,13 @@ impl Statistic {
         }
     }
 
-    pub fn display_name(&self) -> &'static str {
+    pub fn display_name(&self) -> String {
         match self {
-            Statistic::Characters => "Characters",
-            Statistic::Words => "Words",
-            Statistic::Sentences => "Sentences",
-            Statistic::Paragraphs => "Paragraphs",
-            Statistic::ReadTime => "Read Time",
+            Statistic::Characters => crate::i18n::i18n("Characters"),
+            Statistic::Words => crate::i18n::i18n("Words"),
+            Statistic::Sentences => crate::i18n::i18n("Sentences"),
+            Statistic::Paragraphs => crate::i18n::i18n("Paragraphs"),
+            Statistic::ReadTime => crate::i18n::i18n("Read Time"),
         }
     }
 
@@ -64,9 +64,34 @@ impl Statistic {
         }
     }
 
-    /// The full button label, e.g. "512 Words".
+    /// The full button label, e.g. "512 Words" (translated, with plural
+    /// forms and the locale-grouped value).
     pub fn label(&self, st: &Stats) -> String {
-        format!("{} {}", self.value(st), self.display_name())
+        let v = self.value(st);
+        match self {
+            Statistic::Characters => crate::i18n::i18n_nf(
+                "{} character",
+                "{} characters",
+                st.characters,
+                &v,
+            ),
+            Statistic::Words => {
+                crate::i18n::i18n_nf("{} word", "{} words", st.words, &v)
+            }
+            Statistic::Sentences => crate::i18n::i18n_nf(
+                "{} sentence",
+                "{} sentences",
+                st.sentences,
+                &v,
+            ),
+            Statistic::Paragraphs => crate::i18n::i18n_nf(
+                "{} paragraph",
+                "{} paragraphs",
+                st.paragraphs,
+                &v,
+            ),
+            Statistic::ReadTime => crate::i18n::i18n_f("{} reading time", &[&v]),
+        }
     }
 }
 

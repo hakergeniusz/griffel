@@ -12,6 +12,7 @@ use std::rc::Rc;
 use crate::editor::Editor;
 use crate::files::{self, recents, Document};
 use crate::format;
+use crate::i18n::{i18n, i18n_f, i18n_n};
 use crate::settings::{settings, ColorScheme, PreviewMode};
 
 /// Per-tab state: one editor, one document and its per-document services
@@ -273,22 +274,22 @@ impl AppWindow {
 
         let new_button = gtk::Button::new();
         new_button.set_icon_name("tab-new-symbolic");
-        new_button.set_tooltip_text(Some("New Tab"));
+        new_button.set_tooltip_text(Some(&i18n("New Tab")));
         new_button.set_action_name(Some("win.new-tab"));
 
         let open_button = gtk::MenuButton::new();
         open_button.set_icon_name("document-open-symbolic");
-        open_button.set_tooltip_text(Some("Open"));
+        open_button.set_tooltip_text(Some(&i18n("Open")));
 
         let save_button = gtk::Button::new();
-        save_button.set_label("Save");
-        save_button.set_tooltip_text(Some("Save"));
+        save_button.set_label(&i18n("Save"));
+        save_button.set_tooltip_text(Some(&i18n("Save")));
         // Raised, like the dropdown half: with `.linked` the two halves
         // render as one split button with the same background.
         save_button.set_action_name(Some("win.save"));
         let save_menu = gtk::MenuButton::new();
         save_menu.set_icon_name("pan-down-symbolic");
-        save_menu.set_tooltip_text(Some("Save and Export"));
+        save_menu.set_tooltip_text(Some(&i18n("Save and Export")));
         save_menu.set_menu_model(Some(&save_menu_model()));
         let save_group = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         save_group.add_css_class("linked");
@@ -301,11 +302,11 @@ impl AppWindow {
 
         let find_button = gtk::ToggleButton::new();
         find_button.set_icon_name("edit-find-symbolic");
-        find_button.set_tooltip_text(Some("Find"));
+        find_button.set_tooltip_text(Some(&i18n("Find")));
 
         let layout_button = preview_layout_button();
         let exit_fullscreen = gtk::Button::from_icon_name("view-restore-symbolic");
-        exit_fullscreen.set_tooltip_text(Some("Leave fullscreen"));
+        exit_fullscreen.set_tooltip_text(Some(&i18n("Leave fullscreen")));
         exit_fullscreen.set_visible(false);
         {
             let root = root.clone();
@@ -318,7 +319,7 @@ impl AppWindow {
 
         let title_box = gtk::Box::new(gtk::Orientation::Vertical, 1);
         title_box.set_valign(gtk::Align::Center);
-        let title_label = gtk::Label::new(Some("New File"));
+        let title_label = gtk::Label::new(Some(&i18n("New File")));
         title_label.set_ellipsize(pango::EllipsizeMode::End);
         let subtitle_label = gtk::Label::new(None);
         subtitle_label.add_css_class("subtitle");
@@ -362,7 +363,7 @@ impl AppWindow {
         toolbar_row.add_css_class("toolbar-row");
         let toolbar_toggle = gtk::ToggleButton::new();
         toolbar_toggle.set_icon_name("pan-end-symbolic");
-        toolbar_toggle.set_tooltip_text(Some("Show formatting"));
+        toolbar_toggle.set_tooltip_text(Some(&i18n("Show formatting")));
         // The row reveals with a slide so toggling reads as motion.
         let toolbar_row_revealer = gtk::Revealer::new();
         toolbar_row_revealer.set_transition_type(gtk::RevealerTransitionType::SlideLeft);
@@ -373,7 +374,7 @@ impl AppWindow {
         toolbar_cluster.append(&toolbar_toggle);
 
         let stats_button = gtk::MenuButton::new();
-        stats_button.set_label("0 Words");
+        stats_button.set_label(&i18n_n("{} word", "{} words", 0));
         // Raised, like the toolbar toggle beside it: it floats over the
         // editor text, so a transparent background would let the document
         // show through.
@@ -386,7 +387,8 @@ impl AppWindow {
         let recovery_bar = gtk::InfoBar::new();
         recovery_bar.set_message_type(gtk::MessageType::Info);
         recovery_bar.set_show_close_button(true);
-        let recovery_label = gtk::Label::new(Some("This document was recovered from an autosave."));
+        let recovery_label =
+            gtk::Label::new(Some(&i18n("This document was recovered from an autosave.")));
         recovery_bar.add_child(&recovery_label);
         recovery_bar.set_revealed(false);
 
@@ -394,9 +396,9 @@ impl AppWindow {
         file_changed_bar.set_message_type(gtk::MessageType::Warning);
         file_changed_bar.set_show_close_button(true);
         let fc_box = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-        let fc_label = gtk::Label::new(Some("This file changed on disk."));
+        let fc_label = gtk::Label::new(Some(&i18n("This file changed on disk.")));
         fc_box.append(&fc_label);
-        let file_changed_reload = gtk::Button::with_label("Reload");
+        let file_changed_reload = gtk::Button::with_label(&i18n("Reload"));
         file_changed_reload.add_css_class("flat");
         fc_box.append(&file_changed_reload);
         file_changed_bar.add_child(&fc_box);
@@ -712,7 +714,7 @@ impl AppWindow {
         bind!("format-rule", |w: &AppWindow| format::horizontal_rule(&w.editor().buffer));
         bind!("format-fix-table", |w: &AppWindow| {
             if !format::fix_table(&w.editor().buffer) {
-                w.show_error("No table", "The cursor is not inside a table.");
+                w.show_error(&i18n("No table"), &i18n("The cursor is not inside a table."));
             }
         });
         bind!("toggle-preview", AppWindow::toggle_preview);
@@ -759,7 +761,7 @@ impl AppWindow {
             let menu = gio::Menu::new();
             for st in [crate::markdown::stats::Statistic::Characters, crate::markdown::stats::Statistic::Words, crate::markdown::stats::Statistic::Sentences, crate::markdown::stats::Statistic::Paragraphs, crate::markdown::stats::Statistic::ReadTime] {
                 menu.append(
-                    Some(st.display_name()),
+                    Some(&st.display_name()),
                     Some(&format!("win.statistic::{}", st.as_name())),
                 );
             }
@@ -1357,7 +1359,7 @@ impl AppWindow {
     /// error dialog is shown and the tab resets to a new empty document.
     pub fn load_file_into(&self, tab: &Rc<TabState>, file: &gio::File) {
         if let Err(e) = files::load_into_tab(self, tab, file) {
-            self.show_error("Cannot open file", &e);
+            self.show_error(&i18n("Cannot open file"), &e);
             self.reset_to_new_document(tab);
         }
     }
@@ -1442,7 +1444,7 @@ impl AppWindow {
                 crate::app::update_logout_inhibition();
             }
             Err(e) => {
-                self.show_error("Cannot save file", &e);
+                self.show_error(&i18n("Cannot save file"), &e);
                 // Dirty state stays set; the progress bar already faded.
             }
         }
@@ -1467,17 +1469,17 @@ impl AppWindow {
         }
         let dialog = adw::MessageDialog::new(
             Some(&self.root),
-            Some("Save changes?"),
-            Some(&format!(
+            Some(&i18n("Save changes?")),
+            Some(&i18n_f(
                 "“{}” contains unsaved changes. If you close it, the changes will be lost.",
-                tab.doc().display_name()
+                &[&tab.doc().display_name()],
             )),
         );
-        dialog.add_response("cancel", "Cancel");
+        dialog.add_response("cancel", &i18n("Cancel"));
         dialog.set_close_response("cancel");
-        dialog.add_response("discard", "Discard");
+        dialog.add_response("discard", &i18n("Discard"));
         dialog.set_response_appearance("discard", adw::ResponseAppearance::Destructive);
-        dialog.add_response("save", "Save");
+        dialog.add_response("save", &i18n("Save"));
         dialog.set_response_appearance("save", adw::ResponseAppearance::Suggested);
         dialog.set_default_response(Some("save"));
 
@@ -1498,7 +1500,7 @@ impl AppWindow {
 
     pub fn show_error(&self, title: &str, body: &str) {
         let dialog = adw::AlertDialog::new(Some(title), Some(body));
-        dialog.add_response("close", "Close");
+        dialog.add_response("close", &i18n("Close"));
         dialog.set_default_response(Some("close"));
         dialog.present(Some(&self.root));
     }
@@ -1521,13 +1523,13 @@ impl AppWindow {
 
 fn save_menu_model() -> gio::Menu {
     let menu = gio::Menu::new();
-    menu.append(Some("Save As…"), Some("win.save-as"));
+    menu.append(Some(&i18n("Save As…")), Some("win.save-as"));
     let exports = gio::Menu::new();
-    exports.append(Some("Export as PDF"), Some("win.export-pdf"));
-    exports.append(Some("Export as HTML"), Some("win.export-html"));
-    exports.append(Some("Export as ODT"), Some("win.export-odt"));
-    exports.append(Some("Copy HTML"), Some("win.copy-html"));
-    menu.append(Some("Advanced Export…"), Some("win.export-advanced"));    menu.append_section(Some("Export"), &exports);
+    exports.append(Some(&i18n("Export as PDF")), Some("win.export-pdf"));
+    exports.append(Some(&i18n("Export as HTML")), Some("win.export-html"));
+    exports.append(Some(&i18n("Export as ODT")), Some("win.export-odt"));
+    exports.append(Some(&i18n("Copy HTML")), Some("win.copy-html"));
+    menu.append(Some(&i18n("Advanced Export…")), Some("win.export-advanced"));    menu.append_section(Some(&i18n("Export")), &exports);
     menu
 }
 
@@ -1536,11 +1538,11 @@ fn preview_layout_button() -> gtk::MenuButton {
     let section = gio::Menu::new();
     for mode in PreviewMode::ALL {
         section.append(
-            Some(match mode {
-                PreviewMode::FullWidth => "Preview Instead of Editor",
-                PreviewMode::HalfWidth => "Preview Beside the Editor",
-                PreviewMode::HalfHeight => "Preview Below the Editor",
-                PreviewMode::Windowed => "Preview in Separate Window",
+            Some(&match mode {
+                PreviewMode::FullWidth => i18n("Preview Instead of Editor"),
+                PreviewMode::HalfWidth => i18n("Preview Beside the Editor"),
+                PreviewMode::HalfHeight => i18n("Preview Below the Editor"),
+                PreviewMode::Windowed => i18n("Preview in Separate Window"),
             }),
             Some(&format!("win.preview-mode::{}", mode.as_str())),
         );
@@ -1548,12 +1550,12 @@ fn preview_layout_button() -> gtk::MenuButton {
     menu.append_section(None, &section);
 
     let off = gio::Menu::new();
-    off.append(Some("No Preview"), Some("win.preview-off"));
+    off.append(Some(&i18n("No Preview")), Some("win.preview-off"));
     menu.append_section(None, &off);
 
     let button = gtk::MenuButton::new();
     button.set_icon_name("view-right-pane-symbolic");
-    button.set_tooltip_text(Some("Preview Layout"));
+    button.set_tooltip_text(Some(&i18n("Preview Layout")));
     button.set_menu_model(Some(&menu));
     button
 }
@@ -1564,39 +1566,39 @@ fn main_menu_button() -> gtk::MenuButton {
     let appearance = gio::Menu::new();
     for scheme in ColorScheme::ALL {
         let label = match scheme {
-            ColorScheme::System => "System",
-            ColorScheme::Light => "Light",
-            ColorScheme::Sepia => "Sepia",
-            ColorScheme::Dark => "Dark",
+            ColorScheme::System => i18n("System"),
+            ColorScheme::Light => i18n("Light"),
+            ColorScheme::Sepia => i18n("Sepia"),
+            ColorScheme::Dark => i18n("Dark"),
         };
         appearance.append(
-            Some(label),
+            Some(&label),
             Some(&format!("win.color-scheme::{}", scheme.as_str())),
         );
     }
-    menu.append_section(Some("Appearance"), &appearance);
+    menu.append_section(Some(&i18n("Appearance")), &appearance);
 
     let modes = gio::Menu::new();
-    modes.append(Some("Hemingway Mode"), Some("win.hemingway-mode"));
-    modes.append(Some("Focus Mode"), Some("win.focus-mode"));
-    modes.append(Some("Code Mode"), Some("win.code-mode"));
+    modes.append(Some(&i18n("Hemingway Mode")), Some("win.hemingway-mode"));
+    modes.append(Some(&i18n("Focus Mode")), Some("win.focus-mode"));
+    modes.append(Some(&i18n("Code Mode")), Some("win.code-mode"));
     menu.append_section(None, &modes);
 
     let actions = gio::Menu::new();
-    actions.append(Some("New Window"), Some("app.new-window"));
-    actions.append(Some("Find and Replace"), Some("win.find-replace"));
-    actions.append(Some("Preferences"), Some("win.preferences"));
+    actions.append(Some(&i18n("New Window")), Some("app.new-window"));
+    actions.append(Some(&i18n("Find and Replace")), Some("win.find-replace"));
+    actions.append(Some(&i18n("Preferences")), Some("win.preferences"));
     menu.append_section(None, &actions);
 
     let help = gio::Menu::new();
-    help.append(Some("Open Tutorial"), Some("app.open-tutorial"));
-    help.append(Some("Keyboard Shortcuts"), Some("win.show-shortcuts"));
-    help.append(Some("About Griffel"), Some("win.about"));
+    help.append(Some(&i18n("Open Tutorial")), Some("app.open-tutorial"));
+    help.append(Some(&i18n("Keyboard Shortcuts")), Some("win.show-shortcuts"));
+    help.append(Some(&i18n("About Griffel")), Some("win.about"));
     menu.append_section(None, &help);
 
     let button = gtk::MenuButton::new();
     button.set_icon_name("open-menu-symbolic");
-    button.set_tooltip_text(Some("Main Menu"));
+    button.set_tooltip_text(Some(&i18n("Main Menu")));
     button.set_menu_model(Some(&menu));
     button
 }
@@ -1624,57 +1626,57 @@ fn tool_button(win: &AppWindow, row: &gtk::Box, icon_or_label: &str, tooltip: &s
 }
 
 fn build_toolbar(win: &AppWindow, row: &gtk::Box, row_revealer: &gtk::Revealer, toggle: &gtk::ToggleButton) {
-    tool_button(win, row, "format-text-bold-symbolic", "Bold", |w| {
-        format::wrap(&w.editor().buffer, "**", "bold text")
+    tool_button(win, row, "format-text-bold-symbolic", &i18n("Bold"), |w| {
+        format::wrap(&w.editor().buffer, "**", &i18n("bold text"))
     });
-    tool_button(win, row, "format-text-italic-symbolic", "Italic", |w| {
-        format::wrap(&w.editor().buffer, "_", "italic text")
+    tool_button(win, row, "format-text-italic-symbolic", &i18n("Italic"), |w| {
+        format::wrap(&w.editor().buffer, "_", &i18n("italic text"))
     });
-    tool_button(win, row, "format-text-strikethrough-symbolic", "Strikethrough", |w| {
-        format::wrap(&w.editor().buffer, "~~", "strikethrough text")
+    tool_button(win, row, "format-text-strikethrough-symbolic", &i18n("Strikethrough"), |w| {
+        format::wrap(&w.editor().buffer, "~~", &i18n("strikethrough text"))
     });
-    tool_button(win, row, "H", "Heading", |w| {
+    tool_button(win, row, "H", &i18n("Heading"), |w| {
         format::heading(&w.editor().buffer, None)
     });
-    tool_button(win, row, "view-list-bullet-symbolic", "Bulleted List", |w| {
+    tool_button(win, row, "view-list-bullet-symbolic", &i18n("Bulleted List"), |w| {
         format::list(&w.editor().buffer, format::ListCommand::Bullet)
     });
-    tool_button(win, row, "view-list-ordered-symbolic", "Numbered List", |w| {
+    tool_button(win, row, "view-list-ordered-symbolic", &i18n("Numbered List"), |w| {
         format::list(&w.editor().buffer, format::ListCommand::Numbered)
     });
-    tool_button(win, row, "checkbox-symbolic", "Checklist", |w| {
+    tool_button(win, row, "checkbox-symbolic", &i18n("Checklist"), |w| {
         format::list(&w.editor().buffer, format::ListCommand::Checklist)
     });
-    tool_button(win, row, "❝", "Block Quote", |w| {
+    tool_button(win, row, "❝", &i18n("Block Quote"), |w| {
         format::block_quote(&w.editor().buffer)
     });
-    tool_button(win, row, "</>", "Code", |w| {
+    tool_button(win, row, "</>", &i18n("Code"), |w| {
         format::code(&w.editor().buffer)
     });
-    tool_button(win, row, "insert-link-symbolic", "Link", |w| {
+    tool_button(win, row, "insert-link-symbolic", &i18n("Link"), |w| {
         format::link(&w.editor().buffer)
     });
-    tool_button(win, row, "insert-image-symbolic", "Image", |w| {
+    tool_button(win, row, "insert-image-symbolic", &i18n("Image"), |w| {
         let dir = w.editor().flags.doc_dir.borrow().clone();
         format::image(&w.editor().buffer, dir, &w.root);
     });
-    tool_button(win, row, "▦", "Table", |_w| {
+    tool_button(win, row, "▦", &i18n("Table"), |_w| {
         // The table button's popover is attached to this button; open it.
     });
     // Horizontal rule and fix-table trailing buttons.
-    tool_button(win, row, "configure-line-symbolic", "Horizontal Rule", |w| {
+    tool_button(win, row, "configure-line-symbolic", &i18n("Horizontal Rule"), |w| {
         format::horizontal_rule(&w.editor().buffer)
     });
-    tool_button(win, row, "view-grid-symbolic", "Fix Table Alignment", |w| {
+    tool_button(win, row, "view-grid-symbolic", &i18n("Fix Table Alignment"), |w| {
         if !format::fix_table(&w.editor().buffer) {
-            w.show_error("No table", "The cursor is not inside a table.");
+            w.show_error(&i18n("No table"), &i18n("The cursor is not inside a table."));
         }
     });
 
     // The table button opens the size picker popover.
     let table_button = gtk::MenuButton::new();
     table_button.set_label("▦");
-    table_button.set_tooltip_text(Some("Table"));
+    table_button.set_tooltip_text(Some(&i18n("Table")));
     table_button.set_popover(Some(&table_size_popover(win)));
     table_button.add_css_class("flat");
     row.append(&table_button);
@@ -1707,10 +1709,10 @@ fn build_toolbar(win: &AppWindow, row: &gtk::Box, row_revealer: &gtk::Revealer, 
             } else {
                 "pan-end-symbolic"
             });
-            t.set_tooltip_text(Some(if active {
-                "Hide formatting"
+            t.set_tooltip_text(Some(&if active {
+                i18n("Hide formatting")
             } else {
-                "Show formatting"
+                i18n("Show formatting")
             }));
             settings().set_boolean("toolbar-visible", active);
         });
@@ -1730,7 +1732,7 @@ fn table_size_popover(win: &AppWindow) -> gtk::Popover {
     box_.set_margin_start(8);
     box_.set_margin_end(8);
 
-    let label = gtk::Label::new(Some("Insert Table"));
+    let label = gtk::Label::new(Some(&i18n("Insert Table")));
     label.add_css_class("dim-label");
     box_.append(&label);
 
@@ -1793,7 +1795,7 @@ fn table_size_popover(win: &AppWindow) -> gtk::Popover {
                     b.remove_css_class("suggested-action");
                 }
             }
-            label.set_text("Insert Table");
+            label.set_text(&i18n("Insert Table"));
         });
         grid.add_controller(leave);
     }
@@ -2161,8 +2163,8 @@ impl AppWindow {
     /// The "text cannot be deleted" toast with a Learn More action;
     /// auto-dismisses after ~3 seconds.
     fn hemingway_toast(&self) {
-        let toast = adw::Toast::new("Text cannot be deleted in Hemingway Mode");
-        toast.set_button_label(Some("Learn More"));
+        let toast = adw::Toast::new(&i18n("Text cannot be deleted in Hemingway Mode"));
+        toast.set_button_label(Some(&i18n("Learn More")));
         toast.set_timeout(3);
         {
             let win = self.clone();
@@ -2176,16 +2178,16 @@ impl AppWindow {
     /// Short informational dialog about Hemingway Mode.
     fn show_hemingway_dialog(&self) {
         let dialog = adw::MessageDialog::builder()
-            .heading("Hemingway Mode")
-            .body(
+            .heading(i18n("Hemingway Mode"))
+            .body(i18n(
                 "While Hemingway Mode is on, text can only be added, never deleted. \
 Backspace, Delete, cutting, and replacing a selection do nothing. \
 Undo still works. Toggle the mode with Ctrl+T or from the main menu.",
-            )
+            ))
             .transient_for(&self.root)
             .modal(true)
             .build();
-        dialog.add_response("ok", "OK");
+        dialog.add_response("ok", &i18n("OK"));
         dialog.set_default_response(Some("ok"));
         dialog.set_close_response("ok");
         dialog.present();
@@ -2237,11 +2239,9 @@ impl AppWindow {
                 return;
             };
             let label = match (has_selection, selected) {
-                (true, Some(sel)) => format!(
+                (true, Some(sel)) => i18n_f(
                     "{} of {} {}",
-                    stat.value(&sel),
-                    stat.value(&total),
-                    stat.display_name()
+                    &[&stat.value(&sel), &stat.value(&total), &stat.display_name()],
                 ),
                 _ => stat.label(&total),
             };

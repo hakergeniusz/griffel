@@ -10,6 +10,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use super::Editor;
+use crate::i18n::i18n;
 
 /// Where a spelling replacement applies (char offsets), captured when the
 /// menu is opened.
@@ -204,7 +205,7 @@ fn rebuild_menu(
         let lang = editor.spell_language.borrow().clone();
         let suggestions = editor.spell.suggestions(lang.as_deref(), &word);
         if suggestions.is_empty() {
-            let item = gio::MenuItem::new(Some("No Suggestions"), None);
+            let item = gio::MenuItem::new(Some(&i18n("No Suggestions")), None);
             item.set_attribute_value("enabled", Some(&false.to_variant()));
             menu.append_item(&item);
         } else {
@@ -225,19 +226,19 @@ fn rebuild_menu(
             .unwrap_or_default();
         lang_action.set_state(&current.to_variant());
         let submenu = gio::Menu::new();
-        submenu.append(Some("System Default"), Some("ctx.language::"));
+        submenu.append(Some(&i18n("System Default")), Some("ctx.language::"));
         for l in &langs {
             submenu.append(Some(l), Some(&format!("ctx.language::{l}")));
         }
-        menu.append_submenu(Some("Spelling Language"), &submenu);
+        menu.append_submenu(Some(&i18n("Spelling Language")), &submenu);
     }
 
     // Spell-check toggle.
     spell_action.set_state(&editor.spell_enabled.get().to_variant());
-    menu.append(Some("Check Spelling"), Some("ctx.spell"));
+    menu.append(Some(&i18n("Check Spelling")), Some("ctx.spell"));
 
     menu.append_section(None, &gio::Menu::new());
-    menu.append(Some("Peek"), Some("ctx.peek"));
+    menu.append(Some(&i18n("Peek")), Some("ctx.peek"));
 
     editor.view.set_extra_menu(Some(&menu));
 }

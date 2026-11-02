@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Install build tools
         run: |
-          dnf install -y git cargo rpm-build \
+          dnf install -y git cargo rpm-build gettext \
             gtk4-devel libadwaita-devel gtksourceview5-devel \
             webkitgtk6.0-devel enchant2-devel
 

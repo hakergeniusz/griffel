@@ -9,6 +9,7 @@ mod editor;
 mod export;
 mod format;
 mod files;
+mod i18n;
 mod markdown;
 mod peek;
 mod preview;
@@ -45,6 +46,9 @@ fn main() -> glib::ExitCode {
     gio::resources_register(&resource);
 
     settings::init().expect("settings schema failed to load");
+
+    // Load the active language's catalog before any UI string is built.
+    i18n::init();
 
     let application = app::GriffelApp::new();
     application.run()

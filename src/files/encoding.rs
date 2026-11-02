@@ -42,7 +42,7 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, String> {
 
     // Last resort: UTF-16 BOMs decode losslessly via encoding_rs BOM
     // sniffing above; anything else is rejected.
-    Err("the file is not valid text in any detected encoding".into())
+    Err(crate::i18n::i18n("the file is not valid text in any detected encoding"))
 }
 
 fn strip_utf8_bom(text: &str) -> &str {
@@ -55,7 +55,7 @@ fn strip_utf8_bom(text: &str) -> &str {
 /// only possible for a broken input encoding label.
 pub fn encode(text: &str, encoding: &str) -> Result<(Vec<u8>, String), String> {
     let enc = Encoding::for_label(encoding.as_bytes())
-        .ok_or_else(|| format!("unknown encoding: {encoding}"))?;
+        .ok_or_else(|| crate::i18n::i18n_f("unknown encoding: {}", &[encoding]))?;
     let (bytes, _, had_errors) = enc.encode(text);
     if !had_errors {
         return Ok((bytes.into_owned(), encoding.to_owned()));
@@ -63,7 +63,7 @@ pub fn encode(text: &str, encoding: &str) -> Result<(Vec<u8>, String), String> {
     // Retry as UTF-8; encode into a UTF-8 byte string never fails.
     let (bytes, _, had_errors) = encoding_rs::UTF_8.encode(text);
     if had_errors {
-        return Err("the text cannot be encoded as UTF-8".into());
+        return Err(crate::i18n::i18n("the text cannot be encoded as UTF-8"));
     }
     Ok((bytes.into_owned(), "UTF-8".to_owned()))
 }

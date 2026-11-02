@@ -78,9 +78,9 @@ pub fn build_popover(on_open_file: impl Fn() + 'static + Clone) -> gtk::Popover 
     empty.set_valign(gtk::Align::Center);
     let empty_icon = gtk::Image::from_icon_name("document-open-recent-symbolic");
     empty_icon.set_pixel_size(48);
-    let empty_label = gtk::Label::new(Some("No recently opened documents"));
+    let empty_label = gtk::Label::new(Some(&crate::i18n::i18n("No recently opened documents")));
     empty_label.add_css_class("dim-label");
-    let open_btn = gtk::Button::with_label("Open File…");
+    let open_btn = gtk::Button::with_label(&crate::i18n::i18n("Open File…"));
     open_btn.add_css_class("pill");
     {
         let on_open_file = on_open_file.clone();
@@ -95,7 +95,7 @@ pub fn build_popover(on_open_file: impl Fn() + 'static + Clone) -> gtk::Popover 
     empty.append(&open_btn);
 
     // The open file button is always available at the bottom of the list.
-    let open_row_btn = gtk::Button::with_label("Open File…");
+    let open_row_btn = gtk::Button::with_label(&crate::i18n::i18n("Open File…"));
     open_row_btn.add_css_class("flat");
     open_row_btn.set_halign(gtk::Align::Fill);
     {
@@ -188,7 +188,7 @@ fn recent_row(
 
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
-    remove.set_tooltip_text(Some("Remove from Recent"));
+    remove.set_tooltip_text(Some(&crate::i18n::i18n("Remove from Recent")));
     remove.set_valign(gtk::Align::Center);
     {
         let uri = uri.to_owned();

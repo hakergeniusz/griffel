@@ -4,6 +4,7 @@
 //! run through the external converter; nothing is bundled from it.
 
 use crate::converter;
+use crate::i18n::{i18n, i18n_f};
 use crate::settings::{settings, ColorScheme, InputFormat};
 use crate::window::AppWindow;
 use adw::prelude::*;
@@ -42,7 +43,7 @@ fn resource_bytes(path: &str) -> Result<Vec<u8>, String> {
         gio::ResourceLookupFlags::NONE,
     )
     .map(|b| b.to_vec())
-    .map_err(|e| format!("missing bundled resource {path}: {e}"))
+    .map_err(|e| crate::i18n::i18n_f("missing bundled resource {}: {}", &[path, &e.to_string()]))
 }
 
 /// Materialize a bundled resource as a temp file: pandoc only accepts
@@ -375,7 +376,7 @@ fn dzslides_template() -> Result<PathBuf, String> {
         .output()
         .map_err(|e| format!("pandoc: {e}"))?;
     if !out.status.success() {
-        return Err("could not obtain the DZSlides template".into());
+        return Err(i18n("could not obtain the DZSlides template"));
     }
     let path = converter::temp_dir().join(format!("griffel-{}-dzslides.tpl", std::process::id()));
     fs::write(&path, &out.stdout).map_err(|e| e.to_string())?;
@@ -438,7 +439,7 @@ fn run_conversion(win: &AppWindow, fmt: &FormatDef, opts: &Options, output: &Pat
 
     win.root.set_cursor(None);
     if let Err(e) = result {
-        win.show_error("Export failed", &e);
+        win.show_error(&i18n("Export failed"), &e);
     }
 }
 
@@ -527,7 +528,7 @@ fn run_quick_html(win: &AppWindow, output: &Path) {
 
     win.root.set_cursor(None);
     if let Err(e) = result {
-        win.show_error("Export failed", &e);
+        win.show_error(&i18n("Export failed"), &e);
     }
 }
 
@@ -585,7 +586,7 @@ fn save_dialog(win: &AppWindow, title: &str, fmt: &FormatDef, opts: Options) {
 /// bundled library land in the chosen folder.
 fn folder_dialog(win: &AppWindow, fmt: &FormatDef, opts: Options) {
     let dialog = gtk::FileDialog::new();
-    dialog.set_title("Export slideshow");
+    dialog.set_title(&i18n("Export slideshow"));
     let win = win.clone();
     let fmt = fmt.clone();
     let parent = win.root.clone();
@@ -612,8 +613,8 @@ fn quick(win: &AppWindow, index: usize, title: &str) {
     let fmt = &FORMATS[index];
     if fmt.kind == Kind::TypstPdf && !has_typst() {
         win.show_error(
-            "Export failed",
-            "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF.",
+            &i18n("Export failed"),
+            &i18n("The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."),
         );
         return;
     }
@@ -662,15 +663,15 @@ fn quick(win: &AppWindow, index: usize, title: &str) {
 }
 
 pub fn quick_pdf(win: &AppWindow) {
-    quick(win, 0, "Export as PDF");
+    quick(win, 0, &i18n("Export as PDF"));
 }
 
 pub fn quick_html(win: &AppWindow) {
-    quick(win, 10, "Export as HTML");
+    quick(win, 10, &i18n("Export as HTML"));
 }
 
 pub fn quick_odt(win: &AppWindow) {
-    quick(win, 2, "Export as ODT");
+    quick(win, 2, &i18n("Export as ODT"));
 }
 
 /// Copy HTML (§3): the document fragment (no standalone wrapper), same
@@ -709,7 +710,7 @@ pub fn copy_html(win: &AppWindow) {
 pub fn advanced_dialog(win: &AppWindow) {
     let win = win.clone();
     let dialog = gtk::Window::builder()
-        .title("Export to PDF (Typst engine)")
+        .title(&i18n("Export to PDF (Typst engine)"))
         .modal(true)
         .transient_for(&win.root)
         .default_width(860)
@@ -728,7 +729,7 @@ pub fn advanced_dialog(win: &AppWindow) {
     list.set_selection_mode(gtk::SelectionMode::Browse);
     for f in FORMATS.iter() {
         let row = gtk::ListBoxRow::new();
-        let label = gtk::Label::new(Some(f.name));
+        let label = gtk::Label::new(Some(&i18n(f.name)));
         label.set_halign(gtk::Align::Start);
         label.set_margin_top(6);
         label.set_margin_bottom(6);
@@ -746,28 +747,28 @@ pub fn advanced_dialog(win: &AppWindow) {
     // --- options pane (right) ----------------------------------------------
     let pane = gtk::Box::new(gtk::Orientation::Vertical, 10);
 
-    let rel_abs = gtk::CheckButton::with_label("Rewrite relative paths to absolute");
-    let standalone = gtk::CheckButton::with_label("Standalone document");
+    let rel_abs = gtk::CheckButton::with_label(&i18n("Rewrite relative paths to absolute"));
+    let standalone = gtk::CheckButton::with_label(&i18n("Standalone document"));
     standalone.set_active(true);
-    let toc = gtk::CheckButton::with_label("Table of contents");
-    let number = gtk::CheckButton::with_label("Number sections");
+    let toc = gtk::CheckButton::with_label(&i18n("Table of contents"));
+    let number = gtk::CheckButton::with_label(&i18n("Number sections"));
 
-    let page_a4 = gtk::CheckButton::with_label("A4");
+    let page_a4 = gtk::CheckButton::with_label(&i18n("A4"));
     page_a4.set_active(true);
-    let page_letter = gtk::CheckButton::with_label("Letter");
+    let page_letter = gtk::CheckButton::with_label(&i18n("Letter"));
     page_letter.set_group(Some(&page_a4));
-    let page_box = labeled_row("Page size", &page_a4, &page_letter);
+    let page_box = labeled_row(&i18n("Page size"), &page_a4, &page_letter);
 
     let slide_43 = gtk::CheckButton::with_label("4:3");
     slide_43.set_active(true);
     let slide_169 = gtk::CheckButton::with_label("16:9");
     slide_169.set_group(Some(&slide_43));
-    let slide_box = labeled_row("Slide size", &slide_43, &slide_169);
+    let slide_box = labeled_row(&i18n("Slide size"), &slide_43, &slide_169);
 
-    let selfcontained = gtk::CheckButton::with_label("Self-contained (embed all resources)");
+    let selfcontained = gtk::CheckButton::with_label(&i18n("Self-contained (embed all resources)"));
 
-    let highlight_expander = gtk::Expander::new(Some("Syntax highlighting"));
-    let highlight_on = gtk::CheckButton::with_label("Enable");
+    let highlight_expander = gtk::Expander::new(Some(&i18n("Syntax highlighting")));
+    let highlight_on = gtk::CheckButton::with_label(&i18n("Enable"));
     highlight_on.set_active(true);
     let styles = gtk::ComboBoxText::new();
     for s in HIGHLIGHT_STYLES {
@@ -779,7 +780,7 @@ pub fn advanced_dialog(win: &AppWindow) {
     hl_row.append(&styles);
     highlight_expander.set_child(Some(&hl_row));
 
-    let incremental = gtk::CheckButton::with_label("Incremental bullets");
+    let incremental = gtk::CheckButton::with_label(&i18n("Incremental bullets"));
 
     pane.append(&rel_abs);
     pane.append(&standalone);
@@ -801,13 +802,13 @@ pub fn advanced_dialog(win: &AppWindow) {
     tex_box.set_margin_top(24);
     tex_box.set_margin_start(24);
     tex_box.set_margin_end(24);
-    let tex_title = gtk::Label::new(Some("LaTeX toolchain not found"));
+    let tex_title = gtk::Label::new(Some(&i18n("LaTeX toolchain not found")));
     tex_title.add_css_class("title-2");
     tex_title.set_halign(gtk::Align::Start);
     let tex_body = gtk::Label::new(Some(&tex_warning_text()));
     tex_body.set_wrap(true);
     tex_body.set_xalign(0.0);
-    let tex_copy = gtk::Button::with_label("Copy install command");
+    let tex_copy = gtk::Button::with_label(&i18n("Copy install command"));
     let tex_root = win.root.clone();
     tex_copy.connect_clicked(move |_| {
         let bytes = glib::Bytes::from(tex_install_command().as_bytes());
@@ -831,8 +832,8 @@ pub fn advanced_dialog(win: &AppWindow) {
     btn_box.set_margin_bottom(8);
     btn_box.set_margin_start(12);
     btn_box.set_margin_end(12);
-    let cancel = gtk::Button::with_label("Cancel");
-    let export_btn = gtk::Button::with_label("Export…");
+    let cancel = gtk::Button::with_label(&i18n("Cancel"));
+    let export_btn = gtk::Button::with_label(&i18n("Export…"));
     export_btn.add_css_class("suggested-action");
     btn_box.append(&cancel);
     btn_box.append(&export_btn);
@@ -858,7 +859,7 @@ pub fn advanced_dialog(win: &AppWindow) {
             let Some(row) = row else { return };
             let idx = row.index().max(0) as usize;
             let Some(f) = FORMATS.get(idx) else { return };
-            dialog.set_title(Some(&format!("Export to {}", f.name)));
+            dialog.set_title(Some(&i18n_f("Export to {}", &[f.name])));
             standalone.set_visible(f.standalone);
             toc.set_visible(f.toc);
             number.set_visible(f.number_sections);
@@ -928,7 +929,7 @@ pub fn advanced_dialog(win: &AppWindow) {
             if fmt.kind == Kind::Reveal {
                 folder_dialog(&win, &fmt, opts);
             } else {
-                save_dialog(&win, "Export", &fmt, opts);
+                save_dialog(&win, &i18n("Export"), &fmt, opts);
             }
         });
     }
@@ -952,16 +953,14 @@ fn sandboxed_install() -> bool {
 
 fn tex_warning_text() -> String {
     if sandboxed_install() {
-        "LaTeX-based export needs a TeX installation, which is not available inside \
+        i18n("LaTeX-based export needs a TeX installation, which is not available inside \
          the sandbox. Install the TeX extension for your sandbox runtime (e.g. \
          org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, \
-         then restart the application."
-            .to_string()
+         then restart the application.")
     } else {
-        "LaTeX-based export needs a TeX installation, which was not found on this \
+        i18n("LaTeX-based export needs a TeX installation, which was not found on this \
          system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in \
-         particular) with your system's package manager, then try again."
-            .to_string()
+         particular) with your system's package manager, then try again.")
     }
 }
 

@@ -117,17 +117,19 @@ pub fn code(buffer: &sourceview5::Buffer) {
     let line_no = cursor_iter.line();
     let line = crate::editor::input::line_text_pub(buffer, line_no);
 
+    let ph = crate::i18n::i18n("code");
     if line.trim().is_empty() {
-        insert(buffer, "```\ncode\n```");
+        let tail = format!("{ph}\n```");
+        insert(buffer, &format!("```\n{tail}"));
         let cursor = buffer.iter_at_mark(&buffer.get_insert());
         select_range(
             buffer,
             &cursor,
-            -("code\n```".chars().count() as i32),
+            -(tail.chars().count() as i32),
             -("```".chars().count() as i32),
         );
     } else {
-        wrap(buffer, "`", "code");
+        wrap(buffer, "`", &ph);
     }
 }
 
@@ -149,6 +151,7 @@ fn heading_level_of(line: &str) -> Option<u8> {
 /// The heading command. `level` selects exact-level mode (Ctrl+1..6,
 /// toggling off at the same level) or cycles when None.
 pub fn heading(buffer: &sourceview5::Buffer, level: Option<u8>) {
+    let ph = crate::i18n::i18n("Header");
     let cursor_iter = buffer.iter_at_mark(&buffer.get_insert());
     let line_no = cursor_iter.line();
     let line = crate::editor::input::line_text_pub(buffer, line_no);
@@ -188,9 +191,9 @@ pub fn heading(buffer: &sourceview5::Buffer, level: Option<u8>) {
                     .is_empty();
             if line.trim().is_empty() && cursor_iter.starts_line() {
                 // Empty line: marker plus placeholder, selected.
-                insert(buffer, &format!("{marker}Header"));
+                insert(buffer, &format!("{marker}{ph}"));
                 let cursor = buffer.iter_at_mark(&buffer.get_insert());
-                select_range(buffer, &cursor, -(("Header".chars().count()) as i32), 0);
+                select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
             } else if cursor_iter.starts_line() {
                 // Prefix the line; blank line first when the previous line
                 // has content.
@@ -205,9 +208,9 @@ pub fn heading(buffer: &sourceview5::Buffer, level: Option<u8>) {
                 place_at_line_end(buffer, line_no);
             } else {
                 // Mid-line: heading on a new line below, blank line between.
-                insert(buffer, &format!("\n\n{marker}Header"));
+                insert(buffer, &format!("\n\n{marker}{ph}"));
                 let cursor = buffer.iter_at_mark(&buffer.get_insert());
-                select_range(buffer, &cursor, -(("Header".chars().count()) as i32), 0);
+                select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
             }
         }
         (Some(_), Some(_)) => unreachable!(),
@@ -246,6 +249,7 @@ pub enum ListCommand {
 }
 
 pub fn list(buffer: &sourceview5::Buffer, kind: ListCommand) {
+    let ph = crate::i18n::i18n("Item");
     let cursor_iter = buffer.iter_at_mark(&buffer.get_insert());
     let line_no = cursor_iter.line();
     let line = crate::editor::input::line_text_pub(buffer, line_no);
@@ -321,9 +325,9 @@ pub fn list(buffer: &sourceview5::Buffer, kind: ListCommand) {
     let marker_text = inherited.unwrap_or(default_marker);
 
     if line.trim().is_empty() && at_start {
-        insert(buffer, &format!("{marker_text}Item"));
+        insert(buffer, &format!("{marker_text}{ph}"));
         let cursor = buffer.iter_at_mark(&buffer.get_insert());
-        select_range(buffer, &cursor, -(("Item".chars().count()) as i32), 0);
+        select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
         return;
     }
     if at_start {
@@ -335,9 +339,9 @@ pub fn list(buffer: &sourceview5::Buffer, kind: ListCommand) {
         return;
     }
     // Mid-line: blank line, then the marker on the next line.
-    insert(buffer, &format!("\n\n{marker_text}Item"));
+    insert(buffer, &format!("\n\n{marker_text}{ph}"));
     let cursor = buffer.iter_at_mark(&buffer.get_insert());
-    select_range(buffer, &cursor, -(("Item".chars().count()) as i32), 0);
+    select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -345,6 +349,7 @@ pub fn list(buffer: &sourceview5::Buffer, kind: ListCommand) {
 // ---------------------------------------------------------------------------
 
 pub fn block_quote(buffer: &sourceview5::Buffer) {
+    let ph = crate::i18n::i18n("Quote");
     let cursor_iter = buffer.iter_at_mark(&buffer.get_insert());
     let line_no = cursor_iter.line();
     let line = crate::editor::input::line_text_pub(buffer, line_no);
@@ -375,14 +380,14 @@ pub fn block_quote(buffer: &sourceview5::Buffer) {
         return;
     }
     if line.trim().is_empty() {
-        insert(buffer, "> Quote");
+        insert(buffer, &format!("> {ph}"));
         let cursor = buffer.iter_at_mark(&buffer.get_insert());
-        select_range(buffer, &cursor, -(("Quote".chars().count()) as i32), 0);
+        select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
         return;
     }
-    insert(buffer, "\n\n> Quote");
+    insert(buffer, &format!("\n\n> {ph}"));
     let cursor = buffer.iter_at_mark(&buffer.get_insert());
-    select_range(buffer, &cursor, -(("Quote".chars().count()) as i32), 0);
+    select_range(buffer, &cursor, -((ph.chars().count()) as i32), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -394,7 +399,7 @@ const URL_PLACEHOLDER: &str = "https://www.example.com";
 pub fn link(buffer: &sourceview5::Buffer) {
     match selection(buffer) {
         None => {
-            let text = format!("[link text]({URL_PLACEHOLDER})");
+            let text = format!("[{}]({URL_PLACEHOLDER})", crate::i18n::i18n("link text"));
             insert(buffer, &text);
             let cursor = buffer.iter_at_mark(&buffer.get_insert());
             select_range(buffer, &cursor, -(URL_PLACEHOLDER.chars().count() as i32), 0);
@@ -432,10 +437,10 @@ pub fn link(buffer: &sourceview5::Buffer) {
 /// selected (`02-formatting.md` §6).
 pub fn image(buffer: &sourceview5::Buffer, doc_dir: Option<PathBuf>, parent: &impl IsA<gtk::Window>) {
     let dialog = gtk::FileDialog::new();
-    dialog.set_title("Insert Image");
+    dialog.set_title(&crate::i18n::i18n("Insert Image"));
 
     let images = gtk::FileFilter::new();
-    images.set_name(Some("Images"));
+    images.set_name(Some(&crate::i18n::i18n("Images")));
     for mime in ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"] {
         images.add_mime_type(mime);
     }
@@ -460,7 +465,7 @@ pub fn image(buffer: &sourceview5::Buffer, doc_dir: Option<PathBuf>, parent: &im
             let caption = selection(&buffer)
                 .map(|(_, _, t)| t.trim().to_owned())
                 .filter(|t| !t.is_empty())
-                .unwrap_or_else(|| "image caption".into());
+                .unwrap_or_else(|| crate::i18n::i18n("image caption"));
             let link = crate::files::paths::link_path(doc_dir.as_deref(), &path);
             let text = format!("![{caption}]({link})");
             buffer.begin_user_action();

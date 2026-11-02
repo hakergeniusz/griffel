@@ -265,7 +265,7 @@ fn show(editor: &Editor, rect: &gdk::Rectangle, target: PeekTarget) {
             let text = editor.full_text();
             match footnote_definition(&text, &id) {
                 Some(def) => show_text(&stack, &format!("^{id}"), &def),
-                None => show_error(&stack, &format!("No matching footnote “[^{id}]”.")),
+                None => show_error(&stack, &crate::i18n::i18n_f("No matching footnote “[^{}]”.", &[&id])),
             }
         }
         PeekTarget::Word { word } => load_word(&stack, &word),
@@ -339,7 +339,7 @@ fn load_math(stack: &gtk::Stack, formula: &str, display: bool) {
     if !tool_present("latex") || !tool_present("dvipng") {
         show_error(
             stack,
-            "LaTeX is not installed. Install texlive to preview formulas.",
+            &crate::i18n::i18n("LaTeX is not installed. Install texlive to preview formulas."),
         );
         return;
     }
@@ -359,7 +359,7 @@ fn load_math(stack: &gtk::Stack, formula: &str, display: bool) {
                 stack.set_visible_child_name("content");
             }
             Err(_) => {
-                show_error(&stack, &format!("Invalid formula: “{formula}”"));
+                show_error(&stack, &crate::i18n::i18n_f("Invalid formula: “{}”", &[&formula]));
             }
         }
     });
@@ -446,7 +446,7 @@ fn load_image(editor: &Editor, stack: &gtk::Stack, path: &str) {
             stack.set_visible_child_name("content");
         }
         Err(_) => {
-            show_error(stack, &format!("Image not found: {decoded}"));
+            show_error(stack, &crate::i18n::i18n_f("Image not found: {}", &[&decoded]));
         }
     }
 }
@@ -476,7 +476,7 @@ fn load_word(stack: &gtk::Stack, word: &str) {
         let handle = gio::spawn_blocking(move || crate::dict::lookup(&w));
         match handle.await.unwrap_or(Err("lookup failed".into())) {
             Ok(defs) if defs.is_empty() => {
-                show_error(&stack, &format!("No entry for “{word}”."));
+                show_error(&stack, &crate::i18n::i18n_f("No entry for “{}”.", &[&word]));
             }
             Ok(defs) => {
                 let mut body = String::new();
@@ -493,7 +493,7 @@ fn load_word(stack: &gtk::Stack, word: &str) {
                 show_text(&stack, &word, body.trim_end());
             }
             Err(_) => {
-                show_error(&stack, "Not found (the dictionary service is unreachable).");
+                show_error(&stack, &crate::i18n::i18n("Not found (the dictionary service is unreachable)."));
             }
         }
     });

@@ -68,8 +68,9 @@ fn shell_quote(path: &Path) -> String {
 /// Inside Flatpak a missing host converter surfaces as a shell exit code,
 /// not a spawn error, so both shapes of failure land on the same wording.
 pub fn missing_converter_message() -> String {
-    "The document converter (pandoc) is not installed. Install it to use the preview and export."
-        .to_owned()
+    crate::i18n::i18n(
+        "The document converter (pandoc) is not installed. Install it to use the preview and export.",
+    )
 }
 
 #[cfg(test)]

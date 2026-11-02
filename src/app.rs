@@ -110,7 +110,7 @@ impl GriffelApp {
             glib::Char::from(b'v'),
             glib::OptionFlags::NONE,
             glib::OptionArg::None,
-            "Enable verbose console logging",
+            &crate::i18n::i18n("Enable verbose console logging"),
             None,
         );
         app.add_main_option(
@@ -118,7 +118,7 @@ impl GriffelApp {
             glib::Char::from(b'w'),
             glib::OptionFlags::NONE,
             glib::OptionArg::None,
-            "Open a new empty window",
+            &crate::i18n::i18n("Open a new empty window"),
             None,
         );
         app.add_main_option(
@@ -126,7 +126,7 @@ impl GriffelApp {
             glib::Char::from(b'V'),
             glib::OptionFlags::NONE,
             glib::OptionArg::None,
-            "Print version information and exit",
+            &crate::i18n::i18n("Print version information and exit"),
             None,
         );
 
@@ -394,7 +394,7 @@ pub fn update_logout_inhibition() {
         let cookie = app.inhibit(
             None::<&gtk::Window>,
             gtk::ApplicationInhibitFlags::LOGOUT,
-            Some("A document has unsaved changes"),
+            Some(&crate::i18n::i18n("A document has unsaved changes")),
         );
         COOKIE.set(Some(cookie));
     } else if !dirty && current.is_some() {

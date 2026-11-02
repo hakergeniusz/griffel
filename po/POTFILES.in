@@ -1,0 +1,16 @@
+# Source files containing translatable strings, most user-visible first.
+# Regenerate po/griffel.pot with scripts/update-pot.sh after editing.
+src/window.rs
+src/dialogs.rs
+src/export.rs
+src/editor/menu.rs
+src/search.rs
+src/files/mod.rs
+src/files/recents.rs
+src/files/encoding.rs
+src/format.rs
+src/markdown/stats.rs
+src/peek.rs
+src/preview/mod.rs
+src/converter.rs
+src/app.rs

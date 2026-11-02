@@ -45,7 +45,7 @@ impl Document {
             .as_ref()
             .and_then(|f| f.basename())
             .map(|b| b.display().to_string())
-            .unwrap_or_else(|| "New File".into())
+            .unwrap_or_else(|| crate::i18n::i18n("New File"))
     }
 
     pub fn parent_path(&self) -> Option<String> {
@@ -148,12 +148,15 @@ pub fn load_into_tab(
 ) -> Result<(), String> {
     let bytes = read_file_bytes(file)?;
     let decoded = encoding::decode(&bytes).map_err(|e| {
-        format!(
+        crate::i18n::i18n_f(
             "The file “{}” could not be opened as text:\n{}",
-            file.basename()
-                .map(|b| b.display().to_string())
-                .unwrap_or_else(|| file.uri().to_string()),
-            e
+            &[
+                &file
+                    .basename()
+                    .map(|b| b.display().to_string())
+                    .unwrap_or_else(|| file.uri().to_string()),
+                &e,
+            ],
         )
     })?;
 
@@ -168,27 +171,27 @@ fn read_file_bytes(file: &gio::File) -> Result<Vec<u8>, String> {
             gio::FileQueryInfoFlags::NONE,
             gio::Cancellable::NONE,
         )
-        .map_err(|e| format!("cannot read file: {}", e.message()))?;
+        .map_err(|e| crate::i18n::i18n_f("cannot read file: {}", &[&e.message()]))?;
     if info.file_type() == gio::FileType::Directory {
-        return Err("cannot open a directory".into());
+        return Err(crate::i18n::i18n("cannot open a directory"));
     }
     file.load_bytes(gio::Cancellable::NONE)
         .map(|(bytes, _)| bytes.to_vec())
-        .map_err(|e| format!("cannot read file: {}", e.message()))
+        .map_err(|e| crate::i18n::i18n_f("cannot read file: {}", &[&e.message()]))
 }
 
 /// Open the file chooser and load the chosen file into this window.
 pub fn open_dialog(window: &AppWindow) {
     let dialog = gtk::FileDialog::new();
-    dialog.set_title("Open File");
+    dialog.set_title(&crate::i18n::i18n("Open File"));
 
     let md = gtk::FileFilter::new();
-    md.set_name(Some("Markdown Files"));
+    md.set_name(Some(&crate::i18n::i18n("Markdown Files")));
     md.add_mime_type("text/markdown");
     md.add_mime_type("text/x-markdown");
     md.add_pattern("*.md");
     let txt = gtk::FileFilter::new();
-    txt.set_name(Some("Plain Text Files"));
+    txt.set_name(Some(&crate::i18n::i18n("Plain Text Files")));
     txt.add_mime_type("text/plain");
 
     let filters = gio::ListStore::new::<gtk::FileFilter>();
@@ -246,7 +249,7 @@ pub fn write_to(file: &gio::File, text: &str, encoding: &str) -> Result<String, 
         gio::FileCreateFlags::REPLACE_DESTINATION,
         gio::Cancellable::NONE,
     )
-    .map_err(|e| format!("cannot save file: {}", e.message()))?;
+    .map_err(|e| crate::i18n::i18n_f("cannot save file: {}", &[&e.message()]))?;
     Ok(effective)
 }
 
@@ -269,19 +272,19 @@ pub fn save_as_dialog(window: &AppWindow, tab: &Rc<TabState>) {
     drop(doc);
 
     let dialog = gtk::FileDialog::new();
-    dialog.set_title("Save As");
+    dialog.set_title(&crate::i18n::i18n("Save As"));
     dialog.set_initial_name(Some(&initial_name));
     if let Some(folder) = initial_folder {
         dialog.set_initial_folder(Some(&folder));
     }
 
     let md = gtk::FileFilter::new();
-    md.set_name(Some("Markdown"));
+    md.set_name(Some(&crate::i18n::i18n("Markdown")));
     md.add_mime_type("text/markdown");
     md.add_mime_type("text/x-markdown");
     md.add_pattern("*.md");
     let txt = gtk::FileFilter::new();
-    txt.set_name(Some("Plain text"));
+    txt.set_name(Some(&crate::i18n::i18n("Plain text")));
     txt.add_mime_type("text/plain");
     let filters = gio::ListStore::new::<gtk::FileFilter>();
     filters.append(&md);

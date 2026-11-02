@@ -6,6 +6,7 @@
 //! contexts share one `SearchSettings`, so the query and options follow.
 
 use gtk::prelude::*;
+use crate::i18n::i18n;
 use sourceview5::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -56,34 +57,34 @@ impl SearchBar {
 
         let entry = gtk::SearchEntry::new();
         entry.set_hexpand(true);
-        entry.set_placeholder_text(Some("Find"));
+        entry.set_placeholder_text(Some(&i18n("Find")));
         row1.append(&entry);
 
         let prev_button = gtk::Button::from_icon_name("go-up-symbolic");
-        prev_button.set_tooltip_text(Some("Previous Match"));
+        prev_button.set_tooltip_text(Some(&i18n("Previous Match")));
         let next_button = gtk::Button::from_icon_name("go-down-symbolic");
-        next_button.set_tooltip_text(Some("Next Match"));
+        next_button.set_tooltip_text(Some(&i18n("Next Match")));
         row1.append(&prev_button);
         row1.append(&next_button);
 
         let case_toggle = gtk::ToggleButton::with_label("aA");
-        case_toggle.set_tooltip_text(Some("Match Case"));
+        case_toggle.set_tooltip_text(Some(&i18n("Match Case")));
         let regex_toggle = gtk::ToggleButton::with_label("(.*)");
-        regex_toggle.set_tooltip_text(Some("Regular Expressions"));
+        regex_toggle.set_tooltip_text(Some(&i18n("Regular Expressions")));
         row1.append(&case_toggle);
         row1.append(&regex_toggle);
 
         let replace_toggle = gtk::ToggleButton::with_label("⇄");
-        replace_toggle.set_tooltip_text(Some("Replace"));
+        replace_toggle.set_tooltip_text(Some(&i18n("Replace")));
         row1.append(&replace_toggle);
 
         let replace_entry = gtk::Entry::new();
         replace_entry.set_hexpand(true);
-        replace_entry.set_placeholder_text(Some("Replace with"));
+        replace_entry.set_placeholder_text(Some(&i18n("Replace with")));
         replace_row.append(&replace_entry);
 
-        let replace_button = gtk::Button::with_label("Replace");
-        let replace_all_button = gtk::Button::with_label("Replace All");
+        let replace_button = gtk::Button::with_label(&i18n("Replace"));
+        let replace_all_button = gtk::Button::with_label(&i18n("Replace All"));
         replace_row.append(&replace_button);
         replace_row.append(&replace_all_button);
 
