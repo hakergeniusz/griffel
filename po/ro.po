@@ -1,0 +1,894 @@
+# ro translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:50+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Romanian\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Tab nou"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Deschide"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Salvează"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Salvează și exportă"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Caută"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Ieși din ecran complet"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Fișier nou"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Afișează formatarea"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} cuvânt"
+msgstr[1] "{} cuvinte"
+msgstr[2] "de {} de cuvinte"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Acest document a fost recuperat dintr-o salvare automată."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Acest fișier s-a modificat pe disc."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Reîncarcă"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Fără tabel"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "Cursorul nu este în interiorul unui tabel."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Nu se poate deschide fișierul"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Nu se poate salva fișierul"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Salvezi modificările?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "„{}” conține modificări nesalvate. Dacă îl închideți, modificările se vor pierde."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Anulează"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Renunță"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Închide"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Salvează ca…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Exportă ca PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Exportă ca HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Exportă ca ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Copiază HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Export avansat…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Exportă"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Previzualizare în locul editorului"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Previzualizare lângă editor"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Previzualizare sub editor"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Previzualizare în fereastră separată"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Fără previzualizare"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Aranjamentul previzualizării"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Sistem"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Deschis"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sepia"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Întunecat"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Aspect"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Modul Hemingway"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Modul concentrare"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Modul cod"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Fereastră nouă"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Caută și înlocuiește"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Preferințe"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Deschide tutorialul"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Comenzi rapide de tastatură"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Despre Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Meniul principal"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Îngroșat"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "text îngroșat"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Înclinat"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "text înclinat"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Tăiat"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "text tăiat"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Titlu"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Listă cu puncte"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Listă numerotată"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Listă de verificare"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Citat bloc"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Cod"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Legătură"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Imagine"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tabel"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Linie orizontală"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Corectează alinierea tabelului"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Ascunde formatarea"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Inserează tabel"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Textul nu poate fi șters în modul Hemingway"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Află mai multe"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Cât timp modul Hemingway este activ, textul poate fi doar adăugat, niciodată șters. Backspace, Delete, tăierea și înlocuirea unei selecții nu fac nimic. Anularea funcționează în continuare. Comutați modul cu Ctrl+T sau din meniul principal."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} din {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Editor &amp; fereastră"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Verifică ortografia"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Verificare ortografică în timp real în editor"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Ascunde automat bara de titlu"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Ascunde bara de titlu și barele inferioare în timpul tastării"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Text mare"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Folosește un font de editor mai mare și margini mai late"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Salvare automată"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Salvează documentul la cinci secunde după ce încetați să tastați"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Formatare &amp; previzualizare"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Format de intrare"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Varianta folosită de previzualizare și export"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Deschide documentația oficială pentru acest format"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Întreabă întotdeauna"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Folosește întotdeauna restricționat"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Folosește întotdeauna nerestricționat"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Securitatea previzualizării"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Politica aplicată la previzualizarea fișierelor cu HTML brut"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "General"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Tab nou"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Fereastră nouă"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Deschide fișier"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Salvează documentul"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Salvează ca"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Închide tabul"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Închide fereastra"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Închide aplicația"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Deschide preferințele"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Comută verificarea ortografică"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Moduri și vizualizări"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Comută modul concentrare"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Comută modul Hemingway"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Comută panoul de previzualizare"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Comută modul cod"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Comută ecranul complet"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Caută și înlocuiește"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Caută și înlocuiește"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Formatare Markdown"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Linie orizontală"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Element de listă cu puncte"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Titlu 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Titlu 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Titlu 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Titlu 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Editare"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Copiază"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Taie"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Lipește"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Selectează tot"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Anulează"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Refă"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Indentează / listă inteligentă"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Dezindentează / listă inteligentă"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Un editor Markdown fără distrageri"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Versiunea inițială: editare, evidențiere în document, previzualizare în timp real,\n         modurile concentrare și Hemingway, verificare ortografică, popup-uri de\n         aruncare a privirii, export, instantanee și recuperare.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "resursă înglobată lipsă {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "nu s-a putut obține șablonul DZSlides"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Exportul a eșuat"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Exportă prezentarea"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Motorul Typst nu a fost găsit.\n\nInstalați Typst (https://typst.app) pentru a exporta PDF."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Exportă în PDF (motorul Typst)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Rescrie căile relative ca absolute"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Document autonom"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Cuprins"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Numerotează secțiunile"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Dimensiunea paginii"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Dimensiunea diapozitivului"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Autonom (înglobează toate resursele)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Evidențierea sintaxei"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Activează"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Puncte incrementale"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "Lanțul de unelte LaTeX nu a fost găsit"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Copiază comanda de instalare"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Exportă…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Exportă în {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "Exportul bazat pe LaTeX necesită o instalare TeX, care nu este disponibilă în sandbox. Instalați extensia TeX pentru mediul de execuție sandbox (de ex. org.freedesktop.Sdk.Extension.texlive) din magazinul de software sau din flatpak, apoi reporniți aplicația."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "Exportul bazat pe LaTeX necesită o instalare TeX, care nu a fost găsită pe acest sistem. Instalați o distribuție TeX precum TeX Live (în special motorul XeLaTeX) cu gestionarul de pachete al sistemului, apoi încercați din nou."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Fără sugestii"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Implicit al sistemului"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Limba de ortografie"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Verifică ortografia"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Aruncă o privire"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Potrivirea anterioară"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Potrivirea următoare"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Potrivește majusculele"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Expresii regulate"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Înlocuiește"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Înlocuiește cu"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Înlocuiește tot"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Fișierul „{}” nu a putut fi deschis ca text:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "nu se poate citi fișierul: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "nu se poate deschide un director"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Deschide fișier"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Fișiere Markdown"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Fișiere text simplu"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "nu se poate salva fișierul: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Text simplu"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Niciun document deschis recent"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Deschide fișier…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Elimină din recente"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "fișierul nu este text valid în nicio codificare detectată"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "codificare necunoscută: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "textul nu poate fi codificat ca UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "cod"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Titlu"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Element"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Citat"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "textul legăturii"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Inserează imagine"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Imagini"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "legendă imagine"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Caractere"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Cuvinte"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Propoziții"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Paragrafe"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Timp de citire"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} caracter"
+msgstr[1] "{} caractere"
+msgstr[2] "de {} de caractere"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} propoziție"
+msgstr[1] "{} propoziții"
+msgstr[2] "de {} de propoziții"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} paragraf"
+msgstr[1] "{} paragrafe"
+msgstr[2] "de {} de paragrafe"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} timp de citire"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Nicio notă de subsol potrivită „[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX nu este instalat. Instalați texlive pentru a previzualiza formulele."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Formulă nevalidă: „{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Imaginea nu a fost găsită: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Nicio intrare pentru „{}”."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Negăsit (serviciul de dicționar nu este accesibil)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Se redă previzualizarea…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Conversia a eșuat"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Acest fișier conține HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Documentul include HTML brut. Încărcarea nerestricționată permite scripturi și HTML complet; încărcarea restricționată afișează HTML ca text simplu."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Încarcă nerestricționat"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Încarcă restricționat"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Convertorul de documente (pandoc) nu este instalat. Instalați-l pentru a utiliza previzualizarea și exportul."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Activează jurnalul detaliat în consolă"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Deschide o fereastră nouă goală"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Afișează informațiile de versiune și iese"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Un document are modificări nesalvate"
