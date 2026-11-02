@@ -1,0 +1,890 @@
+# hu translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:20+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Hungarian\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Új lap"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Megnyitás"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Mentés"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Mentés és exportálás"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Keresés"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Teljes képernyő elhagyása"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Új fájl"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Formázás megjelenítése"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} szó"
+msgstr[1] "{} szó"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Ez a dokumentum egy automatikus mentésből állt helyre."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Ez a fájl megváltozott a lemezen."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Újratöltés"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Nincs táblázat"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "A kurzor nem táblázaton belül van."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "A fájl nem nyitható meg"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "A fájl nem menthető"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Menti a módosításokat?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "„{}” mentetlen módosításokat tartalmaz. Ha bezárja, a módosítások elvesznek."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Mégse"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Elvetés"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Bezárás"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Mentés másként…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Exportálás PDF-ként"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Exportálás HTML-ként"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Exportálás ODT-ként"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "HTML másolása"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Speciális exportálás…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Exportálás"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Előnézet a szerkesztő helyett"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Előnézet a szerkesztő mellett"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Előnézet a szerkesztő alatt"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Előnézet külön ablakban"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Nincs előnézet"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Előnézet elrendezése"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Rendszer"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Világos"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Szépia"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Sötét"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Megjelenés"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Hemingway mód"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Fókusz mód"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Kódmód"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Új ablak"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Keresés és csere"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Beállítások"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Oktatóanyag megnyitása"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Billentyűparancsok"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Griffel névjegye"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Főmenü"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Félkövér"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "félkövér szöveg"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Dőlt"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "dőlt szöveg"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Áthúzott"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "áthúzott szöveg"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Cím"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Felsorolásjeles lista"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Számozott lista"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Ellenőrzőlista"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Blokkidézet"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Kód"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Hivatkozás"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Kép"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Táblázat"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Vízszintes vonal"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Táblázat igazításának javítása"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Formázás elrejtése"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Táblázat beszúrása"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Hemingway módban a szöveg nem törölhető"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "További tudnivalók"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Amíg a Hemingway mód be van kapcsolva, a szöveg csak hozzáadható, soha nem törölhető. A Backspace, a Delete, a kivágás és a kijelölés cseréje nem csinál semmit. A visszavonás továbbra is működik. A módot a Ctrl+T billentyűvel vagy a főmenüből kapcsolhatja be vagy ki."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} / {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Szerkesztő &amp; ablak"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Helyesírás-ellenőrzés"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Élő helyesírás-ellenőrzés a szerkesztőben"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Fejléc automatikus elrejtése"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Fejléc és alsó sávok elrejtése gépelés közben"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Nagy szöveg"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Nagyobb szerkesztőbetűtípus és szélesebb margók használata"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Automatikus mentés"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Dokumentum mentése öt másodperccel a gépelés befejezése után"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Formázás &amp; előnézet"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Beviteli formátum"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Az előnézet és az exportálás által használt változat"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "A formátum hivatalos dokumentációjának megnyitása"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Mindig kérdezzen"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Mindig korlátozott"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Mindig korlátlan"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Előnézet biztonsága"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Nyers HTML-t tartalmazó fájlok előnézeténél alkalmazott irányelv"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Általános"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Új lap"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Új ablak"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Fájl megnyitása"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Dokumentum mentése"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Mentés másként"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Lap bezárása"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Ablak bezárása"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Kilépés az alkalmazásból"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Beállítások megnyitása"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Helyesírás-ellenőrzés be/ki"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Módok és nézetek"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Fókusz mód be/ki"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Hemingway mód be/ki"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Előnézeti ablak be/ki"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Kódmód be/ki"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Teljes képernyő be/ki"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Keresés & csere"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Keresés és csere"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Markdown formázás"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Vízszintes vonal"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Felsorolásjeles listaelem"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Cím 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Cím 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Cím 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Cím 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Szerkesztés"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Másolás"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Kivágás"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Beillesztés"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Mindet kijelöl"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Visszavonás"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Mégis"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Behúzás / okos lista"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Kiugrasztás / okos lista"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Zavarómentes Markdown-szerkesztő"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Első kiadás: szerkesztés, kiemelés a dokumentumban, élő előnézet,\n         fókusz- és Hemingway-módok, helyesírás-ellenőrzés, gyorsnézet\n         felugró ablakok, exportálás, pillanatképek és helyreállítás.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "hiányzó beágyazott erőforrás {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "a DZSlides-sablon nem szerezhető be"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Az exportálás sikertelen"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Diavetítés exportálása"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "A Typst motor nem található.\n\nA PDF-exportáláshoz telepítse a Typst programot (https://typst.app)."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Exportálás PDF-be (Typst motor)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Relatív útvonalak átírása abszolútra"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Önálló dokumentum"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Tartalomjegyzék"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Szakaszok számozása"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Oldalméret"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Diaméret"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Önálló (minden erőforrás beágyazása)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Szintaxiskiemelés"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Engedélyezés"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Fokozatos felsorolásjelek"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "A LaTeX eszközlánc nem található"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Telepítési parancs másolása"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Exportálás…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Exportálás ide: {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "A LaTeX-alapú exportáláshoz TeX telepítés szükséges, amely a sandboxon belül nem érhető el. Telepítse a sandbox futtatókörnyezet TeX-kiterjesztését (például org.freedesktop.Sdk.Extension.texlive) a szoftverboltból vagy a flatpakból, majd indítsa újra az alkalmazást."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "A LaTeX-alapú exportáláshoz TeX telepítés szükséges, amely nem található ezen a rendszeren. Telepítsen TeX disztribúciót, például TeX Live (különösen az XeLaTeX motort) a rendszer csomagkezelőjével, majd próbálja újra."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Nincs javaslat"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Rendszer alapbeállítás"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Helyesírás nyelve"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Helyesírás-ellenőrzés"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Gyorsnézet"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Előző találat"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Következő találat"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Kis-/nagybetű megkülönböztetése"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Reguláris kifejezések"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Csere"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Csere erre"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Összes cseréje"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "„{}” fájl nem nyitható meg szövegként:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "a fájl nem olvasható: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "könyvtár nem nyitható meg"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Fájl megnyitása"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Markdown fájlok"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Egyszerű szöveges fájlok"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "a fájl nem menthető: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Egyszerű szöveg"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Nincs mostanában megnyitott dokumentum"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Fájl megnyitása…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Eltávolítás a legutóbbiakból"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "a fájl egyik felismert kódolásban sem érvényes szöveg"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "ismeretlen kódolás: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "a szöveg nem kódolható UTF-8ként"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "kód"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Cím"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Elem"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Idézet"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "hivatkozás szövege"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Kép beszúrása"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Képek"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "képfelirat"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Karakterek"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Szavak"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Mondatok"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Bekezdések"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Olvasási idő"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} karakter"
+msgstr[1] "{} karakter"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} mondat"
+msgstr[1] "{} mondat"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} bekezdés"
+msgstr[1] "{} bekezdés"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} olvasási idő"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Nincs egyező lábjegyzet: „[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "A LaTeX nincs telepítve. A képletek előnézetéhez telepítse a texlive csomagot."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Érvénytelen képlet: „{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "A kép nem található: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Nincs bejegyzés ehhez: „{}”."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Nem található (a szótárszolgáltatás nem érhető el)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Előnézet megjelenítése…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Az átalakítás sikertelen"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Ez a fájl HTML-t tartalmaz"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "A dokumentum nyers HTML-t tartalmaz. Korlátlan betöltéskor a parancsfájlok és a teljes HTML engedélyezett; korlátozott betöltéskor a HTML egyszerű szövegként jelenik meg."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Betöltés korlátlanul"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Betöltés korlátozottan"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "A dokumentumátalakító (pandoc) nincs telepítve. Az előnézet és az exportálás használatához telepítse."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Részletes konzolnaplózás engedélyezése"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Új üres ablak megnyitása"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Verzióinformációk kiírása és kilépés"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Egy dokumentumnak mentetlen módosításai vannak"
