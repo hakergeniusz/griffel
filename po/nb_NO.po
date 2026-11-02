@@ -1,0 +1,890 @@
+# nb_NO translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 20:50+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Norwegian Bokmål\n"
+"Language: nb_NO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Ny fane"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Åpne"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Lagre"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Lagre og eksporter"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Finn"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Forlat fullskjerm"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Ny fil"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Vis formatering"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} ord"
+msgstr[1] "{} ord"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Dette dokumentet ble gjenopprettet fra en automatisk lagring."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Denne filen er endret på disk."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Last inn på nytt"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Ingen tabell"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "Markøren er ikke i en tabell."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Kan ikke åpne filen"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Kan ikke lagre filen"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Lagre endringene?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "«{}» inneholder ulagrede endringer. Hvis du lukker den, går endringene tapt."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Forkast"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Lukk"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Lagre som…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Eksporter som PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Eksporter som HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Eksporter som ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Kopier HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Avansert eksport…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Eksporter"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Forhåndsvisning i stedet for redigering"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Forhåndsvisning ved siden av redigering"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Forhåndsvisning under redigering"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Forhåndsvisning i eget vindu"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Ingen forhåndsvisning"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Oppsett for forhåndsvisningen"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "System"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Lys"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sepia"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Mørk"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Utseende"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Hemingway-modus"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Fokusmodus"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Kodemodus"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Nytt vindu"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Finn og erstatt"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Innstillinger"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Åpne veiledningen"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Tastatursnarveier"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Om Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Hovedmeny"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Fet"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "fet tekst"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Kursiv"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "kursiv tekst"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Gjennomstreket"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "gjennomstreket tekst"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Overskrift"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Punktliste"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Nummerert liste"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Sjekkliste"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Blokksitat"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Kode"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Lenke"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Bilde"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tabell"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Vannrett linje"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Rett tabelljusteringen"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Skjul formateringen"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Sett inn tabell"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Tekst kan ikke slettes i Hemingway-modus"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Les mer"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Når Hemingway-modus er på, kan tekst bare legges til, aldri slettes. Backspace, Delete, klipp ut og å erstatte et utvalg gjør ingenting. Angre fungerer fortsatt. Slå modusen av eller på med Ctrl+T eller fra hovedmenyen."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} av {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Redigering &amp; vindu"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Sjekk stavning"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Stavekontroll i sanntid i redigeringsfeltet"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Skjul topplinjen automatisk"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Skjul topp- og bunnlinjer mens du skriver"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Stor tekst"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Bruk større skrifttype i redigeringsfeltet og bredere marger"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Autolagring"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Lagre dokumentet fem sekunder etter at du slutter å skrive"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Formatering &amp; forhåndsvisning"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Inndataformat"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Smaken som brukes av forhåndsvisning og eksport"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Åpne den offisielle dokumentasjonen for dette formatet"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Spør alltid"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Bruk alltid begrenset"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Bruk alltid ubegrenset"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Sikkerhet for forhåndsvisningen"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Retningslinjen som brukes ved forhåndsvisning av filer med rå HTML"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Generelt"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Ny fane"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Nytt vindu"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Åpne fil"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Lagre dokument"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Lagre som"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Lukk fanen"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Lukk vinduet"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Avslutt programmet"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Åpne innstillingene"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Slå stavekontroll av eller på"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Moduser & visninger"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Slå fokusmodus av eller på"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Slå Hemingway-modus av eller på"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Slå forhåndsvisningsruten av eller på"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Slå kodemodus av eller på"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Slå fullskjerm av eller på"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Finn & erstatt"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Finn og erstatt"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Markdown-formatering"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Vannrett linje"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Punkt i punktliste"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Overskrift 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Overskrift 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Overskrift 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Overskrift 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Redigering"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Kopier"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Klipp ut"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Lim inn"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Merk alt"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Angre"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Gjør om"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Rykk inn / smart liste"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Rykk ut / smart liste"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "En distraksjonsfri Markdown-editor"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Første utgivelse: redigering, utheving i dokumentet, forhåndsvisning i sanntid,\n         fokus- og Hemingway-moduser, stavekontroll, peek-vinduer, eksport,\n         øyeblikksbilder og gjenoppretting.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "manglende innebygd ressurs {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "klarte ikke å hente DZSlides-malen"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Eksporten mislyktes"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Eksporter lysbildevisning"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Typst-motoren ble ikke funnet.\n\nInstaller Typst (https://typst.app) for å eksportere PDF."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Eksporter til PDF (Typst-motoren)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Skriv om relative stier til absolutte"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Selvstendig dokument"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Innholdsfortegnelse"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Nummerer avsnittene"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Sidestørrelse"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Lysbilledstørrelse"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Selvstendig (bygg inn alle ressursene)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Syntaksutheving"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Aktiver"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Trinnvise punkter"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "LaTeX-verktøykjeden ble ikke funnet"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Kopier installeringskommandoen"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Eksporter…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Eksporter til {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "LaTeX-basert eksport krever en TeX-installasjon, som ikke er tilgjengelig i sandkassen. Installer TeX-utvidelsen for sandkasse-kjøretiden din (f.eks. org.freedesktop.Sdk.Extension.texlive) via programbutikken eller flatpak, og start programmet på nytt."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "LaTeX-basert eksport krever en TeX-installasjon, som ikke ble funnet på dette systemet. Installer en TeX-distribusjon, for eksempel TeX Live (særlig XeLaTeX-motoren), med systemets pakkehåndterer, og prøv igjen."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Ingen forslag"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Systemstandard"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Stavespråk"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Sjekk stavning"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Peek"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Forrige treff"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Neste treff"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Skill store og små bokstaver"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Regulære uttrykk"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Erstatt"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Erstatt med"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Erstatt alle"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Filen «{}» kunne ikke åpnes som tekst:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "kan ikke lese filen: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "kan ikke åpne en mappe"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Åpne fil"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Markdown-filer"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Vanlige tekstfiler"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "kan ikke lagre filen: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Vanlig tekst"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Ingen nylig åpnede dokumenter"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Åpne fil…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Fjern fra nylige"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "filen er ikke gyldig tekst i noen oppdaget koding"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "ukjent koding: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "teksten kan ikke kodes som UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "kode"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Overskrift"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Element"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Sitat"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "lenketekst"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Sett inn bilde"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Bilder"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "bildetekst"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Tegn"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Ord"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Setninger"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Avsnitt"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Lesetid"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} tegn"
+msgstr[1] "{} tegn"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} setning"
+msgstr[1] "{} setninger"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} avsnitt"
+msgstr[1] "{} avsnitt"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} lesetid"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Ingen samsvarende fotnote «[^{}]»."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX er ikke installert. Installer texlive for å forhåndsvise formler."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Ugyldig formel: «{}»"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Bildet ble ikke funnet: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Ingen oppføring for «{}»."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Ikke funnet (ordbokstjenesten er utilgjengelig)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Genererer forhåndsvisning…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Konverteringen mislyktes"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Denne filen inneholder HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Dokumentet inneholder rå HTML. Hvis det lastes inn ubegrenset, tillates skript og full HTML; hvis det lastes inn begrenset, vises HTML som vanlig tekst."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Last inn ubegrenset"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Last inn begrenset"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Dokumentkonvertereren (pandoc) er ikke installert. Installer den for å bruke forhåndsvisning og eksport."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Slå på utførlig konsolllogging"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Åpne et nytt tomt vindu"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Skriv ut versjonsinformasjon og avslutt"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Et dokument har ulagrede endringer"
