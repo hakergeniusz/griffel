@@ -1,0 +1,886 @@
+# id translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 22:00+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Indonesian\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Tab Baru"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Buka"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Simpan"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Simpan dan Ekspor"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Cari"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Keluar dari Layar Penuh"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Berkas Baru"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Tampilkan Pemformatan"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} kata"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Dokumen ini dipulihkan dari penyimpanan otomatis."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Berkas ini berubah di disk."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Muat Ulang"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Tidak ada tabel"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "Kursor tidak berada di dalam tabel."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Tidak dapat membuka berkas"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Tidak dapat menyimpan berkas"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Simpan perubahan?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "“{}” memuat perubahan yang belum disimpan. Jika Anda menutupnya, perubahan akan hilang."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Batal"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Buang"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Tutup"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Simpan Sebagai…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Ekspor sebagai PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Ekspor sebagai HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Ekspor sebagai ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Salin HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Ekspor Lanjutan…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Ekspor"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Pratinjau Alih-alih Editor"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Pratinjau di Samping Editor"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Pratinjau di Bawah Editor"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Pratinjau di Jendela Terpisah"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Tanpa Pratinjau"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Tata Letak Pratinjau"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Sistem"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Terang"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sepia"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Gelap"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Tampilan"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Mode Hemingway"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Mode Fokus"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Mode Kode"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Jendela Baru"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Cari dan Ganti"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Preferensi"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Buka Tutorial"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Pintasan Papan Tik"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Tentang Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Menu Utama"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Tebal"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "teks tebal"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Miring"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "teks miring"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Coret"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "teks dicoret"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Judul"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Daftar Berbutir"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Daftar Bernomor"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Daftar Periksa"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Kutipan Blok"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Kode"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Tautan"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Gambar"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tabel"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Garis Horizontal"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Perbaiki Perataan Tabel"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Sembunyikan Pemformatan"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Sisipkan Tabel"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Teks tidak dapat dihapus dalam Mode Hemingway"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Pelajari Lebih Lanjut"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Selama Mode Hemingway aktif, teks hanya dapat ditambahkan, tidak pernah dihapus. Backspace, Delete, memotong, dan mengganti pilihan tidak melakukan apa pun. Undo tetap berfungsi. Alihkan mode dengan Ctrl+T atau dari menu utama."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} dari {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Editor &amp; Jendela"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Periksa ejaan"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Pemeriksaan ejaan langsung di editor"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Sembunyikan bilah kepala secara otomatis"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Sembunyikan bilah kepala dan bilah bawah saat mengetik"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Teks besar"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Gunakan font editor yang lebih besar dan margin yang lebih lebar"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Simpan Otomatis"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Simpan dokumen lima detik setelah Anda berhenti mengetik"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Pemformatan &amp; Pratinjau"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Format masukan"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Varian yang digunakan oleh pratinjau dan ekspor"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Buka dokumentasi resmi untuk format ini"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Selalu tanya"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Selalu gunakan terbatas"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Selalu gunakan tak terbatas"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Keamanan pratinjau"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Kebijakan yang diterapkan saat mempratinjau berkas yang memuat HTML mentah"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Umum"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Tab baru"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Jendela baru"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Buka berkas"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Simpan dokumen"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Simpan Sebagai"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Tutup tab"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Tutup jendela"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Keluar dari aplikasi"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Buka preferensi"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Alihkan pemeriksaan ejaan"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Mode & Tampilan"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Alihkan Mode Fokus"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Alihkan Mode Hemingway"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Alihkan panel pratinjau"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Alihkan Mode Kode"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Alihkan layar penuh"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Cari & Ganti"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Cari dan ganti"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Pemformatan Markdown"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Garis horizontal"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Butir daftar berbutir"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Judul 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Judul 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Judul 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Judul 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Penyuntingan"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Salin"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Potong"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Tempel"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Pilih Semua"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Tak Jadi"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Ulangi"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Indentasi / daftar pintar"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Mundurkan indentasi / daftar pintar"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Editor Markdown yang bebas distraksi"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Rilis perdana: penyuntingan, penyorotan di tempat, pratinjau langsung,\n         mode Fokus dan Hemingway, pemeriksaan ejaan, popover intip,\n         ekspor, snapshot dan pemulihan.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "sumber daya paket yang hilang {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "tidak bisa memperoleh templat DZSlides"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Ekspor Gagal"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Ekspor peragaan salindia"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Mesin Typst tidak ditemukan.\n\nPasang Typst (https://typst.app) untuk mengekspor PDF."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Ekspor ke PDF (mesin Typst)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Tulis ulang jalur relatif menjadi absolut"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Dokumen mandiri"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Daftar isi"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Nomori bagian"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Ukuran halaman"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Ukuran salindia"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Mandiri (sematkan semua sumber daya)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Penyorotan sintaksis"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Aktifkan"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Butir bertahap"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "Rangkaian alat LaTeX tidak ditemukan"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Salin perintah instalasi"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Ekspor…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Ekspor ke {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "Ekspor berbasis LaTeX memerlukan instalasi TeX, yang tidak tersedia di dalam sandbox. Pasang ekstensi TeX untuk runtime sandbox Anda (mis. org.freedesktop.Sdk.Extension.texlive) dengan toko perangkat lunak atau flatpak Anda, lalu mulai ulang aplikasi."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "Ekspor berbasis LaTeX memerlukan instalasi TeX, yang tidak ditemukan pada sistem ini. Pasang distribusi TeX seperti TeX Live (khususnya mesin XeLaTeX) dengan manajer paket sistem Anda, lalu coba lagi."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Tanpa Saran"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Bawaan Sistem"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Bahasa Ejaan"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Periksa Ejaan"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Intip"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Kecocokan Sebelumnya"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Kecocokan Berikutnya"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Peka Huruf Besar/Kecil"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Ekspresi Reguler"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Ganti"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Ganti dengan"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Ganti Semua"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Berkas “{}” tidak dapat dibuka sebagai teks:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "tidak bisa membaca berkas: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "tidak bisa membuka direktori"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Buka Berkas"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Berkas Markdown"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Berkas Teks Biasa"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "tidak bisa menyimpan berkas: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Teks biasa"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Tidak ada dokumen yang baru dibuka"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Buka Berkas…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Hapus dari Terbaru"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "berkas bukan teks yang valid dalam pengodean apa pun yang terdeteksi"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "pengodean tak dikenal: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "teks tidak dapat dikodekan sebagai UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "kode"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Judul"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Butir"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Kutipan"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "teks tautan"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Sisipkan Gambar"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Gambar"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "keterangan gambar"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Karakter"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Kata"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Kalimat"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Paragraf"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Waktu Baca"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} karakter"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} kalimat"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} paragraf"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} waktu baca"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Tidak ada catatan kaki yang cocok “[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX tidak terpasang. Pasang texlive untuk mempratinjau rumus."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Rumus tidak valid: “{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Gambar tidak ditemukan: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Tidak ada entri untuk “{}”."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Tidak ditemukan (layanan kamus tidak dapat dihubungi)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Merender pratinjau…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Konversi Gagal"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Berkas ini memuat HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Dokumen memuat HTML mentah. Memuatnya tanpa batas mengizinkan skrip dan HTML penuh; memuatnya terbatas merender HTML sebagai teks biasa."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Muat Tanpa Batas"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Muat Terbatas"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Pengonversi dokumen (pandoc) tidak terpasang. Pasang untuk memakai pratinjau dan ekspor."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Aktifkan pencatatan konsol yang rinci"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Buka jendela kosong baru"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Cetak informasi versi dan keluar"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Sebuah dokumen memiliki perubahan yang belum disimpan"
