@@ -1,0 +1,890 @@
+# tr translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:40+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Yeni Sekme"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Aç"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Kaydet"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Kaydet ve Dışa Aktar"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Bul"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Tam Ekrandan Çık"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Yeni Dosya"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Biçimlendirmeyi Göster"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} kelime"
+msgstr[1] "{} kelime"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Bu belge otomatik kaydetmeden kurtarıldı."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Bu dosya diskte değiştirildi."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Yeniden Yükle"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Tablo Yok"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "İmleç bir tablonun içinde değil."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Dosya Açılamıyor"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Dosya Kaydedilemiyor"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Değişiklikler kaydedilsin mi?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "“{}” kaydedilmemiş değişiklikler içeriyor. Kapatırsanız değişiklikler kaybolacak."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "İptal"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "At"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Kapat"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Farklı Kaydet…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "PDF olarak Dışa Aktar"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "HTML olarak Dışa Aktar"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "ODT olarak Dışa Aktar"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "HTML Kopyala"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Gelişmiş Dışa Aktarma…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Dışa Aktar"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Düzenleyici Yerine Önizleme"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Düzenleyicinin Yanında Önizleme"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Düzenleyicinin Altında Önizleme"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Ayrı Pencerede Önizleme"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Önizleme Yok"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Önizleme Düzeni"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Sistem"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Açık"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sepya"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Koyu"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Görünüm"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Hemingway Kipi"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Odak Kipi"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Kod Kipi"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Yeni Pencere"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Bul ve Değiştir"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Tercihler"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Öğreticiyi Aç"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Klavye Kısayolları"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Griffel Hakkında"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Ana Menü"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Kalın"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "kalın metin"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Eğik"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "eğik metin"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Üstü Çizili"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "üstü çizili metin"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Başlık"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Madde İşaretli Liste"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Numaralı Liste"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Denetim Listesi"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Blok Alıntı"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Kod"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Bağlantı"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Görüntü"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tablo"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Yatay Çizgi"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Tablo Hizalamasını Düzelt"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Biçimlendirmeyi Gizle"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Tablo Ekle"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Hemingway Kipinde metin silinemez"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Daha Fazla Bilgi"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Hemingway Kipi açıkken metin yalnızca eklenebilir, asla silinemez. Backspace, Delete, kesme ve seçimi değiştirme hiçbir şey yapmaz. Geri alma çalışmaya devam eder. Kipi Ctrl+T ile veya ana menüden açıp kapatabilirsiniz."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "Tamam"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} / {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Düzenleyici &amp; Pencere"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Yazım Denetimi"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Düzenleyicide canlı yazım denetimi"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Başlık çubuğunu otomatik gizle"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Yazarken başlık ve alt çubukları gizle"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Büyük metin"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Düzenleyicide daha büyük yazı tipi ve daha geniş kenar boşlukları kullan"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Otomatik Kaydetme"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Yazmayı bıraktıktan beş saniye sonra belgeyi kaydet"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Biçimlendirme &amp; Önizleme"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Girdi biçimi"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Önizleme ve dışa aktarma tarafından kullanılan tür"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Bu biçimin resmi belgelerini aç"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Her zaman sor"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Her zaman kısıtlı kullan"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Her zaman kısıtsız kullan"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Önizleme güvenliği"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Ham HTML içeren dosyalar önizlenirken uygulanan ilke"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Genel"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Yeni sekme"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Yeni pencere"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Dosya aç"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Belgeyi kaydet"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Farklı Kaydet"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Sekmeyi kapat"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Pencereyi kapat"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Uygulamadan çık"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Tercihleri aç"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Yazım denetimini aç/kapat"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Kipler & Görünümler"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Odak Kipini Aç/Kapat"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Hemingway Kipini Aç/Kapat"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Önizleme bölmesini aç/kapat"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Kod Kipini Aç/Kapat"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Tam ekranı aç/kapat"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Bul & Değiştir"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Bul ve değiştir"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Markdown Biçimlendirme"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Yatay çizgi"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Madde işaretli liste ögesi"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Başlık 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Başlık 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Başlık 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Başlık 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Düzenleme"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Kopyala"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Kes"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Yapıştır"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Tümünü Seç"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Geri Al"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Yinele"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Girinti / akıllı liste"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Çıkıntı / akıllı liste"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Dikkat dağıtmayan bir Markdown düzenleyici"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>İlk sürüm: düzenleme, yerinde vurgulama, canlı önizleme,\n         Odak ve Hemingway kipleri, yazım denetimi, göz atma açılır\n         pencereleri, dışa aktarma, anlık görüntüler ve kurtarma.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "eksik paketlenmiş kaynak {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "DZSlides şablonu alınamadı"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Dışa Aktarma Başarısız"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Slayt gösterisini dışa aktar"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Typst motoru bulunamadı.\n\nPDF dışa aktarmak için Typst (https://typst.app) kurun."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "PDF olarak dışa aktar (Typst motoru)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Göreli yolları mutlak olarak yeniden yaz"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Bağımsız belge"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "İçindekiler tablosu"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Bölümleri numaralandır"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Sayfa boyutu"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Slayt boyutu"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Kendine yeterli (tüm kaynakları göm)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Söz dizimi vurgulama"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Etkinleştir"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Kademeli madde işaretleri"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "LaTeX araç zinciri bulunamadı"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Kurulum komutunu kopyala"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Dışa Aktar…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "{} biçimine dışa aktar"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "LaTeX tabanlı dışa aktarma, sandbox içinde kullanılamayan bir TeX kurulumu gerektirir. Sandbox çalışma zamanınız için TeX uzantısını (örn. org.freedesktop.Sdk.Extension.texlive) yazılım mağazanızdan veya flatpak üzerinden kurun, sonra uygulamayı yeniden başlatın."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "LaTeX tabanlı dışa aktarma, bu sistemde bulunamayan bir TeX kurulumu gerektirir. Sisteminizin paket yöneticisiyle TeX Live (özellikle XeLaTeX motoru) gibi bir TeX dağıtımı kurun ve yeniden deneyin."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Öneri Yok"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Sistem Varsayılanı"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Yazım Dili"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Yazım Denetimi"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Göz At"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Önceki Eşleşme"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Sonraki Eşleşme"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Büyük/Küçük Harf Eşleştir"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Düzenli İfadeler"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Değiştir"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Şununla değiştir"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Tümünü Değiştir"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "“{}” dosyası metin olarak açılamadı:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "dosya okunamıyor: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "bir dizin açılamıyor"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Dosya Aç"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Markdown Dosyaları"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Düz Metin Dosyaları"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "dosya kaydedilemiyor: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Düz metin"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Yakın zamanda açılmış belge yok"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Dosya Aç…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Son kullanılanlardan kaldır"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "dosya, algılanan hiçbir kodlamada geçerli metin değil"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "bilinmeyen kodlama: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "metin UTF-8 olarak kodlanamıyor"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "kod"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Başlık"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Öge"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Alıntı"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "bağlantı metni"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Görüntü Ekle"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Görüntüler"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "görüntü altyazısı"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Karakter"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Kelime"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Cümle"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Paragraf"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Okuma Süresi"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} karakter"
+msgstr[1] "{} karakter"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} cümle"
+msgstr[1] "{} cümle"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} paragraf"
+msgstr[1] "{} paragraf"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} okuma süresi"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Eşleşen dipnot yok: “[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX kurulu değil. Formülleri önizlemek için texlive kurun."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Geçersiz formül: “{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Görüntü bulunamadı: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "“{}” için girdi yok."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Bulunamadı (sözlük servisine ulaşılamıyor)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Önizleme işleniyor…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Dönüştürme Başarısız"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Bu dosya HTML içeriyor"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Belge ham HTML içeriyor. Kısıtsız yükleme betiklere ve tam HTML’ye izin verir; kısıtlı yükleme HTML’yi düz metin olarak gösterir."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Kısıtsız Yükle"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Kısıtlı Yükle"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Belge dönüştürücü (pandoc) kurulu değil. Önizleme ve dışa aktarmayı kullanmak için kurun."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Ayrıntılı konsol günlüğünü etkinleştir"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Yeni boş pencere aç"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Sürüm bilgisini yazdır ve çık"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Bir belgenin kaydedilmemiş değişiklikleri var"
