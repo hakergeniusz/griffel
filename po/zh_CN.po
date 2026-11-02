@@ -1,0 +1,886 @@
+# zh_CN translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 20:15+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Simplified Chinese\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "新建标签页"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "打开"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "保存"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "保存与导出"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "查找"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "退出全屏"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "新建文档"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "显示格式工具"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} 个词"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "此文档已从自动保存中恢复。"
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "此文件在磁盘上已被修改。"
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "重新加载"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "没有表格"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "光标不在表格内。"
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "无法打开文件"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "无法保存文件"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "保存更改吗？"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "“{}”包含未保存的更改。如果关闭它，这些更改将会丢失。"
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "取消"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "放弃"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "关闭"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "另存为…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "导出为 PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "导出为 HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "导出为 ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "复制 HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "高级导出…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "导出"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "预览替换编辑器"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "预览在编辑器旁边"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "预览在编辑器下方"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "预览在独立窗口中"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "无预览"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "预览布局"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "跟随系统"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "浅色"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "棕褐"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "深色"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "外观"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "海明威模式"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "专注模式"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "代码模式"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "新建窗口"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "查找和替换"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "首选项"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "打开教程"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "键盘快捷键"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "关于 Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "加粗"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "加粗文本"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "斜体"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "斜体文本"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "删除线"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "删除线文本"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "标题"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "无序列表"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "有序列表"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "任务列表"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "引用块"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "代码"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "链接"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "图片"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "表格"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "水平分割线"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "修正表格对齐"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "隐藏格式工具"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "插入表格"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "在海明威模式下无法删除文本"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "了解更多"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "海明威模式开启时，只能添加文本，不能删除。退格键、删除键、剪切以及替换选区都不起作用。撤销仍然可用。使用 Ctrl+T 或从主菜单切换该模式。"
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "确定"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{}, 共 {}, {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "编辑器和窗口"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "拼写检查"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "在编辑器中实时拼写检查"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "自动隐藏标题栏"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "输入时隐藏标题栏和底部栏"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "大字号"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "使用更大的编辑器字体和更宽的边距"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "自动保存"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "停止输入五秒后保存文档"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "格式与预览"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "输入格式"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "预览和导出所使用的变体"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "打开此格式的官方文档"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "总是询问"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "总是使用受限模式"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "总是使用不受限模式"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "预览安全性"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "预览包含原始 HTML 的文件时采用的策略"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "常规"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "新建标签页"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "新建窗口"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "打开文件"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "保存文档"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "另存为"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "关闭标签页"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "关闭窗口"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "退出应用"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "打开首选项"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "切换拼写检查"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "模式与视图"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "切换专注模式"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "切换海明威模式"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "切换预览面板"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "切换代码模式"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "切换全屏"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "查找和替换"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "查找和替换"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Markdown 格式"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "水平分割线"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "无序列表项"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "标题 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "标题 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "标题 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "标题 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "编辑"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "复制"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "剪切"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "粘贴"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "全选"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "撤销"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "重做"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "缩进 / 智能列表"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "减少缩进 / 智能列表"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "一款无干扰的 Markdown 编辑器"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>首个版本：编辑、即时高亮、实时预览、\n         专注模式和海明威模式、拼写检查、速览弹窗、导出、\n         快照与恢复。</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "缺少内置资源 {}：{}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "无法获取 DZSlides 模板"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "导出失败"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "导出演示文稿"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "未找到 Typst 引擎。\n\n请安装 Typst（https://typst.app）以导出 PDF。"
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "导出为 PDF（Typst 引擎）"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "将相对路径重写为绝对路径"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "独立文档"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "目录"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "章节编号"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "页面大小"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "幻灯片大小"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "自包含（内嵌所有资源）"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "语法高亮"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "启用"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "逐条显示列表项"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "未找到 LaTeX 工具链"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "复制安装命令"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "导出…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "导出为 {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "基于 LaTeX 的导出需要安装 TeX，而沙盒内无法使用。请通过软件商店或 flatpak 为沙盒运行时安装 TeX 扩展（例如 org.freedesktop.Sdk.Extension.texlive），然后重新启动应用。"
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "基于 LaTeX 的导出需要安装 TeX，但此系统上未找到。请使用系统软件包管理器安装 TeX 发行版（如 TeX Live，尤其是 XeLaTeX 引擎），然后重试。"
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "无建议"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "系统默认"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "拼写语言"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "拼写检查"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "速览"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "上一个匹配项"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "下一个匹配项"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "区分大小写"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "正则表达式"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "替换"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "替换为"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "全部替换"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "无法将文件“{}”作为文本打开：\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "无法读取文件：{}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "无法打开目录"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "打开文件"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Markdown 文件"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "纯文本文件"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "无法保存文件：{}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "纯文本"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "最近没有打开过的文档"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "打开文件…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "从最近使用中移除"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "文件在任何检测到的编码下都不是有效文本"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "未知编码：{}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "文本无法编码为 UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "代码"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "表头"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "列表项"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "引用"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "链接文本"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "插入图片"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "图片"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "图片说明"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "字符"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "词数"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "句数"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "段落"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "阅读时长"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} 个字符"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} 个句子"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} 个段落"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} 阅读时长"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "没有匹配的脚注“[^{}]”。"
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "未安装 LaTeX。请安装 texlive 以预览公式。"
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "无效公式：“{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "未找到图片：{}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "没有“{}”的词条。"
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "未找到（词典服务不可用）。"
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "正在生成预览…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "转换失败"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "此文件包含 HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "文档包含原始 HTML。不受限加载将允许脚本和完整 HTML；受限加载则将 HTML 显示为纯文本。"
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "不受限加载"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "受限加载"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "文档转换器（pandoc）未安装。请安装它以使用预览和导出功能。"
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "启用详细的控制台日志"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "打开一个新的空窗口"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "显示版本信息并退出"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "文档有未保存的更改"
