@@ -157,6 +157,9 @@ pub fn recover_snapshots(app: &gtk::Application) {
         win.update_title();
         win.update_tab_title(&tab);
         tab.editor.highlight_now();
+        // Recovered text replaces the buffer programmatically; refresh the
+        // statistics button for it.
+        win.schedule_stats();
         win.show_recovery_banner();
         if let Some(f) = file {
             monitor::install_tab(&win, &tab, &f);

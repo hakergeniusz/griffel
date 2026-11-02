@@ -1321,6 +1321,9 @@ impl AppWindow {
         let lang = files::metadata::load_language(file);
         tab.editor.set_spell_language(lang);
         tab.editor.highlight_now();
+        // The changed-handler path skips statistics while content is
+        // replaced programmatically; recompute for the loaded text.
+        self.schedule_stats();
         if self.state.preview_active.get() && self.is_active_tab(tab) {
             self.preview.evaluate_security(&decoded.text, false);
             self.schedule_preview();
@@ -1347,6 +1350,7 @@ impl AppWindow {
         *tab.editor.spell_persist_target.borrow_mut() = None;
         tab.editor.set_spell_language(None);
         tab.editor.highlight_now();
+        self.schedule_stats();
     }
 
     /// Load a file into the active tab (used by routing).
@@ -1381,6 +1385,7 @@ impl AppWindow {
         tab.editor.set_spell_language(None);
         self.update_title();
         self.update_tab_title(tab);
+        self.schedule_stats();
     }
 
     /// Save: to the backing file, or via Save As when there is none.
