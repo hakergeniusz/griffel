@@ -1,0 +1,886 @@
+# ko translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:00+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Korean\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "새 탭"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "열기"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "저장"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "저장 및 내보내기"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "찾기"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "전체 화면 나가기"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "새 파일"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "서식 표시"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} 단어"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "이 문서는 자동 저장에서 복구되었습니다."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "이 파일은 디스크에서 변경되었습니다."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "다시 불러오기"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "표 없음"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "커서가 표 안에 있지 않습니다."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "파일을 열 수 없음"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "파일을 저장할 수 없음"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "변경 사항을 저장하시겠습니까?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "“{}”에 저장하지 않은 변경 내용이 있습니다. 닫으면 변경 내용이 손실됩니다."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "취소"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "버리기"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "닫기"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "다른 이름으로 저장…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "PDF로 내보내기"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "HTML로 내보내기"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "ODT로 내보내기"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "HTML 복사"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "고급 내보내기…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "내보내기"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "편집기 대신 미리 보기"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "편집기 옆에 미리 보기"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "편집기 아래에 미리 보기"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "별도 창에서 미리 보기"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "미리 보기 없음"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "미리 보기 배치"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "시스템"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "밝게"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "세피아"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "어둡게"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "모양"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "헤밍웨이 모드"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "집중 모드"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "코드 모드"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "새 창"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "찾기 및 바꾸기"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "기본 설정"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "자습서 열기"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "키보드 바로 가기"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Griffel 정보"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "주 메뉴"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "굵게"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "굵은 텍스트"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "기울임"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "기울인 텍스트"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "취소선"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "취소선 텍스트"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "제목"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "글머리 기호 목록"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "번호 매기기 목록"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "체크리스트"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "인용 블록"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "코드"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "링크"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "이미지"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "표"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "가로줄"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "표 정렬 수정"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "서식 숨기기"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "표 삽입"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "헤밍웨이 모드에서는 텍스트를 삭제할 수 없습니다"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "자세히 보기"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "헤밍웨이 모드가 켜져 있으면 텍스트를 추가할 수만 있고 삭제할 수 없습니다. 백스페이스, Delete, 잘라내기, 선택 영역 바꾸기는 아무 동작도 하지 않습니다. 실행 취소는 계속 동작합니다. Ctrl+T 또는 주 메뉴에서 모드를 전환할 수 있습니다."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "확인"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} / {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "편집기 &amp; 창"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "맞춤법 검사"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "편집기에서 실시간 맞춤법 검사"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "헤더 바 자동 숨기기"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "입력할 때 헤더와 하단 바 숨기기"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "큰 텍스트"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "편집기에서 더 큰 글꼴과 넓은 여백 사용"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "자동 저장"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "입력을 멈춘 후 5초 뒤에 문서 저장"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "서식 &amp; 미리 보기"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "입력 형식"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "미리 보기와 내보내기에서 사용하는 형식"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "이 형식의 공식 문서 열기"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "항상 묻기"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "항상 제한 모드 사용"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "항상 무제한 모드 사용"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "미리 보기 보안"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "원시 HTML이 포함된 파일을 미리 볼 때 적용되는 정책"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "일반"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "새 탭"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "새 창"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "파일 열기"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "문서 저장"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "다른 이름으로 저장"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "탭 닫기"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "창 닫기"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "프로그램 종료"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "기본 설정 열기"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "맞춤법 검사 전환"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "모드 및 보기"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "집중 모드 전환"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "헤밍웨이 모드 전환"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "미리 보기 창 전환"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "코드 모드 전환"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "전체 화면 전환"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "찾기 & 바꾸기"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "찾기 및 바꾸기"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "마크다운 서식"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "가로줄"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "글머리 기호 항목"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "제목 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "제목 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "제목 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "제목 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "편집"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "복사"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "잘라내기"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "붙여넣기"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "모두 선택"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "실행 취소"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "다시 실행"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "들여쓰기 / 스마트 목록"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "내어쓰기 / 스마트 목록"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "집중을 방해하지 않는 마크다운 편집기"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>최초 릴리스: 편집, 문서 내 강조, 실시간 미리 보기,\n         집중 모드와 헤밍웨이 모드, 맞춤법 검사, 살펴보기 팝오버, 내보내기,\n         스냅샷과 복구.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "누락된 번들 리소스 {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "DZSlides 템플릿을 가져올 수 없음"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "내보내기 실패"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "슬라이드 쇼 내보내기"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Typst 엔진을 찾을 수 없습니다.\n\nPDF로 내보내려면 Typst(https://typst.app)를 설치하십시오."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "PDF로 내보내기(Typst 엔진)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "상대 경로를 절대 경로로 다시 쓰기"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "독립 문서"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "목차"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "섹션 번호 매기기"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "페이지 크기"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "슬라이드 크기"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "자체 포함(모든 리소스 포함)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "구문 강조"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "활성화"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "단계별 글머리 기호"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "LaTeX 도구체인을 찾을 수 없음"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "설치 명령 복사"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "내보내기…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "{} 형식으로 내보내기"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "LaTeX 기반 내보내기에는 TeX 설치가 필요하지만 샌드박스 안에서는 사용할 수 없습니다. 샌드박스 런타임용 TeX 확장(예: org.freedesktop.Sdk.Extension.texlive)을 소프트웨어 스토어나 flatpak으로 설치한 후 프로그램을 다시 시작하십시오."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "LaTeX 기반 내보내기에는 TeX 설치가 필요하지만 이 시스템에서 찾을 수 없습니다. 시스템 패키지 관리자로 TeX Live(특히 XeLaTeX 엔진) 같은 TeX 배포판을 설치한 후 다시 시도하십시오."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "추천 없음"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "시스템 기본값"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "맞춤법 언어"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "맞춤법 검사"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "살펴보기"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "이전 일치 항목"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "다음 일치 항목"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "대/소문자 구분"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "정규 표현식"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "바꾸기"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "바꿀 내용"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "모두 바꾸기"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "“{}” 파일을 텍스트로 열 수 없습니다:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "파일을 읽을 수 없음: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "디렉터리를 열 수 없음"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "파일 열기"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "마크다운 파일"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "일반 텍스트 파일"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "파일을 저장할 수 없음: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "마크다운"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "일반 텍스트"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "최근에 연 문서 없음"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "파일 열기…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "최근 목록에서 제거"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "감지된 어떤 인코딩으로도 올바른 텍스트가 아닙니다"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "알 수 없는 인코딩: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "텍스트를 UTF-8으로 인코딩할 수 없습니다"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "코드"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "제목"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "항목"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "인용"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "링크 텍스트"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "이미지 삽입"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "이미지"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "이미지 설명"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "문자"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "단어"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "문장"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "문단"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "읽는 시간"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} 문자"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} 문장"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} 문단"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} 읽는 시간"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "일치하는 각주 없음: “[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX이 설치되어 있지 않습니다. 수식을 미리 보려면 texlive를 설치하십시오."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "잘못된 수식: “{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "이미지를 찾을 수 없음: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "“{}”에 대한 항목이 없습니다."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "찾을 수 없음(사전 서비스에 연결할 수 없음)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "미리 보기 렌더링 중…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "변환 실패"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "이 파일에는 HTML이 들어 있습니다"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "문서에 원시 HTML이 포함되어 있습니다. 무제한으로 불러오면 스크립트와 전체 HTML이 허용되고, 제한적으로 불러오면 HTML이 일반 텍스트로 표시됩니다."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "무제한으로 불러오기"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "제한적으로 불러오기"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "문서 변환기(pandoc)가 설치되어 있지 않습니다. 미리 보기와 내보내기를 사용하려면 설치하십시오."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "자세한 콘솔 로깅 사용"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "새 빈 창 열기"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "버전 정보를 출력하고 종료"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "문서에 저장하지 않은 변경 사항이 있음"
