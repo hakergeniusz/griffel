@@ -1,0 +1,890 @@
+# el translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:30+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Greek\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Νέα καρτέλα"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Άνοιγμα"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Αποθήκευση"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Αποθήκευση και εξαγωγή"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Εύρεση"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Έξοδος από πλήρη οθόνη"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Νέο αρχείο"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Εμφάνιση μορφοποίησης"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} λέξη"
+msgstr[1] "{} λέξεις"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Αυτό το έγγραφο ανακτήθηκε από αυτόματη αποθήκευση."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Αυτό το αρχείο άλλαξε στον δίσκο."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Επαναφόρτωση"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Χωρίς πίνακα"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "Ο δρομέας δεν είναι μέσα σε πίνακα."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Δεν είναι δυνατό το άνοιγμα του αρχείου"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Δεν είναι δυνατή η αποθήκευση του αρχείου"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Αποθήκευση αλλαγών;"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "Το «{}» περιέχει μη αποθηκευμένες αλλαγές. Αν το κλείσετε, οι αλλαγές θα χαθούν."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Απόρριψη"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Κλείσιμο"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Αποθήκευση ως…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Εξαγωγή ως PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Εξαγωγή ως HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Εξαγωγή ως ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Αντιγραφή HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Προχωρημένη εξαγωγή…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Εξαγωγή"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Προεπισκόπηση αντί για επεξεργαστή"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Προεπισκόπηση δίπλα στον επεξεργαστή"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Προεπισκόπηση κάτω από τον επεξεργαστή"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Προεπισκόπηση σε ξεχωριστό παράθυρο"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Χωρίς προεπισκόπηση"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Διάταξη προεπισκόπησης"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Σύστημα"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Ανοιχτό"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Σέπια"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Σκούρο"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Εμφάνιση"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Λειτουργία Hemingway"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Λειτουργία εστίασης"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Λειτουργία κώδικα"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Νέο παράθυρο"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Εύρεση και αντικατάσταση"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Προτιμήσεις"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Άνοιγμα οδηγού εκμάθησης"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Συντομεύσεις πληκτρολογίου"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Σχετικά με το Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Κύριο μενού"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Έντονη"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "έντονο κείμενο"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Πλάγια"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "πλάγιο κείμενο"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Διαγράμμιση"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "διαγραμμένο κείμενο"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Επικεφαλίδα"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Λίστα κουκκίδων"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Αριθμημένη λίστα"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Λίστα ελέγχου"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Απόσπασμα"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Κώδικας"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Σύνδεσμος"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Εικόνα"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Πίνακας"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Οριζόντια γραμμή"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Διόρθωση στοίχισης πίνακα"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Απόκρυψη μορφοποίησης"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Εισαγωγή πίνακα"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Δεν είναι δυνατή η διαγραφή κειμένου σε λειτουργία Hemingway"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Περισσότερα"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Ενώ η λειτουργία Hemingway είναι ενεργή, το κείμενο μπορεί μόνο να προστεθεί, ποτέ να διαγραφεί. Τα Backspace, Delete, η αποκοπή και η αντικατάσταση επιλογής δεν κάνουν τίποτα. Η αναίρεση εξακολουθεί να λειτουργεί. Εναλλάξτε τη λειτουργία με Ctrl+T ή από το κύριο μενού."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "ΟΚ"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} από {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Επεξεργαστής &amp; παράθυρο"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Έλεγχος ορθογραφίας"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Ζωντανός έλεγχος ορθογραφίας στον επεξεργαστή"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Αυτόματη απόκρυψη γραμμής τίτλου"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Απόκρυψη γραμμής τίτλου και κάτω γραμμών κατά την πληκτρολόγηση"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Μεγάλο κείμενο"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Χρήση μεγαλύτερης γραμματοσειράς επεξεργαστή και φαρδύτερων περιθωρίων"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Αυτόματη αποθήκευση"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Αποθήκευση του εγγράφου πέντε δευτερόλεπτα μετά τη διακοπή πληκτρολόγησης"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Μορφοποίηση &amp; προεπισκόπηση"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Μορφή εισόδου"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Παραλλαγή που χρησιμοποιείται από την προεπισκόπηση και την εξαγωγή"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Άνοιγμα επίσημης τεκμηρίωσης για αυτή τη μορφή"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Να γίνεται πάντα ερώτηση"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Να χρησιμοποιείται πάντα περιορισμένη"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Να χρησιμοποιείται πάντα απεριόριστη"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Ασφάλεια προεπισκόπησης"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Πολιτική που εφαρμόζεται κατά την προεπισκόπηση αρχείων με ακατέργαστη HTML"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Γενικά"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Νέα καρτέλα"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Νέο παράθυρο"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Άνοιγμα αρχείου"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Αποθήκευση εγγράφου"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Αποθήκευση ως"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Κλείσιμο καρτέλας"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Κλείσιμο παραθύρου"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Έξοδος από την εφαρμογή"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Άνοιγμα προτιμήσεων"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Εναλλαγή ελέγχου ορθογραφίας"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Λειτουργίες & προβολές"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Εναλλαγή λειτουργίας εστίασης"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Εναλλαγή λειτουργίας Hemingway"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Εναλλαγή πλαισίου προεπισκόπησης"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Εναλλαγή λειτουργίας κώδικα"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Εναλλαγή πλήρους οθόνης"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Εύρεση & αντικατάσταση"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Εύρεση και αντικατάσταση"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Μορφοποίηση Markdown"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Οριζόντια γραμμή"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Στοιχείο λίστας κουκκίδων"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Επικεφαλίδα 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Επικεφαλίδα 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Επικεφαλίδα 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Επικεφαλίδα 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Επεξεργασία"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Αντιγραφή"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Αποκοπή"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Επικόλληση"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Επιλογή όλων"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Αναίρεση"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Επανάληψη"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Εσοχή / έξυπνη λίστα"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Αφαίρεση εσοχής / έξυπνη λίστα"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Επεξεργαστής Markdown χωρίς περισπάσεις"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Αρχική έκδοση: επεξεργασία, τονισμός μέσα στο έγγραφο, ζωντανή προεπισκόπηση,\n         λειτουργίες εστίασης και Hemingway, έλεγχος ορθογραφίας, αναδυόμενα\n         παραθύρια ματιάς, εξαγωγή, στιγμιότυπα και ανάκτηση.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "λείπει ενσωματωμένος πόρος {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "αδύνατη η λήψη του προτύπου DZSlides"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Η εξαγωγή απέτυχε"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Εξαγωγή παρουσίασης"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Δεν βρέθηκε η μηχανή Typst.\n\nΕγκαταστήστε το Typst (https://typst.app) για εξαγωγή PDF."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Εξαγωγή σε PDF (μηχανή Typst)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Επαναγραφή σχετικών διαδρομών σε απόλυτες"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Αυτόνομο έγγραφο"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Πίνακας περιεχομένων"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Αρίθμηση ενοτήτων"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Μέγεθος σελίδας"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Μέγεθος διαφάνειας"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Αυτόνομο (ενσωμάτωση όλων των πόρων)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Επισήμανση σύνταξης"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Ενεργοποίηση"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Βηματικές κουκκίδες"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "Δεν βρέθηκε η αλυσίδα εργαλείων LaTeX"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Αντιγραφή εντολής εγκατάστασης"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Εξαγωγή…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Εξαγωγή σε {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "Η εξαγωγή βάσει LaTeX χρειάζεται εγκατάσταση TeX, η οποία δεν είναι διαθέσιμη μέσα στο sandbox. Εγκαταστήστε την επέκταση TeX για το sandbox runtime σας (π.χ. org.freedesktop.Sdk.Extension.texlive) από το κατάστημα λογισμικού ή το flatpak και έπειτα επανεκκινήστε την εφαρμογή."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "Η εξαγωγή βάσει LaTeX χρειάζεται εγκατάσταση TeX, η οποία δεν βρέθηκε σε αυτό το σύστημα. Εγκαταστήστε μια διανομή TeX όπως το TeX Live (ιδίως τη μηχανή XeLaTeX) με τον διαχειριστή πακέτων του συστήματός σας και δοκιμάστε ξανά."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Χωρίς προτάσεις"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Προεπιλογή συστήματος"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Γλώσσα ορθογραφίας"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Έλεγχος ορθογραφίας"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Ματιά"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Προηγούμενο ταίριασμα"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Επόμενο ταίριασμα"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Διάκριση πεζών/κεφαλαίων"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Κανονικές εκφράσεις"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Αντικατάσταση"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Αντικατάσταση με"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Αντικατάσταση όλων"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Το αρχείο «{}» δεν μπόρεσε να ανοίξει ως κείμενο:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "αδύνατη η ανάγνωση αρχείου: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "αδύνατο άνοιγμα καταλόγου"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Άνοιγμα αρχείου"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Αρχεία Markdown"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Αρχεία απλού κειμένου"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "αδύνατη η αποθήκευση αρχείου: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Απλό κείμενο"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Χωρίς πρόσφατα ανοιγμένα έγγραφα"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Άνοιγμα αρχείου…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Αφαίρεση από τα πρόσφατα"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "το αρχείο δεν είναι έγκυρο κείμενο σε καμία εντοπισμένη κωδικοποίηση"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "άγνωστη κωδικοποίηση: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "το κείμενο δεν μπορεί να κωδικοποιηθεί ως UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "κώδικας"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Επικεφαλίδα"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Στοιχείο"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Παράθεση"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "κείμενο συνδέσμου"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Εισαγωγή εικόνας"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Εικόνες"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "λεζάντα εικόνας"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Χαρακτήρες"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Λέξεις"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Προτάσεις"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Παράγραφοι"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Χρόνος ανάγνωσης"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} χαρακτήρας"
+msgstr[1] "{} χαρακτήρες"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} πρόταση"
+msgstr[1] "{} προτάσεις"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} παράγραφος"
+msgstr[1] "{} παράγραφοι"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} χρόνος ανάγνωσης"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Χωρίς ταίριασμα υποσημείωσης «[^{}]»."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "Το LaTeX δεν είναι εγκατεστημένο. Εγκαταστήστε το texlive για προεπισκόπηση τύπων."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Άκυρος τύπος: «{}»"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Δεν βρέθηκε η εικόνα: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Χωρίς καταχώρηση για «{}»."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Δεν βρέθηκε (η υπηρεσία λεξικού είναι απρόσιτη)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Απόδοση προεπισκόπησης…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Η μετατροπή απέτυχε"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Αυτό το αρχείο περιέχει HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Το έγγραφο περιλαμβάνει ακατέργαστη HTML. Με απεριόριστη φόρτωση επιτρέπονται δέσμες ενεργειών και πλήρης HTML· με περιορισμένη φόρτωση η HTML αποδίδεται ως απλό κείμενο."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Απεριόριστη φόρτωση"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Περιορισμένη φόρτωση"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Ο μετατροπέας εγγράφων (pandoc) δεν είναι εγκατεστημένος. Εγκαταστήστε τον για να χρησιμοποιήσετε την προεπισκόπηση και την εξαγωγή."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Ενεργοποίηση αναλυτικής καταγραφής κονσόλας"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Άνοιγμα νέου κενού παραθύρου"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Εμφάνιση πληροφοριών έκδοσης και έξοδος"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Ένα έγγραφο έχει μη αποθηκευμένες αλλαγές"
