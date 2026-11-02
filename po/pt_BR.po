@@ -1,0 +1,890 @@
+# pt_BR translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 19:50+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Brazilian Portuguese\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Nova aba"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Abrir"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Salvar"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Salvar e exportar"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Localizar"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Sair da tela cheia"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Novo documento"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Mostrar formatação"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} palavra"
+msgstr[1] "{} palavras"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Este documento foi recuperado de um salvamento automático."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Este arquivo foi alterado no disco."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Recarregar"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Nenhuma tabela"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "O cursor não está dentro de uma tabela."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Não foi possível abrir o arquivo"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Não foi possível salvar o arquivo"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Salvar alterações?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "“{}” contém alterações não salvas. Se você fechá-lo, elas serão perdidas."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Descartar"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Fechar"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Salvar como…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Exportar como PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Exportar como HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Exportar como ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Copiar HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Exportação avançada…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Exportar"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Visualização no lugar do editor"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Visualização ao lado do editor"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Visualização abaixo do editor"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Visualização em janela separada"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Sem visualização"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Disposição da visualização"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Sistema"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Claro"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sépia"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Escuro"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Aparência"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Modo Hemingway"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Modo de foco"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Modo de código"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Nova janela"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Localizar e substituir"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Preferências"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Abrir o tutorial"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Atalhos de teclado"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "Sobre o Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Menu principal"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Negrito"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "texto em negrito"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Itálico"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "texto em itálico"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Riscado"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "texto riscado"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Título"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Lista com marcadores"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Lista numerada"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Lista de tarefas"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Citação"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Código"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Link"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Imagem"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tabela"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Linha horizontal"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Corrigir alinhamento da tabela"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Ocultar formatação"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Inserir tabela"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "Não é possível excluir texto no modo Hemingway"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Saber mais"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Com o modo Hemingway ativado, o texto só pode ser adicionado, nunca excluído. Backspace, Delete, recortar e substituir uma seleção não fazem nada. Desfazer continua funcionando. Alterne o modo com Ctrl+T ou pelo menu principal."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} de {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Editor e janela"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Verificação ortográfica"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Verificação ortográfica em tempo real no editor"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Ocultar automaticamente a barra de cabeçalho"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Oculta as barras de cabeçalho e inferiores enquanto você digita"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Texto grande"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Usa uma fonte maior e margens mais largas no editor"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Salvamento automático"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Salva o documento cinco segundos depois que você para de digitar"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Formatação e visualização"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Formato de entrada"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Variante usada pela visualização e pela exportação"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Abre a documentação oficial deste formato"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Perguntar sempre"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Usar sempre o modo restrito"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Usar sempre o modo irrestrito"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Segurança da visualização"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Política aplicada ao visualizar arquivos que contêm HTML puro"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Geral"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Nova aba"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Nova janela"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Abrir arquivo"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Salvar documento"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Salvar como"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Fechar aba"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Fechar janela"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Sair do aplicativo"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Abrir as preferências"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Ativar ou desativar a verificação ortográfica"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Modos e visões"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Ativar ou desativar o modo de foco"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Ativar ou desativar o modo Hemingway"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Ativar ou desativar o painel de visualização"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Ativar ou desativar o modo de código"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Ativar ou desativar a tela cheia"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Localizar e substituir"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Localizar e substituir"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Formatação Markdown"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Linha horizontal"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Item de lista com marcadores"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Título 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Título 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Título 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Título 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Edição"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Copiar"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Recortar"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Colar"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Selecionar tudo"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Desfazer"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Refazer"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Recuar / lista inteligente"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Desfazer recuo / lista inteligente"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Um editor Markdown sem distrações"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>Versão inicial: edição, destaque durante a digitação, visualização ao vivo,\n         modos de foco e Hemingway, verificação ortográfica, popovers de espiada, exportação,\n         capturas instantâneas e recuperação.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "Recurso incluído ausente {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "Não foi possível obter o modelo DZSlides"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Falha na exportação"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Exportar apresentação"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "O motor Typst não foi encontrado.\n\nInstale o Typst (https://typst.app) para exportar em PDF."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Exportar para PDF (motor Typst)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Reescrever caminhos relativos como absolutos"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Documento autônomo"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Sumário"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Numerar seções"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Carta"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Tamanho da página"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Tamanho do slide"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Autocontido (incorporar todos os recursos)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Realce de sintaxe"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Ativar"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Marcadores incrementais"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "Ferramentas do LaTeX não encontradas"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Copiar comando de instalação"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Exportar…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Exportar para {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "A exportação baseada em LaTeX precisa de uma instalação do TeX, que não está disponível dentro do sandbox. Instale a extensão do TeX para o runtime do seu sandbox (por exemplo, org.freedesktop.Sdk.Extension.texlive) pela sua loja de aplicativos ou com o flatpak e reinicie o aplicativo."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "A exportação baseada em LaTeX precisa de uma instalação do TeX, que não foi encontrada neste sistema. Instale uma distribuição TeX como o TeX Live (em especial o motor XeLaTeX) pelo gerenciador de pacotes do seu sistema e tente novamente."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Sem sugestões"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Padrão do sistema"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Idioma da verificação ortográfica"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Verificar ortografia"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Espiada"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Correspondência anterior"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Próxima correspondência"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Diferenciar maiúsculas de minúsculas"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Expressões regulares"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Substituir"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Substituir por"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Substituir tudo"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Não foi possível abrir o arquivo “{}” como texto:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "não foi possível ler o arquivo: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "não é possível abrir um diretório"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Abrir arquivo"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Arquivos Markdown"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Arquivos de texto"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "não foi possível salvar o arquivo: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Texto simples"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Nenhum documento aberto recentemente"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Abrir arquivo…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Remover dos recentes"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "o arquivo não é texto válido em nenhuma codificação detectada"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "codificação desconhecida: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "o texto não pode ser codificado como UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "código"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Título"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Item"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Citação"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "texto do link"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Inserir imagem"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Imagens"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "legenda da imagem"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Caracteres"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Palavras"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Frases"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Parágrafos"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Tempo de leitura"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} caractere"
+msgstr[1] "{} caracteres"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} frase"
+msgstr[1] "{} frases"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} parágrafo"
+msgstr[1] "{} parágrafos"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} de tempo de leitura"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Nenhuma nota de rodapé correspondente “[^{}]”."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "O LaTeX não está instalado. Instale o texlive para pré-visualizar fórmulas."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Fórmula inválida: “{}”"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Imagem não encontrada: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Nenhuma entrada para “{}”."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Não encontrado (o serviço de dicionário está inacessível)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Gerando a visualização…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Falha na conversão"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Este arquivo contém HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "O documento inclui HTML puro. Carregá-lo sem restrições permite scripts e HTML completo; carregá-lo de forma restrita exibe o HTML como texto simples."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Carregar sem restrições"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Carregar de forma restrita"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "O conversor de documentos (pandoc) não está instalado. Instale-o para usar a visualização e a exportação."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Ativar registro detalhado no console"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Abre uma nova janela vazia"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Exibe as informações da versão e sai"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Um documento tem alterações não salvas"
