@@ -1,0 +1,894 @@
+# cs translations for Griffel.
+msgid ""
+msgstr ""
+"Project-Id-Version: Griffel\n"
+"Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
+"PO-Revision-Date: 2026-11-02 21:10+0100\n"
+"Last-Translator: hakergeniusz\n"
+"Language-Team: Czech\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src/window.rs:277
+msgid "New Tab"
+msgstr "Nová karta"
+
+#: src/window.rs:282
+msgid "Open"
+msgstr "Otevřít"
+
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+msgid "Save"
+msgstr "Uložit"
+
+#: src/window.rs:292
+msgid "Save and Export"
+msgstr "Uložit a exportovat"
+
+#: src/window.rs:305 src/dialogs.rs:168 src/search.rs:60
+msgid "Find"
+msgstr "Najít"
+
+#: src/window.rs:309
+msgid "Leave fullscreen"
+msgstr "Ukončit celou obrazovku"
+
+#: src/window.rs:322 src/files/mod.rs:48
+msgid "New File"
+msgstr "Nový soubor"
+
+#: src/window.rs:366 src/window.rs:1715
+msgid "Show formatting"
+msgstr "Zobrazit formátování"
+
+#: src/window.rs:377 src/markdown/stats.rs:79
+#, rust-format
+msgid "{} word"
+msgid_plural "{} words"
+msgstr[0] "{} slovo"
+msgstr[1] "{} slova"
+msgstr[2] "{} slov"
+
+#: src/window.rs:391
+msgid "This document was recovered from an autosave."
+msgstr "Tento dokument byl obnoven z automatického ukládání."
+
+#: src/window.rs:399
+msgid "This file changed on disk."
+msgstr "Tento soubor byl na disku změněn."
+
+#: src/window.rs:401
+msgid "Reload"
+msgstr "Znovu načíst"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "No table"
+msgstr "Žádná tabulka"
+
+#: src/window.rs:717 src/window.rs:1672
+msgid "The cursor is not inside a table."
+msgstr "Kurzor není uvnitř tabulky."
+
+#: src/window.rs:1362
+msgid "Cannot open file"
+msgstr "Soubor nelze otevřít"
+
+#: src/window.rs:1447
+msgid "Cannot save file"
+msgstr "Soubor nelze uložit"
+
+#: src/window.rs:1472
+msgid "Save changes?"
+msgstr "Uložit změny?"
+
+#: src/window.rs:1474
+#, rust-format
+msgid "“{}” contains unsaved changes. If you close it, the changes will be lost."
+msgstr "„{}“ obsahuje neuložené změny. Pokud jej zavřete, změny budou ztraceny."
+
+#: src/window.rs:1478 src/export.rs:835
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: src/window.rs:1480
+msgid "Discard"
+msgstr "Zahodit"
+
+#: src/window.rs:1503
+msgid "Close"
+msgstr "Zavřít"
+
+#: src/window.rs:1526
+msgid "Save As…"
+msgstr "Uložit jako…"
+
+#: src/window.rs:1528 src/export.rs:666
+msgid "Export as PDF"
+msgstr "Exportovat jako PDF"
+
+#: src/window.rs:1529 src/export.rs:670
+msgid "Export as HTML"
+msgstr "Exportovat jako HTML"
+
+#: src/window.rs:1530 src/export.rs:674
+msgid "Export as ODT"
+msgstr "Exportovat jako ODT"
+
+#: src/window.rs:1531
+msgid "Copy HTML"
+msgstr "Zkopírovat HTML"
+
+#: src/window.rs:1532
+msgid "Advanced Export…"
+msgstr "Rozšířený export…"
+
+#: src/window.rs:1532 src/export.rs:932
+msgid "Export"
+msgstr "Exportovat"
+
+#: src/window.rs:1542
+msgid "Preview Instead of Editor"
+msgstr "Náhled místo editoru"
+
+#: src/window.rs:1543
+msgid "Preview Beside the Editor"
+msgstr "Náhled vedle editoru"
+
+#: src/window.rs:1544
+msgid "Preview Below the Editor"
+msgstr "Náhled pod editorem"
+
+#: src/window.rs:1545
+msgid "Preview in Separate Window"
+msgstr "Náhled v samostatném okně"
+
+#: src/window.rs:1553
+msgid "No Preview"
+msgstr "Žádný náhled"
+
+#: src/window.rs:1558
+msgid "Preview Layout"
+msgstr "Rozložení náhledu"
+
+#: src/window.rs:1569
+msgid "System"
+msgstr "Systém"
+
+#: src/window.rs:1570
+msgid "Light"
+msgstr "Světlý"
+
+#: src/window.rs:1571
+msgid "Sepia"
+msgstr "Sépie"
+
+#: src/window.rs:1572
+msgid "Dark"
+msgstr "Tmavý"
+
+#: src/window.rs:1579
+msgid "Appearance"
+msgstr "Vzhled"
+
+#: src/window.rs:1582 src/window.rs:2181
+msgid "Hemingway Mode"
+msgstr "Režim Hemingway"
+
+#: src/window.rs:1583
+msgid "Focus Mode"
+msgstr "Režim soustředění"
+
+#: src/window.rs:1584
+msgid "Code Mode"
+msgstr "Režim kódu"
+
+#: src/window.rs:1588
+msgid "New Window"
+msgstr "Nové okno"
+
+#: src/window.rs:1589
+msgid "Find and Replace"
+msgstr "Najít a nahradit"
+
+#: src/window.rs:1590 src/dialogs.rs:13
+msgid "Preferences"
+msgstr "Předvolby"
+
+#: src/window.rs:1594
+msgid "Open Tutorial"
+msgstr "Otevřít tutoriál"
+
+#: src/window.rs:1595 src/dialogs.rs:133
+msgid "Keyboard Shortcuts"
+msgstr "Klávesové zkratky"
+
+#: src/window.rs:1596
+msgid "About Griffel"
+msgstr "O aplikaci Griffel"
+
+#: src/window.rs:1601
+msgid "Main Menu"
+msgstr "Hlavní nabídka"
+
+#: src/window.rs:1629 src/dialogs.rs:176
+msgid "Bold"
+msgstr "Tučné"
+
+#: src/window.rs:1630
+msgid "bold text"
+msgstr "tučný text"
+
+#: src/window.rs:1632 src/dialogs.rs:177
+msgid "Italic"
+msgstr "Kurzíva"
+
+#: src/window.rs:1633
+msgid "italic text"
+msgstr "text kurzívou"
+
+#: src/window.rs:1635 src/dialogs.rs:178
+msgid "Strikethrough"
+msgstr "Přeškrtnuté"
+
+#: src/window.rs:1636
+msgid "strikethrough text"
+msgstr "přeškrtnutý text"
+
+#: src/window.rs:1638
+msgid "Heading"
+msgstr "Nadpis"
+
+#: src/window.rs:1641
+msgid "Bulleted List"
+msgstr "Odrážkový seznam"
+
+#: src/window.rs:1644
+msgid "Numbered List"
+msgstr "Číslovaný seznam"
+
+#: src/window.rs:1647
+msgid "Checklist"
+msgstr "Kontrolní seznam"
+
+#: src/window.rs:1650
+msgid "Block Quote"
+msgstr "Bloková citace"
+
+#: src/window.rs:1653
+msgid "Code"
+msgstr "Kód"
+
+#: src/window.rs:1656
+msgid "Link"
+msgstr "Odkaz"
+
+#: src/window.rs:1659
+msgid "Image"
+msgstr "Obrázek"
+
+#: src/window.rs:1663 src/window.rs:1679
+msgid "Table"
+msgstr "Tabulka"
+
+#: src/window.rs:1667
+msgid "Horizontal Rule"
+msgstr "Vodorovná čára"
+
+#: src/window.rs:1670
+msgid "Fix Table Alignment"
+msgstr "Opravit zarovnání tabulky"
+
+#: src/window.rs:1713
+msgid "Hide formatting"
+msgstr "Skrýt formátování"
+
+#: src/window.rs:1735 src/window.rs:1798
+msgid "Insert Table"
+msgstr "Vložit tabulku"
+
+#: src/window.rs:2166
+msgid "Text cannot be deleted in Hemingway Mode"
+msgstr "V režimu Hemingway nelze text mazat"
+
+#: src/window.rs:2167
+msgid "Learn More"
+msgstr "Další informace"
+
+#: src/window.rs:2183
+msgid "While Hemingway Mode is on, text can only be added, never deleted. Backspace, Delete, cutting, and replacing a selection do nothing. Undo still works. Toggle the mode with Ctrl+T or from the main menu."
+msgstr "Když je režim Hemingway zapnutý, lze text pouze přidávat, nikdy odstraňovat. Backspace, Delete, vyjmutí ani nahrazení výběru nic neudělají. Vracení akcí stále funguje. Režim přepnete pomocí Ctrl+T nebo v hlavní nabídce."
+
+#: src/window.rs:2190
+msgid "OK"
+msgstr "OK"
+
+#: src/window.rs:2243
+#, rust-format
+msgid "{} of {} {}"
+msgstr "{} z {} {}"
+
+#: src/dialogs.rs:18
+msgid "Editor &amp; Window"
+msgstr "Editor &amp; okno"
+
+#: src/dialogs.rs:23
+msgid "Check spelling"
+msgstr "Kontrolovat pravopis"
+
+#: src/dialogs.rs:24
+msgid "Live spell checking in the editor"
+msgstr "Průběžná kontrola pravopisu v editoru"
+
+#: src/dialogs.rs:30
+msgid "Auto-hide header bar"
+msgstr "Automaticky skrývat záhlaví"
+
+#: src/dialogs.rs:31
+msgid "Hide header and bottom bars while typing"
+msgstr "Při psaní skrýt záhlaví a spodní lišty"
+
+#: src/dialogs.rs:37
+msgid "Large text"
+msgstr "Velký text"
+
+#: src/dialogs.rs:38
+msgid "Use a larger editor font and wider margins"
+msgstr "Použít větší písmo editoru a širší okraje"
+
+#: src/dialogs.rs:44
+msgid "Autosave"
+msgstr "Automatické ukládání"
+
+#: src/dialogs.rs:45
+msgid "Save the document five seconds after you stop typing"
+msgstr "Uložit dokument pět sekund po přestání psát"
+
+#: src/dialogs.rs:50
+msgid "Formatting &amp; Preview"
+msgstr "Formátování &amp; náhled"
+
+#: src/dialogs.rs:58
+msgid "Input format"
+msgstr "Vstupní formát"
+
+#: src/dialogs.rs:59
+msgid "Flavor used by preview and export"
+msgstr "Varianta používaná náhledem a exportem"
+
+#: src/dialogs.rs:80
+msgid "Open official documentation for this format"
+msgstr "Otevřít oficiální dokumentaci tohoto formátu"
+
+#: src/dialogs.rs:99
+msgid "Always ask"
+msgstr "Vždy se zeptat"
+
+#: src/dialogs.rs:100
+msgid "Always use restricted"
+msgstr "Vždy používat omezený režim"
+
+#: src/dialogs.rs:101
+msgid "Always use unrestricted"
+msgstr "Vždy používat neomezený režim"
+
+#: src/dialogs.rs:107
+msgid "Preview security"
+msgstr "Zabezpečení náhledu"
+
+#: src/dialogs.rs:108
+msgid "Policy applied when previewing files containing raw HTML"
+msgstr "Zásada používaná při náhledu souborů obsahujících surové HTML"
+
+#: src/dialogs.rs:139
+msgid "General"
+msgstr "Obecné"
+
+#: src/dialogs.rs:141
+msgid "New tab"
+msgstr "Nová karta"
+
+#: src/dialogs.rs:142
+msgid "New window"
+msgstr "Nové okno"
+
+#: src/dialogs.rs:143
+msgid "Open file"
+msgstr "Otevřít soubor"
+
+#: src/dialogs.rs:144
+msgid "Save document"
+msgstr "Uložit dokument"
+
+#: src/dialogs.rs:145 src/files/mod.rs:275
+msgid "Save As"
+msgstr "Uložit jako"
+
+#: src/dialogs.rs:146
+msgid "Close tab"
+msgstr "Zavřít kartu"
+
+#: src/dialogs.rs:147
+msgid "Close window"
+msgstr "Zavřít okno"
+
+#: src/dialogs.rs:148
+msgid "Quit application"
+msgstr "Ukončit aplikaci"
+
+#: src/dialogs.rs:149
+msgid "Open preferences"
+msgstr "Otevřít předvolby"
+
+#: src/dialogs.rs:150
+msgid "Toggle spell checking"
+msgstr "Přepnout kontrolu pravopisu"
+
+#: src/dialogs.rs:155
+msgid "Modes & Views"
+msgstr "Režimy a zobrazení"
+
+#: src/dialogs.rs:157
+msgid "Toggle Focus Mode"
+msgstr "Přepnout režim soustředění"
+
+#: src/dialogs.rs:158
+msgid "Toggle Hemingway Mode"
+msgstr "Přepnout režim Hemingway"
+
+#: src/dialogs.rs:159
+msgid "Toggle preview pane"
+msgstr "Přepnout panel náhledu"
+
+#: src/dialogs.rs:160
+msgid "Toggle Code Mode"
+msgstr "Přepnout režim kódu"
+
+#: src/dialogs.rs:161
+msgid "Toggle fullscreen"
+msgstr "Přepnout celou obrazovku"
+
+#: src/dialogs.rs:166
+msgid "Find & Replace"
+msgstr "Najít a nahradit"
+
+#: src/dialogs.rs:169
+msgid "Find and replace"
+msgstr "Najít a nahradit"
+
+#: src/dialogs.rs:174
+msgid "Markdown Formatting"
+msgstr "Formátování Markdown"
+
+#: src/dialogs.rs:179
+msgid "Horizontal rule"
+msgstr "Vodorovná čára"
+
+#: src/dialogs.rs:180
+msgid "Bulleted list item"
+msgstr "Odrážka v seznamu"
+
+#: src/dialogs.rs:181
+msgid "Heading 1"
+msgstr "Nadpis 1"
+
+#: src/dialogs.rs:182
+msgid "Heading 2"
+msgstr "Nadpis 2"
+
+#: src/dialogs.rs:183
+msgid "Heading 3"
+msgstr "Nadpis 3"
+
+#: src/dialogs.rs:184
+msgid "Heading 4"
+msgstr "Nadpis 4"
+
+#: src/dialogs.rs:189
+msgid "Editing"
+msgstr "Úpravy"
+
+#: src/dialogs.rs:191
+msgid "Copy"
+msgstr "Kopírovat"
+
+#: src/dialogs.rs:192
+msgid "Cut"
+msgstr "Vyjmout"
+
+#: src/dialogs.rs:193
+msgid "Paste"
+msgstr "Vložit"
+
+#: src/dialogs.rs:194
+msgid "Select all"
+msgstr "Vybrat vše"
+
+#: src/dialogs.rs:195
+msgid "Undo"
+msgstr "Zpět"
+
+#: src/dialogs.rs:196
+msgid "Redo"
+msgstr "Znovu"
+
+#: src/dialogs.rs:197
+msgid "Indent / smart list"
+msgstr "Odsadit / chytrý seznam"
+
+#: src/dialogs.rs:198
+msgid "Outdent / smart list"
+msgstr "Zrušit odsazení / chytrý seznam"
+
+#: src/dialogs.rs:225
+msgid "A distraction-free Markdown editor"
+msgstr "Editor Markdownu bez rozptýlení"
+
+#: src/dialogs.rs:233
+msgid "<p>Initial release: editing, in-place highlighting, live preview,\n         Focus and Hemingway modes, spell checking, peek popovers, export,\n         snapshots and recovery.</p>"
+msgstr "<p>První vydání: úpravy, zvýrazňování v dokumentu, živý náhled,\n         režimy soustředění a Hemingway, kontrola pravopisu, vyskakovací\n         okénka rychlého náhledu, export, snímky a obnova.</p>"
+
+#: src/export.rs:46
+#, rust-format
+msgid "missing bundled resource {}: {}"
+msgstr "chybějící zahrnutý prostředek {}: {}"
+
+#: src/export.rs:379
+msgid "could not obtain the DZSlides template"
+msgstr "nepodařilo se získat šablonu DZSlides"
+
+#: src/export.rs:442 src/export.rs:531 src/export.rs:616
+msgid "Export failed"
+msgstr "Export selhal"
+
+#: src/export.rs:589
+msgid "Export slideshow"
+msgstr "Exportovat prezentaci"
+
+#: src/export.rs:617
+msgid "The Typst engine was not found.\n\nInstall Typst (https://typst.app) to export PDF."
+msgstr "Motor Typst nebyl nalezen.\n\nChcete-li exportovat PDF, nainstalujte Typst (https://typst.app)."
+
+#: src/export.rs:713
+msgid "Export to PDF (Typst engine)"
+msgstr "Exportovat do PDF (motor Typst)"
+
+#: src/export.rs:750
+msgid "Rewrite relative paths to absolute"
+msgstr "Přepsat relativní cesty na absolutní"
+
+#: src/export.rs:751
+msgid "Standalone document"
+msgstr "Samostatný dokument"
+
+#: src/export.rs:753
+msgid "Table of contents"
+msgstr "Obsah"
+
+#: src/export.rs:754
+msgid "Number sections"
+msgstr "Číslovat oddíly"
+
+#: src/export.rs:756
+msgid "A4"
+msgstr "A4"
+
+#: src/export.rs:758
+msgid "Letter"
+msgstr "Letter"
+
+#: src/export.rs:760
+msgid "Page size"
+msgstr "Velikost stránky"
+
+#: src/export.rs:766
+msgid "Slide size"
+msgstr "Velikost snímku"
+
+#: src/export.rs:768
+msgid "Self-contained (embed all resources)"
+msgstr "Soběstačný (vložit všechny prostředky)"
+
+#: src/export.rs:770
+msgid "Syntax highlighting"
+msgstr "Zvýrazňování syntaxe"
+
+#: src/export.rs:771
+msgid "Enable"
+msgstr "Povolit"
+
+#: src/export.rs:783
+msgid "Incremental bullets"
+msgstr "Postupné odrážky"
+
+#: src/export.rs:805
+msgid "LaTeX toolchain not found"
+msgstr "Nebyl nalezen nástrojový řetězec LaTeX"
+
+#: src/export.rs:811
+msgid "Copy install command"
+msgstr "Zkopírovat instalační příkaz"
+
+#: src/export.rs:836
+msgid "Export…"
+msgstr "Exportovat…"
+
+#: src/export.rs:862
+#, rust-format
+msgid "Export to {}"
+msgstr "Exportovat do {}"
+
+#: src/export.rs:956
+msgid "LaTeX-based export needs a TeX installation, which is not available inside the sandbox. Install the TeX extension for your sandbox runtime (e.g. org.freedesktop.Sdk.Extension.texlive) with your software store or flatpak, then restart the application."
+msgstr "Export založený na LaTeXu vyžaduje instalaci TeX, která v sandboxu není k dispozici. Nainstalujte rozšíření TeX pro své sandboxové prostředí (např. org.freedesktop.Sdk.Extension.texlive) prostřednictvím svého obchodu se softwarem nebo flatpaku a poté aplikaci restartujte."
+
+#: src/export.rs:961
+msgid "LaTeX-based export needs a TeX installation, which was not found on this system. Install a TeX distribution such as TeX Live (the XeLaTeX engine in particular) with your system's package manager, then try again."
+msgstr "Export založený na LaTeXu vyžaduje instalaci TeX, která nebyla v tomto systému nalezena. Nainstalujte distribuci TeX, například TeX Live (zvláště motor XeLaTeX), pomocí správce balíčků svého systému a zkuste to znovu."
+
+#: src/editor/menu.rs:208
+msgid "No Suggestions"
+msgstr "Žádné návrhy"
+
+#: src/editor/menu.rs:229
+msgid "System Default"
+msgstr "Systémový výchozí"
+
+#: src/editor/menu.rs:233
+msgid "Spelling Language"
+msgstr "Jazyk kontroly pravopisu"
+
+#: src/editor/menu.rs:238
+msgid "Check Spelling"
+msgstr "Kontrolovat pravopis"
+
+#: src/editor/menu.rs:241
+msgid "Peek"
+msgstr "Rychlý náhled"
+
+#: src/search.rs:64
+msgid "Previous Match"
+msgstr "Předchozí shoda"
+
+#: src/search.rs:66
+msgid "Next Match"
+msgstr "Další shoda"
+
+#: src/search.rs:71
+msgid "Match Case"
+msgstr "Rozlišovat velikost písmen"
+
+#: src/search.rs:73
+msgid "Regular Expressions"
+msgstr "Regulární výrazy"
+
+#: src/search.rs:78 src/search.rs:86
+msgid "Replace"
+msgstr "Nahradit"
+
+#: src/search.rs:83
+msgid "Replace with"
+msgstr "Čím nahradit"
+
+#: src/search.rs:87
+msgid "Replace All"
+msgstr "Nahradit vše"
+
+#: src/files/mod.rs:152
+#, rust-format
+msgid "The file “{}” could not be opened as text:\n{}"
+msgstr "Soubor „{}“ nelze otevřít jako text:\n{}"
+
+#: src/files/mod.rs:174 src/files/mod.rs:180
+#, rust-format
+msgid "cannot read file: {}"
+msgstr "nelze přečíst soubor: {}"
+
+#: src/files/mod.rs:176
+msgid "cannot open a directory"
+msgstr "nelze otevřít složku"
+
+#: src/files/mod.rs:186
+msgid "Open File"
+msgstr "Otevřít soubor"
+
+#: src/files/mod.rs:189
+msgid "Markdown Files"
+msgstr "Soubory Markdown"
+
+#: src/files/mod.rs:194
+msgid "Plain Text Files"
+msgstr "Prosté textové soubory"
+
+#: src/files/mod.rs:252
+#, rust-format
+msgid "cannot save file: {}"
+msgstr "nelze uložit soubor: {}"
+
+#: src/files/mod.rs:282
+msgid "Markdown"
+msgstr "Markdown"
+
+#: src/files/mod.rs:287
+msgid "Plain text"
+msgstr "Prostý text"
+
+#: src/files/recents.rs:81
+msgid "No recently opened documents"
+msgstr "Žádné nedávno otevřené dokumenty"
+
+#: src/files/recents.rs:83 src/files/recents.rs:98
+msgid "Open File…"
+msgstr "Otevřít soubor…"
+
+#: src/files/recents.rs:191
+msgid "Remove from Recent"
+msgstr "Odebrat z nedávných"
+
+#: src/files/encoding.rs:45
+msgid "the file is not valid text in any detected encoding"
+msgstr "soubor není platný text v žádném rozpoznaném kódování"
+
+#: src/files/encoding.rs:58
+#, rust-format
+msgid "unknown encoding: {}"
+msgstr "neznámé kódování: {}"
+
+#: src/files/encoding.rs:66
+msgid "the text cannot be encoded as UTF-8"
+msgstr "text nelze zakódovat jako UTF-8"
+
+#: src/format.rs:120
+msgid "code"
+msgstr "kód"
+
+#: src/format.rs:154
+msgid "Header"
+msgstr "Nadpis"
+
+#: src/format.rs:252
+msgid "Item"
+msgstr "Položka"
+
+#: src/format.rs:352
+msgid "Quote"
+msgstr "Citace"
+
+#: src/format.rs:402
+msgid "link text"
+msgstr "text odkazu"
+
+#: src/format.rs:440
+msgid "Insert Image"
+msgstr "Vložit obrázek"
+
+#: src/format.rs:443
+msgid "Images"
+msgstr "Obrázky"
+
+#: src/format.rs:468
+msgid "image caption"
+msgstr "popis obrázku"
+
+#: src/markdown/stats.rs:48
+msgid "Characters"
+msgstr "Znaky"
+
+#: src/markdown/stats.rs:49
+msgid "Words"
+msgstr "Slova"
+
+#: src/markdown/stats.rs:50
+msgid "Sentences"
+msgstr "Věty"
+
+#: src/markdown/stats.rs:51
+msgid "Paragraphs"
+msgstr "Odstavce"
+
+#: src/markdown/stats.rs:52
+msgid "Read Time"
+msgstr "Čas čtení"
+
+#: src/markdown/stats.rs:73
+#, rust-format
+msgid "{} character"
+msgid_plural "{} characters"
+msgstr[0] "{} znak"
+msgstr[1] "{} znaky"
+msgstr[2] "{} znaků"
+
+#: src/markdown/stats.rs:82
+#, rust-format
+msgid "{} sentence"
+msgid_plural "{} sentences"
+msgstr[0] "{} věta"
+msgstr[1] "{} věty"
+msgstr[2] "{} vět"
+
+#: src/markdown/stats.rs:88
+#, rust-format
+msgid "{} paragraph"
+msgid_plural "{} paragraphs"
+msgstr[0] "{} odstavec"
+msgstr[1] "{} odstavce"
+msgstr[2] "{} odstavců"
+
+#: src/markdown/stats.rs:93
+#, rust-format
+msgid "{} reading time"
+msgstr "{} času čtení"
+
+#: src/peek.rs:268
+#, rust-format
+msgid "No matching footnote “[^{}]”."
+msgstr "Žádná odpovídající poznámka pod čarou „[^{}]“."
+
+#: src/peek.rs:342
+msgid "LaTeX is not installed. Install texlive to preview formulas."
+msgstr "LaTeX není nainstalován. Pro náhled vzorců nainstalujte texlive."
+
+#: src/peek.rs:362
+#, rust-format
+msgid "Invalid formula: “{}”"
+msgstr "Neplatný vzorec: „{}“"
+
+#: src/peek.rs:449
+#, rust-format
+msgid "Image not found: {}"
+msgstr "Obrázek nenalezen: {}"
+
+#: src/peek.rs:479
+#, rust-format
+msgid "No entry for “{}”."
+msgstr "Žádná položka pro „{}“."
+
+#: src/peek.rs:496
+msgid "Not found (the dictionary service is unreachable)."
+msgstr "Nenalezeno (služba slovníku je nedostupná)."
+
+#: src/preview/mod.rs:76
+msgid "Rendering preview…"
+msgstr "Vykreslování náhledu…"
+
+#: src/preview/mod.rs:250
+msgid "Conversion failed"
+msgstr "Převod selhal"
+
+#: src/preview/mod.rs:262
+msgid "This file contains HTML"
+msgstr "Tento soubor obsahuje HTML"
+
+#: src/preview/mod.rs:263
+msgid "The document includes raw HTML. Loading it unrestricted allows scripts and full HTML; loading it restricted renders HTML as plain text."
+msgstr "Dokument obsahuje surové HTML. Při načtení bez omezení jsou povoleny skripty a plné HTML; při načtení s omezením se HTML zobrazí jako prostý text."
+
+#: src/preview/mod.rs:264
+msgid "Load Unrestricted"
+msgstr "Načíst bez omezení"
+
+#: src/preview/mod.rs:265
+msgid "Load Restricted"
+msgstr "Načíst s omezením"
+
+#: src/converter.rs:72
+msgid "The document converter (pandoc) is not installed. Install it to use the preview and export."
+msgstr "Převodník dokumentů (pandoc) není nainstalován. Nainstalujte jej, chcete-li používat náhled a export."
+
+#: src/app.rs:113
+msgid "Enable verbose console logging"
+msgstr "Povolit podrobné protokolování do konzole"
+
+#: src/app.rs:121
+msgid "Open a new empty window"
+msgstr "Otevřít nové prázdné okno"
+
+#: src/app.rs:129
+msgid "Print version information and exit"
+msgstr "Vypsat informace o verzi a skončit"
+
+#: src/app.rs:397
+msgid "A document has unsaved changes"
+msgstr "Dokument má neuložené změny"
