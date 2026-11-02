@@ -176,9 +176,6 @@ fn handle_character_code(
 ) -> glib::Propagation {
     let insert = buffer.iter_at_mark(&buffer.get_insert());
     let next_char = insert.char();
-    let Some(closing) = autopair::code_closing_for(ch) else {
-        return glib::Propagation::Proceed;
-    };
 
     // A backtick that would become the third of a run is a ``` fence
     // delimiter, not a pair: it must land alone. Left to the rules below,
@@ -193,6 +190,10 @@ fn handle_character_code(
     }
 
     // Typing the closer that is already under the cursor skips over it.
+    // This must run before the `code_closing_for` bail-out below:
+    // `) ] } '` are closers only and `code_closing_for` maps openers, so
+    // a skip reached after it never fires for them and the closer gets
+    // inserted a second time next to its auto-inserted partner.
     if !has_selection && autopair::code_is_closing(ch) && next_char == ch {
         let insert_mark = buffer.get_insert();
         let mut iter = buffer.iter_at_mark(&insert_mark);
@@ -200,6 +201,10 @@ fn handle_character_code(
         buffer.place_cursor(&iter);
         return glib::Propagation::Stop;
     }
+
+    let Some(closing) = autopair::code_closing_for(ch) else {
+        return glib::Propagation::Proceed;
+    };
 
     // End of line counts as "nothing follows"; a '\n' under the cursor is
     // whitespace anyway, so only the buffer end needs the None case.
@@ -611,5 +616,22 @@ mod tests {
         buf.insert_at_cursor("x");
         handle_character_code(&buf, '`', false);
         assert_eq!(text(&buf), "`x`");
+
+        // A typed closer next to its auto-inserted partner skips over it
+        // instead of inserting a duplicate: `(x` + `)` stays `(x)`.
+        // `)` `]` `}` exist only as closers, so this must not depend on
+        // `code_closing_for` recognizing them.
+        for (opener, closer) in [('(', ')'), ('[', ']'), ('{', '}'), ('"', '"'), ('\'', '\'')] {
+            let buf = sourceview5::Buffer::new(None::<&gtk::TextTagTable>);
+            handle_character_code(&buf, opener, false);
+            buf.insert_at_cursor("x");
+            assert_eq!(
+                handle_character_code(&buf, closer, false),
+                glib::Propagation::Stop,
+                "closer {closer}"
+            );
+            assert_eq!(text(&buf), format!("{opener}x{closer}"));
+            assert_eq!(buf.iter_at_mark(&buf.get_insert()).offset(), 3);
+        }
     }
 }
