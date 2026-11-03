@@ -1074,8 +1074,14 @@ impl AppWindow {
         // The search bar's matches always target the visible document.
         self.search.retarget(&tab.editor.buffer);
         if self.state.preview_active.get() {
-            self.preview.evaluate_security(&tab.editor.full_text(), tab.doc().file.is_none());
-            self.schedule_preview();
+            if self.active_code_file() {
+                // Markdown preview does not follow onto a code file.
+                self.preview_off();
+            } else {
+                self.preview
+                    .evaluate_security(&tab.editor.full_text(), tab.doc().file.is_none());
+                self.schedule_preview();
+            }
         }
         tab.editor.view.grab_focus();
     }
@@ -1318,12 +1324,35 @@ impl AppWindow {
         *tab.editor.flags.doc_dir.borrow_mut() = file.parent().and_then(|p| p.path());
         // Per-file spell language (`05-…persistence.md` §4).
         *tab.editor.spell_persist_target.borrow_mut() = Some(file.clone());
+        // Code files open with Code Mode on for this tab regardless of the
+        // global preference; other files restore the preference (a tab
+        // reused from a code document goes back to prose behavior).
+        let code_file = files::is_code_file(file);
+        let code_on = settings().boolean("code-mode") || code_file;
+        if tab.editor.flags.code_mode.get() != code_on {
+            tab.editor.set_code_mode(code_on);
+            if code_on {
+                let width = self.editor_width();
+                if width > 0 {
+                    tab.editor.relayout_column(
+                        width,
+                        settings().integer("characters-per-line"),
+                        settings().boolean("bigger-text"),
+                    );
+                    tab.editor.apply_focus_margins();
+                }
+            }
+        }
         let lang = files::metadata::load_language(file);
         tab.editor.set_spell_language(lang);
         tab.editor.highlight_now();
         // The changed-handler path skips statistics while content is
         // replaced programmatically; recompute for the loaded text.
         self.schedule_stats();
+        if code_file && self.state.preview_active.get() && self.is_active_tab(tab) {
+            // Markdown preview does not apply to code files.
+            self.preview_off();
+        }
         if self.state.preview_active.get() && self.is_active_tab(tab) {
             self.preview.evaluate_security(&decoded.text, false);
             self.schedule_preview();
@@ -1823,7 +1852,21 @@ impl AppWindow {
         }
     }
 
+    /// Whether the active document is a source-code file (`05-…persistence.md`):
+    /// Markdown preview and conversion do not apply to it.
+    pub fn active_code_file(&self) -> bool {
+        self.active_tab()
+            .doc()
+            .file
+            .as_ref()
+            .is_some_and(files::is_code_file)
+    }
+
     pub fn preview_on(&self) {
+        // Markdown preview does not apply to code files.
+        if self.active_code_file() {
+            return;
+        }
         // Evaluate the document's security level for the current text.
         let tab = self.active_tab();
         let text = tab.editor.full_text();

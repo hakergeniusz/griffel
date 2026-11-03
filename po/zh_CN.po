@@ -884,3 +884,6 @@ msgstr "显示版本信息并退出"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "文档有未保存的更改"
+
+msgid "Source Code"
+msgstr "源代码"

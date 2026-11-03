@@ -888,3 +888,6 @@ msgstr "Udskriv versionsoplysninger og afslut"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Et dokument har ugemte ændringer"
+
+msgid "Source Code"
+msgstr "Kildekode"

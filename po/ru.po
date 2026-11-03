@@ -892,3 +892,6 @@ msgstr "Показать информацию о версии и выйти"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "В документе есть несохранённые изменения"
+
+msgid "Source Code"
+msgstr "Исходный код"

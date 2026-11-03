@@ -892,3 +892,6 @@ msgstr "Wyświetla informacje o wersji i kończy działanie"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Dokument ma niezapisane zmiany"
+
+msgid "Source Code"
+msgstr "Kod źródłowy"

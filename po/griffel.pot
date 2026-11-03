@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Griffel 0.1.0-beta.3\n"
+"Project-Id-Version: Griffel 51.0.0-rc.1\n"
 "Report-Msgid-Bugs-To: https://github.com/hakergeniusz/griffel/issues\n"
-"POT-Creation-Date: 2026-11-02 18:20+0100\n"
+"POT-Creation-Date: 2026-11-03 18:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: src/window.rs:285 src/window.rs:286 src/window.rs:1482
+#: src/window.rs:285 src/window.rs:286 src/window.rs:1516
 msgid "Save"
 msgstr ""
 
@@ -46,7 +46,7 @@ msgstr ""
 msgid "New File"
 msgstr ""
 
-#: src/window.rs:366 src/window.rs:1715
+#: src/window.rs:366 src/window.rs:1749
 msgid "Show formatting"
 msgstr ""
 
@@ -69,252 +69,252 @@ msgstr ""
 msgid "Reload"
 msgstr ""
 
-#: src/window.rs:717 src/window.rs:1672
+#: src/window.rs:717 src/window.rs:1706
 msgid "No table"
 msgstr ""
 
-#: src/window.rs:717 src/window.rs:1672
+#: src/window.rs:717 src/window.rs:1706
 msgid "The cursor is not inside a table."
 msgstr ""
 
-#: src/window.rs:1362
+#: src/window.rs:1395
 msgid "Cannot open file"
 msgstr ""
 
-#: src/window.rs:1447
+#: src/window.rs:1481
 msgid "Cannot save file"
 msgstr ""
 
-#: src/window.rs:1472
+#: src/window.rs:1506
 msgid "Save changes?"
 msgstr ""
 
-#: src/window.rs:1474
+#: src/window.rs:1508
 #, rust-format
 msgid ""
 "“{}” contains unsaved changes. If you close it, the changes will be lost."
 msgstr ""
 
-#: src/window.rs:1478 src/export.rs:835
+#: src/window.rs:1512 src/export.rs:835
 msgid "Cancel"
 msgstr ""
 
-#: src/window.rs:1480
+#: src/window.rs:1514
 msgid "Discard"
 msgstr ""
 
-#: src/window.rs:1503
+#: src/window.rs:1537
 msgid "Close"
 msgstr ""
 
-#: src/window.rs:1526
+#: src/window.rs:1560
 msgid "Save As…"
 msgstr ""
 
-#: src/window.rs:1528 src/export.rs:666
+#: src/window.rs:1562 src/export.rs:666
 msgid "Export as PDF"
 msgstr ""
 
-#: src/window.rs:1529 src/export.rs:670
+#: src/window.rs:1563 src/export.rs:670
 msgid "Export as HTML"
 msgstr ""
 
-#: src/window.rs:1530 src/export.rs:674
+#: src/window.rs:1564 src/export.rs:674
 msgid "Export as ODT"
 msgstr ""
 
-#: src/window.rs:1531
+#: src/window.rs:1565
 msgid "Copy HTML"
 msgstr ""
 
-#: src/window.rs:1532
+#: src/window.rs:1566
 msgid "Advanced Export…"
 msgstr ""
 
-#: src/window.rs:1532 src/export.rs:932
+#: src/window.rs:1566 src/export.rs:932
 msgid "Export"
 msgstr ""
 
-#: src/window.rs:1542
+#: src/window.rs:1576
 msgid "Preview Instead of Editor"
 msgstr ""
 
-#: src/window.rs:1543
+#: src/window.rs:1577
 msgid "Preview Beside the Editor"
 msgstr ""
 
-#: src/window.rs:1544
+#: src/window.rs:1578
 msgid "Preview Below the Editor"
 msgstr ""
 
-#: src/window.rs:1545
+#: src/window.rs:1579
 msgid "Preview in Separate Window"
 msgstr ""
 
-#: src/window.rs:1553
+#: src/window.rs:1587
 msgid "No Preview"
 msgstr ""
 
-#: src/window.rs:1558
+#: src/window.rs:1592
 msgid "Preview Layout"
 msgstr ""
 
-#: src/window.rs:1569
+#: src/window.rs:1603
 msgid "System"
 msgstr ""
 
-#: src/window.rs:1570
+#: src/window.rs:1604
 msgid "Light"
 msgstr ""
 
-#: src/window.rs:1571
+#: src/window.rs:1605
 msgid "Sepia"
 msgstr ""
 
-#: src/window.rs:1572
+#: src/window.rs:1606
 msgid "Dark"
 msgstr ""
 
-#: src/window.rs:1579
+#: src/window.rs:1613
 msgid "Appearance"
 msgstr ""
 
-#: src/window.rs:1582 src/window.rs:2181
+#: src/window.rs:1616 src/window.rs:2229
 msgid "Hemingway Mode"
 msgstr ""
 
-#: src/window.rs:1583
+#: src/window.rs:1617
 msgid "Focus Mode"
 msgstr ""
 
-#: src/window.rs:1584
+#: src/window.rs:1618
 msgid "Code Mode"
 msgstr ""
 
-#: src/window.rs:1588
+#: src/window.rs:1622
 msgid "New Window"
 msgstr ""
 
-#: src/window.rs:1589
+#: src/window.rs:1623
 msgid "Find and Replace"
 msgstr ""
 
-#: src/window.rs:1590 src/dialogs.rs:13
+#: src/window.rs:1624 src/dialogs.rs:13
 msgid "Preferences"
 msgstr ""
 
-#: src/window.rs:1594
+#: src/window.rs:1628
 msgid "Open Tutorial"
 msgstr ""
 
-#: src/window.rs:1595 src/dialogs.rs:133
+#: src/window.rs:1629 src/dialogs.rs:133
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: src/window.rs:1596
+#: src/window.rs:1630
 msgid "About Griffel"
 msgstr ""
 
-#: src/window.rs:1601
+#: src/window.rs:1635
 msgid "Main Menu"
 msgstr ""
 
-#: src/window.rs:1629 src/dialogs.rs:176
+#: src/window.rs:1663 src/dialogs.rs:176
 msgid "Bold"
 msgstr ""
 
-#: src/window.rs:1630
+#: src/window.rs:1664
 msgid "bold text"
 msgstr ""
 
-#: src/window.rs:1632 src/dialogs.rs:177
+#: src/window.rs:1666 src/dialogs.rs:177
 msgid "Italic"
 msgstr ""
 
-#: src/window.rs:1633
+#: src/window.rs:1667
 msgid "italic text"
 msgstr ""
 
-#: src/window.rs:1635 src/dialogs.rs:178
+#: src/window.rs:1669 src/dialogs.rs:178
 msgid "Strikethrough"
 msgstr ""
 
-#: src/window.rs:1636
+#: src/window.rs:1670
 msgid "strikethrough text"
 msgstr ""
 
-#: src/window.rs:1638
+#: src/window.rs:1672
 msgid "Heading"
 msgstr ""
 
-#: src/window.rs:1641
+#: src/window.rs:1675
 msgid "Bulleted List"
 msgstr ""
 
-#: src/window.rs:1644
+#: src/window.rs:1678
 msgid "Numbered List"
 msgstr ""
 
-#: src/window.rs:1647
+#: src/window.rs:1681
 msgid "Checklist"
 msgstr ""
 
-#: src/window.rs:1650
+#: src/window.rs:1684
 msgid "Block Quote"
 msgstr ""
 
-#: src/window.rs:1653
+#: src/window.rs:1687
 msgid "Code"
 msgstr ""
 
-#: src/window.rs:1656
+#: src/window.rs:1690
 msgid "Link"
 msgstr ""
 
-#: src/window.rs:1659
+#: src/window.rs:1693
 msgid "Image"
 msgstr ""
 
-#: src/window.rs:1663 src/window.rs:1679
+#: src/window.rs:1697 src/window.rs:1713
 msgid "Table"
 msgstr ""
 
-#: src/window.rs:1667
+#: src/window.rs:1701
 msgid "Horizontal Rule"
 msgstr ""
 
-#: src/window.rs:1670
+#: src/window.rs:1704
 msgid "Fix Table Alignment"
 msgstr ""
 
-#: src/window.rs:1713
+#: src/window.rs:1747
 msgid "Hide formatting"
 msgstr ""
 
-#: src/window.rs:1735 src/window.rs:1798
+#: src/window.rs:1769 src/window.rs:1832
 msgid "Insert Table"
 msgstr ""
 
-#: src/window.rs:2166
+#: src/window.rs:2214
 msgid "Text cannot be deleted in Hemingway Mode"
 msgstr ""
 
-#: src/window.rs:2167
+#: src/window.rs:2215
 msgid "Learn More"
 msgstr ""
 
-#: src/window.rs:2183
+#: src/window.rs:2231
 msgid ""
 "While Hemingway Mode is on, text can only be added, never deleted. "
 "Backspace, Delete, cutting, and replacing a selection do nothing. Undo still "
 "works. Toggle the mode with Ctrl+T or from the main menu."
 msgstr ""
 
-#: src/window.rs:2190
+#: src/window.rs:2238
 msgid "OK"
 msgstr ""
 
-#: src/window.rs:2243
+#: src/window.rs:2291
 #, rust-format
 msgid "{} of {} {}"
 msgstr ""
@@ -411,7 +411,7 @@ msgstr ""
 msgid "Save document"
 msgstr ""
 
-#: src/dialogs.rs:145 src/files/mod.rs:275
+#: src/dialogs.rs:145 src/files/mod.rs:361
 msgid "Save As"
 msgstr ""
 
@@ -698,44 +698,48 @@ msgstr ""
 msgid "Replace All"
 msgstr ""
 
-#: src/files/mod.rs:152
+#: src/files/mod.rs:225
 #, rust-format
 msgid ""
 "The file “{}” could not be opened as text:\n"
 "{}"
 msgstr ""
 
-#: src/files/mod.rs:174 src/files/mod.rs:180
+#: src/files/mod.rs:247 src/files/mod.rs:253
 #, rust-format
 msgid "cannot read file: {}"
 msgstr ""
 
-#: src/files/mod.rs:176
+#: src/files/mod.rs:249
 msgid "cannot open a directory"
 msgstr ""
 
-#: src/files/mod.rs:186
+#: src/files/mod.rs:259
 msgid "Open File"
 msgstr ""
 
-#: src/files/mod.rs:189
+#: src/files/mod.rs:262
 msgid "Markdown Files"
 msgstr ""
 
-#: src/files/mod.rs:194
+#: src/files/mod.rs:267
 msgid "Plain Text Files"
 msgstr ""
 
-#: src/files/mod.rs:252
+#: src/files/mod.rs:271
+msgid "Source Code"
+msgstr ""
+
+#: src/files/mod.rs:338
 #, rust-format
 msgid "cannot save file: {}"
 msgstr ""
 
-#: src/files/mod.rs:282
+#: src/files/mod.rs:368
 msgid "Markdown"
 msgstr ""
 
-#: src/files/mod.rs:287
+#: src/files/mod.rs:373
 msgid "Plain text"
 msgstr ""
 

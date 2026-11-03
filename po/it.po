@@ -888,3 +888,6 @@ msgstr "Stampa le informazioni sulla versione ed esce"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Un documento ha modifiche non salvate"
+
+msgid "Source Code"
+msgstr "Codice sorgente"

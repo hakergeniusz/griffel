@@ -888,3 +888,6 @@ msgstr "Toont versie-informatie en sluit af"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Een document heeft niet-opgeslagen wijzigingen"
+
+msgid "Source Code"
+msgstr "Broncode"

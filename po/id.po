@@ -884,3 +884,6 @@ msgstr "Cetak informasi versi dan keluar"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Sebuah dokumen memiliki perubahan yang belum disimpan"
+
+msgid "Source Code"
+msgstr "Kode sumber"

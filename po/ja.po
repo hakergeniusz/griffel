@@ -884,3 +884,6 @@ msgstr "バージョン情報を表示して終了する"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "ドキュメントに未保存の変更があります"
+
+msgid "Source Code"
+msgstr "ソースコード"

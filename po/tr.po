@@ -888,3 +888,6 @@ msgstr "Sürüm bilgisini yazdır ve çık"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "Bir belgenin kaydedilmemiş değişiklikleri var"
+
+msgid "Source Code"
+msgstr "Kaynak kodu"

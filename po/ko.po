@@ -884,3 +884,6 @@ msgstr "버전 정보를 출력하고 종료"
 #: src/app.rs:397
 msgid "A document has unsaved changes"
 msgstr "문서에 저장하지 않은 변경 사항이 있음"
+
+msgid "Source Code"
+msgstr "소스 코드"

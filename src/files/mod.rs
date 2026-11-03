@@ -63,6 +63,79 @@ impl Document {
 }
 
 // ---------------------------------------------------------------------------
+// Code formats
+// ---------------------------------------------------------------------------
+
+/// Extensions (case-insensitive) of the code formats Griffel knows: the
+/// requested languages plus mainstream ones and config formats. A code
+/// file opens with Code Mode on for its tab; Markdown preview and
+/// conversion do not apply to it.
+const CODE_EXTENSIONS: &[&str] = &[
+    "py", "pyi",                            // Python
+    "rs",                                   // Rust
+    "c", "h",                               // C
+    "cpp", "cc", "cxx", "hpp", "hh", "hxx", // C++
+    "js", "mjs", "cjs", "ts", "tsx",        // JavaScript / TypeScript
+    "java", "go", "rb", "php", "swift", "kt", "kts", "cs",
+    "sh", "bash", "zsh", "lua", "pl", "pm", "sql", "css",
+    "json", "yaml", "yml", "toml", "xml", "ini", "mk",
+];
+
+/// Basenames (case-insensitive) that are code without a useful extension.
+const CODE_BASENAMES: &[&str] = &["dockerfile", "makefile"];
+
+/// Mime types of the code formats, for the open filter and the desktop
+/// entry. Only types defined by shared-mime-info are listed; extension
+/// patterns cover the rest (Dockerfile, .ini).
+const CODE_MIME_TYPES: &[&str] = &[
+    "text/x-python",
+    "text/rust",
+    "text/x-csrc",
+    "text/x-chdr",
+    "text/x-c++src",
+    "text/x-c++hdr",
+    "text/javascript",
+    "text/typescript",
+    "text/x-java",
+    "text/x-go",
+    "text/x-ruby",
+    "text/x-php",
+    "text/x-swift",
+    "text/x-kotlin",
+    "text/x-csharp",
+    "text/x-shellscript",
+    "text/x-lua",
+    "text/x-perl",
+    "text/x-sql",
+    "text/css",
+    "application/json",
+    "application/x-yaml",
+    "application/toml",
+    "text/xml",
+    "text/x-makefile",
+];
+
+/// Whether `file` is a source-code file (`05-file-formats-and-persistence.md`):
+/// opens with Code Mode on, without Markdown preview/conversion.
+pub fn is_code_file(file: &gio::File) -> bool {
+    file.basename()
+        .map(|b| is_code_name(&b.display().to_string()))
+        .unwrap_or(false)
+}
+
+/// Basename form of `is_code_file`, unit-testable without gio.
+fn is_code_name(name: &str) -> bool {
+    let lower = name.to_lowercase();
+    if CODE_BASENAMES.contains(&lower.as_str()) {
+        return true;
+    }
+    match lower.rsplit_once('.') {
+        Some((_, ext)) => CODE_EXTENSIONS.contains(&ext),
+        None => false,
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Opening
 // ---------------------------------------------------------------------------
 
@@ -194,8 +267,21 @@ pub fn open_dialog(window: &AppWindow) {
     txt.set_name(Some(&crate::i18n::i18n("Plain Text Files")));
     txt.add_mime_type("text/plain");
 
+    let code = gtk::FileFilter::new();
+    code.set_name(Some(&crate::i18n::i18n("Source Code")));
+    for mime in CODE_MIME_TYPES {
+        code.add_mime_type(mime);
+    }
+    for ext in CODE_EXTENSIONS {
+        code.add_pattern(&format!("*.{}", ext));
+    }
+    for base in CODE_BASENAMES {
+        code.add_pattern(base);
+    }
+
     let filters = gio::ListStore::new::<gtk::FileFilter>();
     filters.append(&md);
+    filters.append(&code);
     filters.append(&txt);
     dialog.set_filters(Some(&filters));
 
@@ -347,5 +433,40 @@ mod tests {
         assert_eq!(doc.display_name(), "notes.md");
         assert_eq!(doc.parent_path().as_deref(), Some("/tmp"));
         assert_eq!(doc.path_string().as_deref(), Some("/tmp/notes.md"));
+    }
+
+    #[test]
+    fn code_name_detection() {
+        // The requested languages and their variants, case-insensitively.
+        for name in [
+            "main.py", "LIB.PYI", "main.rs", "app.c", "foo.H", "main.cpp",
+            "main.cc", "main.cxx", "header.hpp", "header.hh", "index.js",
+            "module.mjs", "cli.cjs", "index.ts", "component.tsx",
+        ] {
+            assert!(is_code_name(name), "{}", name);
+        }
+        // Mainstream and config formats.
+        for name in [
+            "Main.java", "go.mod.go", "x.go", "app.rb", "index.php",
+            "App.swift", "Main.kt", "script.kts", "Program.cs", "run.sh",
+            "run.bash", ".zshrc.sh", "init.lua", "script.pl", "Module.pm",
+            "query.sql", "style.css", "package.json", "ci.yaml", "ci.yml",
+            "Cargo.toml", "config.xml", "settings.ini", "Makefile.mk",
+        ] {
+            assert!(is_code_name(name), "{}", name);
+        }
+        // Extensionless basenames.
+        assert!(is_code_name("Dockerfile"));
+        assert!(is_code_name("Makefile"));
+        assert!(is_code_name("makefile"));
+        // Not code.
+        for name in [
+            "notes.md", "README", "archive.tar.gz", "image.png", "file.md.bak",
+        ] {
+            assert!(!is_code_name(name), "{}", name);
+        }
+        // Extensionless dotfiles are not code either.
+        assert!(!is_code_name(".zshrc"));
+        assert!(!is_code_name("data.txt"));
     }
 }
