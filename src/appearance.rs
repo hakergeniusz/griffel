@@ -3,6 +3,7 @@
 //! selection.
 
 use gtk::prelude::*;
+use sourceview5::prelude::*;
 use std::cell::RefCell;
 
 use crate::settings::{settings, ColorScheme};
@@ -25,6 +26,9 @@ pub struct EditorPalette {
     pub code_number: String,
     pub code_comment: String,
     pub code_keyword: String,
+    /// Identifier of the generated GtkSourceView style scheme for this
+    /// palette (Code Mode gutter and current-line highlight).
+    pub scheme_key: String,
 }
 
 fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
@@ -42,6 +46,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#ffbe6f".into(),
             code_comment: "#8a909b".into(),
             code_keyword: "#dc8add".into(),
+            scheme_key: "system-dark".into(),
         },
         (ColorScheme::System, _) | (ColorScheme::Light, _) => EditorPalette {
             background: "#ffffff".into(),
@@ -56,6 +61,11 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#c64600".into(),
             code_comment: "#8a919c".into(),
             code_keyword: "#613583".into(),
+            scheme_key: if scheme == ColorScheme::System {
+                "system-light".into()
+            } else {
+                "light".into()
+            },
         },
         (ColorScheme::Sepia, _) => EditorPalette {
             background: "#f4ecd8".into(),
@@ -70,6 +80,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#a84a10".into(),
             code_comment: "#a2916f".into(),
             code_keyword: "#7d4a8a".into(),
+            scheme_key: "sepia".into(),
         },
         (ColorScheme::Dark, _) => EditorPalette {
             background: "#1e2126".into(),
@@ -84,6 +95,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#ffbe6f".into(),
             code_comment: "#8a909b".into(),
             code_keyword: "#dc8add".into(),
+            scheme_key: "dark".into(),
         },
     }
 }
@@ -99,6 +111,46 @@ pub fn effective_palette() -> EditorPalette {
 /// is hidden when it does not).
 pub fn system_supports_color_schemes() -> bool {
     adw::StyleManager::default().system_supports_color_schemes()
+}
+
+/// GtkSourceView draws the Code Mode chrome — the line-number gutter and
+/// the current-line highlight — from the buffer's style scheme, not from
+/// CSS, so without a scheme they render with hard-coded light defaults and
+/// break every non-light scheme. The palette stays the single source of
+/// truth: the scheme XML is generated from it. Deliberately no `text` or
+/// `selection` styles here — the paper, glyph and selection colors are
+/// pinned by the widget-level editor CSS, and a second writer for them
+/// would only invite drift.
+fn scheme_xml(p: &EditorPalette) -> String {
+    format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme id="{id}" name="Griffel {id}" version="1.0">
+  <author>Griffel</author>
+  <description>Generated from the Griffel editor palette.</description>
+  <style name="current-line" background="{current_line}"/>
+  <style name="line-numbers" foreground="{gutter_fg}" background="{paper}"/>
+</style-scheme>
+"#,
+        id = p.scheme_key,
+        current_line = p.code_background,
+        gutter_fg = p.dimmed,
+        paper = p.background,
+    )
+}
+
+/// Generate and load the style scheme for `p`. The XML is materialized
+/// under the Griffel cache directory (same pattern as the embedded
+/// GSettings schema) and re-written on every call, so palette updates are
+/// never served stale from a previous run. Returns None when the file
+/// cannot be written; the editor then keeps GtkSourceView's defaults.
+pub fn editor_style_scheme(p: &EditorPalette) -> Option<sourceview5::StyleScheme> {
+    let dir = glib::user_cache_dir().join("griffel").join("schemes");
+    std::fs::create_dir_all(&dir).ok()?;
+    let path = dir.join(format!("{}.xml", p.scheme_key));
+    std::fs::write(&path, scheme_xml(p)).ok()?;
+    let manager = sourceview5::StyleSchemeManager::new();
+    manager.append_search_path(dir.to_str()?);
+    manager.scheme(&p.scheme_key)
 }
 
 thread_local! {
@@ -178,3 +230,49 @@ headerbar {
 }
 label, button { color: inherit; }
 "#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scheme_xml_carries_palette_colors_and_id() {
+        for (scheme, system_dark) in [
+            (ColorScheme::System, true),
+            (ColorScheme::System, false),
+            (ColorScheme::Light, false),
+            (ColorScheme::Sepia, false),
+            (ColorScheme::Dark, false),
+        ] {
+            let p = palettes(scheme, system_dark);
+            let xml = scheme_xml(&p);
+            assert!(xml.starts_with("<?xml"), "scheme {}", p.scheme_key);
+            assert!(xml.contains(&format!("id=\"{}\"", p.scheme_key)));
+            assert!(xml.contains("name=\"current-line\""));
+            assert!(xml.contains(&format!("background=\"{}\"", p.code_background)));
+            assert!(xml.contains("name=\"line-numbers\""));
+            assert!(xml.contains(&format!("foreground=\"{}\"", p.dimmed)));
+            assert!(xml.contains(&format!("background=\"{}\"", p.background)));
+            // Text and selection stay owned by the widget-level editor CSS.
+            assert!(!xml.contains("name=\"text\""));
+            assert!(!xml.contains("name=\"selection\""));
+        }
+    }
+
+    #[test]
+    fn scheme_keys_distinguish_system_dark_from_explicit_dark() {
+        assert_ne!(
+            palettes(ColorScheme::System, true).scheme_key,
+            palettes(ColorScheme::Dark, true).scheme_key
+        );
+        assert_ne!(
+            palettes(ColorScheme::System, false).scheme_key,
+            palettes(ColorScheme::Light, false).scheme_key
+        );
+        // Sepia ignores the platform preference entirely.
+        assert_eq!(
+            palettes(ColorScheme::Sepia, true).scheme_key,
+            palettes(ColorScheme::Sepia, false).scheme_key
+        );
+    }
+}

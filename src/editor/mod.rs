@@ -84,8 +84,15 @@ impl Editor {
         input::install_dnd(&view, &buffer, flags.clone());
 
         // Highlighting tags and their palette.
+        let palette = crate::appearance::effective_palette();
         highlight::ensure_tags(&buffer);
-        highlight::update_palette(&buffer, &crate::appearance::effective_palette());
+        highlight::update_palette(&buffer, &palette);
+        // Code Mode chrome (line-number gutter, current-line highlight) is
+        // drawn by GtkSourceView from the buffer's style scheme; hand it the
+        // palette-derived scheme so it follows the color scheme too.
+        if let Some(scheme) = crate::appearance::editor_style_scheme(&palette) {
+            buffer.set_style_scheme(Some(&scheme));
+        }
         let highlighter = highlight::Highlighter::new();
 
         // Keep the cursor just visible while typing/navigating (§8): a
@@ -108,11 +115,7 @@ impl Editor {
         let font_provider = gtk::CssProvider::new();
         view.style_context()
             .add_provider(&font_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 3);
-        editor_widget_css(
-            &font_provider,
-            &crate::appearance::effective_palette(),
-            16.0 * Self::text_scale(),
-        );
+        editor_widget_css(&font_provider, &palette, 16.0 * Self::text_scale());
 
         let spell_enabled = std::rc::Rc::new(std::cell::Cell::new(
             crate::settings::settings().boolean("spellcheck"),
@@ -210,13 +213,18 @@ impl Editor {
         self.spell_now();
     }
 
-    /// Re-apply tag colors and widget colors after a scheme change.
+    /// Re-apply tag colors, widget colors and the style scheme after a
+    /// scheme change.
     pub fn recolor(&self) {
-        highlight::update_palette(&self.buffer, &crate::appearance::effective_palette());
-        focus::update_palette(&self.buffer, &crate::appearance::effective_palette());
+        let p = crate::appearance::effective_palette();
+        highlight::update_palette(&self.buffer, &p);
+        focus::update_palette(&self.buffer, &p);
+        if let Some(scheme) = crate::appearance::editor_style_scheme(&p) {
+            self.buffer.set_style_scheme(Some(&scheme));
+        }
         editor_widget_css(
             &self.font_provider,
-            &crate::appearance::effective_palette(),
+            &p,
             self.font_px.get() as f64 * Self::text_scale(),
         );
     }
