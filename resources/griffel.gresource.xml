@@ -9,9 +9,9 @@
     <file compressed="true" alias="styles/light.css">styles/light.css</file>
     <file compressed="true" alias="styles/sepia.css">styles/sepia.css</file>
     <file compressed="true" alias="styles/dark.css">styles/dark.css</file>
-    <file compressed="true" alias="icons/io.github.hakergeniusz.Griffel.svg">icons/io.github.hakergeniusz.Griffel.svg</file>
-    <file compressed="true" alias="icons/io.github.hakergeniusz.Griffel.Devel.svg">icons/io.github.hakergeniusz.Griffel.Devel.svg</file>
-    <file compressed="true" alias="icons/io.github.hakergeniusz.Griffel-symbolic.svg">icons/io.github.hakergeniusz.Griffel-symbolic.svg</file>
+    <file compressed="true" alias="icons/scalable/apps/io.github.hakergeniusz.Griffel.svg">icons/io.github.hakergeniusz.Griffel.svg</file>
+    <file compressed="true" alias="icons/scalable/apps/io.github.hakergeniusz.Griffel.Devel.svg">icons/io.github.hakergeniusz.Griffel.Devel.svg</file>
+    <file compressed="true" alias="icons/symbolic/apps/io.github.hakergeniusz.Griffel-symbolic.svg">icons/io.github.hakergeniusz.Griffel-symbolic.svg</file>
     <file compressed="true" alias="export/typst-template.typ">export/typst-template.typ</file>
     <file compressed="true" alias="export/reference-odt-a4.odt">export/reference-odt-a4.odt</file>
     <file compressed="true" alias="export/reference-odt-letter.odt">export/reference-odt-letter.odt</file>
