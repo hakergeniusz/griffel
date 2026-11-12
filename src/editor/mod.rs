@@ -4,6 +4,7 @@
 pub mod focus;
 pub mod highlight;
 pub mod input;
+pub mod line_cache;
 pub mod menu;
 pub mod spellcheck;
 pub use input::InputFlags;

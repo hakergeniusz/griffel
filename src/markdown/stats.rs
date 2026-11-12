@@ -210,61 +210,180 @@ pub fn read_time(words: u64) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// Incremental statistics (`05-statistics.md`: counting coalesces bursts and
+// must stay fast on multi-megabyte documents)
+// ---------------------------------------------------------------------------
+
+/// Per-line counts. All four statistics are line-decomposable over the
+/// stripped text (words never span a newline; sentences flush at line end;
+/// a paragraph starts at the first non-blank line after a blank one), so a
+/// cache of these sums to exactly `compute()`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct LineStats {
+    pub chars: u64,
+    pub words: u64,
+    pub sentences: u64,
+    /// This line starts a new paragraph.
+    pub para_start: bool,
+    pub blank: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct StatsState {
+    in_fence: bool,
+    prev_blank: bool,
+}
+
+impl Default for StatsState {
+    fn default() -> Self {
+        // The document begins outside a fence and at a paragraph boundary.
+        Self {
+            in_fence: false,
+            prev_blank: true,
+        }
+    }
+}
+
+struct StatsProc;
+impl crate::editor::line_cache::LineProcessor for StatsProc {
+    type State = StatsState;
+    type Value = Option<LineStats>;
+
+    fn process(
+        &mut self,
+        line: &str,
+        in_state: &StatsState,
+        _is_last: bool,
+    ) -> (Option<LineStats>, StatsState) {
+        let mut fence = in_state.in_fence;
+        let Some(stripped) = strip_line(line, &mut fence) else {
+            // Dropped lines are invisible to every counter and leave the
+            // paragraph state untouched.
+            return (
+                None,
+                StatsState {
+                    in_fence: fence,
+                    prev_blank: in_state.prev_blank,
+                },
+            );
+        };
+        let blank = stripped.trim().is_empty();
+        let value = LineStats {
+            chars: count_characters(&stripped),
+            words: count_words(&stripped),
+            sentences: count_sentences(&stripped),
+            para_start: !blank && in_state.prev_blank,
+            blank,
+        };
+        (
+            Some(value),
+            StatsState {
+                in_fence: fence,
+                prev_blank: blank,
+            },
+        )
+    }
+}
+
+/// Incrementally maintained statistics for one document. Totals stay
+/// bit-for-bit identical to `compute(text)` while an edit recomputes only
+/// the lines it touches (the rest is re-summed, pure arithmetic).
+#[derive(Clone, Default)]
+pub struct StatsDoc {
+    cache: crate::editor::line_cache::LineCache<StatsProc>,
+    totals: Stats,
+}
+
+impl StatsDoc {
+    /// Sync with `text`; `dirty_from` is the conservative first-affected
+    /// line hint (0 = rebuild). Returns true when totals were recomputed.
+    pub fn update(&mut self, text: &str, dirty_from: usize) -> bool {
+        let old_count = self.cache.line_count();
+        let mut proc = StatsProc;
+        let changed = self.cache.update(text, dirty_from, &mut proc);
+        // Deleted lines vanish from the cache without any line being
+        // recomputed, so the line count changing also forces a re-sum.
+        if changed.is_empty() && self.cache.line_count() == old_count {
+            return false;
+        }
+        self.retotal();
+        true
+    }
+
+    fn retotal(&mut self) {
+        let mut totals = Stats::default();
+        for e in self.cache.entries() {
+            if let Some(ls) = &e.value {
+                totals.characters += ls.chars;
+                totals.words += ls.words;
+                totals.sentences += ls.sentences;
+                totals.paragraphs += u64::from(ls.para_start);
+            }
+        }
+        self.totals = totals;
+    }
+
+    /// The current totals, valid after the last `update`.
+    pub fn totals(&self) -> Stats {
+        self.totals
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Markup stripping
 // ---------------------------------------------------------------------------
 
 /// Remove Markdown syntax so counting sees human-readable text only.
 pub fn strip_markup(text: &str) -> String {
-    let mut out_lines: Vec<String> = Vec::new();
     let mut in_fence = false;
+    text.split('\n')
+        .filter_map(|line| strip_line(line, &mut in_fence))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
 
-    for line in text.split('\n') {
-        let trimmed = line.trim_start();
+/// Strip one line (`in_fence` carries fenced-code state across lines).
+/// Returns None when the line is dropped entirely (fence delimiters,
+/// horizontal rules, table separator rows); Some(stripped) otherwise.
+/// The per-line core of `strip_markup` — shared with the incremental
+/// `StatsDoc` so both paths strip identically.
+fn strip_line(line: &str, in_fence: &mut bool) -> Option<String> {
+    let trimmed = line.trim_start();
 
-        // Fenced code blocks: fence lines are dropped, content kept.
-        if let Some(rest) = trimmed.strip_prefix("```").or_else(|| trimmed.strip_prefix("~~~")) {
-            let _ = rest;
-            if !in_fence {
-                in_fence = true;
-                continue;
-            } else {
-                in_fence = false;
-                continue;
-            }
-        }
-        if in_fence {
-            out_lines.push(line.to_owned());
-            continue;
-        }
-
-        // Horizontal rules are removed entirely.
-        if is_rule_line(trimmed) {
-            continue;
-        }
-
-        let mut s = line.to_owned();
-
-        // List markers at line start.
-        s = strip_list_marker(&s);
-        // Block quote markers.
-        s = strip_quote_markers(&s);
-        // Heading markers.
-        s = strip_heading_marker(&s);
-        // Table delimiters: drop separator rows, blank the pipes.
-        if s.contains('|') {
-            let t = s.trim();
-            if !t.is_empty() && t.chars().all(|c| c == '-' || c == '|' || c == ':' || c == ' ') {
-                continue;
-            }
-            s = s.replace('|', " ");
-        }
-
-        // Inline constructs.
-        s = strip_inline(&s);
-
-        out_lines.push(s);
+    // Fenced code blocks: fence lines are dropped, content kept.
+    if let Some(rest) = trimmed.strip_prefix("```").or_else(|| trimmed.strip_prefix("~~~")) {
+        let _ = rest;
+        *in_fence = !*in_fence;
+        return None;
     }
-    out_lines.join("\n")
+    if *in_fence {
+        return Some(line.to_owned());
+    }
+
+    // Horizontal rules are removed entirely.
+    if is_rule_line(trimmed) {
+        return None;
+    }
+
+    let mut s = line.to_owned();
+
+    // List markers at line start.
+    s = strip_list_marker(&s);
+    // Block quote markers.
+    s = strip_quote_markers(&s);
+    // Heading markers.
+    s = strip_heading_marker(&s);
+    // Table delimiters: drop separator rows, blank the pipes.
+    if s.contains('|') {
+        let t = s.trim();
+        if !t.is_empty() && t.chars().all(|c| c == '-' || c == '|' || c == ':' || c == ' ') {
+            return None;
+        }
+        s = s.replace('|', " ");
+    }
+
+    // Inline constructs.
+    Some(strip_inline(&s))
 }
 
 fn is_rule_line(line: &str) -> bool {
@@ -518,5 +637,178 @@ mod perf {
             "counting 2 MB took {} ms",
             elapsed.as_millis()
         );
+    }
+
+    /// The whole point of the incremental path: after a single-character
+    /// edit to a 2 MB document, syncing totals must not re-scan the file.
+    /// Budget is generous (real runs land near 5 ms) — it catches the 100x
+    /// regression (a full recompute would take ~1 s).
+    #[test]
+    fn incremental_update_after_a_tiny_edit_is_fast() {
+        let para = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
+                    Sed do eiusmod tempor incididunt ut labore.\n\n";
+        let mut text = String::with_capacity(2_200_000);
+        while text.len() < 2_000_000 {
+            text.push_str(para);
+        }
+        let mut doc = StatsDoc::default();
+        doc.update(&text, 0);
+        // Type one character into the first line.
+        text.insert_str(5, "x");
+        let start = Instant::now();
+        let changed = doc.update(&text, 0);
+        let elapsed = start.elapsed();
+        assert!(changed);
+        assert_eq!(doc.totals(), compute(&text));
+        assert!(
+            elapsed.as_millis() < 250,
+            "incremental update took {} ms",
+            elapsed.as_millis()
+        );
+    }
+}
+
+#[cfg(test)]
+mod incremental {
+    use super::*;
+
+    /// Deterministic xorshift PRNG — reproducible property tests without
+    /// a dependency.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            let mut x = self.0;
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            self.0 = x;
+            x
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n as u64) as usize
+        }
+    }
+
+    const WORDS: &[&str] = &[
+        "lorem", "ipsum", "dolor", "sit", "amet", "你好", "世界", "em—dash",
+        "a", "`code`", "**bold**", "[link](https://x.example)", "> quote", "# Heading",
+        "- item", "1. one", "| a | b |", "|---|---|", "---", "…", "x!", "end.",
+    ];
+
+    fn random_doc(rng: &mut Rng, lines: usize) -> String {
+        let mut out = String::new();
+        for i in 0..lines {
+            if i > 0 {
+                out.push('\n');
+            }
+            match rng.below(10) {
+                0 => out.push_str("```rust\nlet x = 1;\n```"),
+                1 => out.push_str("---\ntitle: t\n---"),
+                _ => {
+                    for _ in 0..(1 + rng.below(6)) {
+                        out.push_str(WORDS[rng.below(WORDS.len())]);
+                        out.push(' ');
+                    }
+                }
+            }
+            if out.ends_with(' ') {
+                out.pop();
+            }
+        }
+        out
+    }
+
+    /// Perform a random edit, return the first-affected line hint (the
+    /// editor wiring provides the same guarantee: the hint never exceeds
+    /// the true first affected line).
+    fn random_edit(rng: &mut Rng, text: &mut String) -> usize {
+        let pos = rng.below(text.len() + 1);
+        // Snap to a char boundary.
+        let mut pos = pos;
+        while !text.is_char_boundary(pos) {
+            pos += 1;
+        }
+        let hint = text[..pos].matches('\n').count();
+        match rng.below(3) {
+            0 => {
+                // Insert a word fragment.
+                let w = WORDS[rng.below(WORDS.len())];
+                text.insert_str(pos, w);
+            }
+            1 => {
+                // Delete up to 20 chars.
+                let mut end = (pos + rng.below(21)).min(text.len());
+                while !text.is_char_boundary(end) {
+                    end += 1;
+                }
+                text.replace_range(pos..end, "");
+            }
+            _ => {
+                // Insert newlines (structural edit).
+                let nl = "\n".repeat(1 + rng.below(3));
+                text.insert_str(pos, &nl);
+            }
+        }
+        hint
+    }
+
+    /// After every edit, the incrementally maintained totals must match a
+    /// full `compute()` exactly — the spec pins the semantics, so the fast
+    /// path may never diverge from the reference.
+    #[test]
+    fn incremental_totals_track_compute_through_random_edits() {
+        let mut rng = Rng(0x5eed_1234_abcd_ef01);
+        for round in 0..30 {
+            let lines = 5 + rng.below(20);
+            let mut text = random_doc(&mut rng, lines);
+            let mut doc = StatsDoc::default();
+            doc.update(&text, 0);
+            assert_eq!(doc.totals(), compute(&text), "round {round} initial");
+            for edit in 0..25 {
+                let hint = random_edit(&mut rng, &mut text);
+                doc.update(&text, hint);
+                assert_eq!(
+                    doc.totals(),
+                    compute(&text),
+                    "round {round} edit {edit}: {text:?}"
+                );
+            }
+        }
+    }
+
+    /// An incremental doc rebuilt from scratch must equal one maintained
+    /// through edits — no drift between the two paths.
+    #[test]
+    fn maintained_doc_matches_fresh_rebuild() {
+        let mut rng = Rng(0xdead_beef_cafe_babe);
+        let mut text = random_doc(&mut rng, 40);
+        let mut maintained = StatsDoc::default();
+        maintained.update(&text, 0);
+        for _ in 0..40 {
+            let hint = random_edit(&mut rng, &mut text);
+            maintained.update(&text, hint);
+        }
+        let mut fresh = StatsDoc::default();
+        fresh.update(&text, 0);
+        assert_eq!(maintained.totals(), fresh.totals());
+    }
+
+    /// A maintained doc must also reproduce `strip_markup` line-by-line
+    /// (the strip core is shared, but the fence carry is per-line state).
+    #[test]
+    fn strip_line_fold_matches_strip_markup() {
+        let mut rng = Rng(0x0f1e_2d3c_4b5a_6978);
+        for _ in 0..50 {
+            let text = random_doc(&mut rng, 30);
+            assert_eq!(strip_markup(&text), fold_strip(&text), "{text:?}");
+        }
+    }
+
+    fn fold_strip(text: &str) -> String {
+        let mut fence = false;
+        text.split('\n')
+            .filter_map(|l| strip_line(l, &mut fence))
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 }
