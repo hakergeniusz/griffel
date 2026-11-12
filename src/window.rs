@@ -1106,13 +1106,20 @@ impl AppWindow {
             });
         }
 
-        // Statistics update on selection change.
+        // Statistics update on selection change (and on edit marks). Only
+        // the insert/selection_bound marks carry user intent; other marks
+        // (e.g. background marks) would just reschedule the same run.
         {
             let win = win.clone();
             tab.editor
                 .buffer
-                .connect_mark_set(move |_buf, _location, _mark| {
-                    win.schedule_stats();
+                .connect_mark_set(move |_buf, _location, mark| {
+                    if matches!(
+                        mark.name().as_deref(),
+                        Some("insert") | Some("selection_bound")
+                    ) {
+                        win.schedule_stats();
+                    }
                 });
         }
 
@@ -2261,25 +2268,49 @@ impl AppWindow {
     }
 
     /// Recompute statistics (background) and update the status button.
+    ///
+    /// The document totals come from the editor's incremental `StatsDoc`:
+    /// when nothing was edited since the last run they are read directly
+    /// (a selection change costs one selection-sized count), otherwise only
+    /// the edited lines are resynced off-thread. Never the whole document.
     pub fn update_stats_now(&self) {
         let win = self.clone();
-        let full = self.editor().full_text();
-        let selection_text: Option<String> = self
-            .editor()
+        let editor = self.editor();
+        let hint = editor.take_stats_hint();
+        let doc = editor.stats_doc();
+        let generation = editor.bump_stats_generation();
+        eprintln!("STATS-DBG: schedule hint={hint:?} gen={generation} cached_words={}", doc.totals().words);
+        let full = hint.is_some().then(|| editor.full_text());
+        let selection_text: Option<String> = editor
             .buffer
             .selection_bounds()
-            .map(|(s, e)| self.editor().buffer.text(&s, &e, true).into());
+            .map(|(s, e)| editor.buffer.text(&s, &e, true).into());
         let has_selection = selection_text.is_some();
 
         glib::spawn_future_local(async move {
             let handle = gio::spawn_blocking(move || {
-                let total = crate::markdown::stats::compute(&full);
+                let total_doc = match (hint, full) {
+                    (Some(dirty), Some(text)) => {
+                        let mut d = (*doc).clone();
+                        d.update(&text, dirty);
+                        std::sync::Arc::new(d)
+                    }
+                    _ => doc,
+                };
                 let selected = selection_text
                     .as_deref()
                     .map(crate::markdown::stats::compute);
-                (total, selected)
+                (total_doc, selected)
             });
-            let (total, selected) = handle.await.unwrap_or_default();
+            let Ok((total_doc, selected)) = handle.await else {
+                return;
+            };
+            // Drop stale results (a newer run superseded this one).
+            if !win.editor().stats_generation_is(generation) {
+                return;
+            }
+            win.editor().set_stats_doc(total_doc.clone());
+            let total = total_doc.totals();
             let setting = settings().default_statistic();
             let Some(stat) =
                 crate::markdown::stats::Statistic::parse_name(setting.as_str())

@@ -40,13 +40,41 @@ pub struct Editor {
     pub bar_comp: std::rc::Rc<std::cell::Cell<i32>>,
     /// Character width of the current font (px).
     char_px: std::cell::Cell<f64>,
-    /// Focus Mode is on (dimming + typewriter scrolling).
-    focus_active: std::cell::Cell<bool>,
+    /// Focus Mode is on (dimming + typewriter scrolling). Shared: the
+    /// signal handlers hold their own `Editor` clone, so per-clone state
+    /// must live behind `Rc` to stay coherent.
+    focus_active: std::rc::Rc<std::cell::Cell<bool>>,
     /// Top/bottom margins to restore when Focus Mode is switched off.
     saved_top_margin: std::cell::Cell<i32>,
     saved_bottom_margin: std::cell::Cell<i32>,
-    /// Cancels a running typewriter-scroll animation.
-    typewriter_generation: std::cell::Cell<u64>,
+    /// Cancels a running typewriter-scroll animation (shared, see
+    /// `focus_active`).
+    typewriter_generation: std::rc::Rc<std::cell::Cell<u64>>,
+    /// Incrementally maintained highlighting state; replaced on the main
+    /// thread when a background scan completes.
+    highlight_doc: std::rc::Rc<
+        std::cell::RefCell<std::sync::Arc<highlight::DocHighlight>>,
+    >,
+    /// Incrementally maintained statistics state.
+    stats_doc: std::rc::Rc<
+        std::cell::RefCell<std::sync::Arc<crate::markdown::stats::StatsDoc>>,
+    >,
+    /// Cross-scan staleness guard for statistics.
+    stats_generation: std::sync::Arc<std::sync::atomic::AtomicU64>,
+    /// Incrementally maintained spell-check state.
+    spell_doc: std::rc::Rc<
+        std::cell::RefCell<std::sync::Arc<spellcheck::SpellDoc>>,
+    >,
+    /// Conservative first-affected line hints, recorded on every primitive
+    /// edit (`insert_text`/`delete_range`) and consumed by each debounced
+    /// scan. `u32::MAX` = nothing recorded since the last take.
+    highlight_dirty: std::rc::Rc<std::cell::Cell<u32>>,
+    stats_dirty: std::rc::Rc<std::cell::Cell<u32>>,
+    spell_dirty: std::rc::Rc<std::cell::Cell<u32>>,
+    /// Total number of primitive edits ever applied to this buffer. Used
+    /// to detect concurrent edits during a background save. Shared like
+    /// the hint cells.
+    edit_count: std::rc::Rc<std::cell::Cell<u64>>,
 }
 
 impl Editor {
@@ -136,10 +164,26 @@ impl Editor {
             font_px: std::cell::Cell::new(16),
             bar_comp: std::rc::Rc::new(std::cell::Cell::new(0)),
             char_px: std::cell::Cell::new(9.6),
-            focus_active: std::cell::Cell::new(false),
+            focus_active: std::rc::Rc::new(std::cell::Cell::new(false)),
             saved_top_margin: std::cell::Cell::new(34),
             saved_bottom_margin: std::cell::Cell::new(64),
-            typewriter_generation: std::cell::Cell::new(0),
+            typewriter_generation: std::rc::Rc::new(std::cell::Cell::new(0)),
+            highlight_doc: std::rc::Rc::new(std::cell::RefCell::new(
+                std::sync::Arc::new(highlight::DocHighlight::default()),
+            )),
+            stats_doc: std::rc::Rc::new(std::cell::RefCell::new(
+                std::sync::Arc::new(crate::markdown::stats::StatsDoc::default()),
+            )),
+            stats_generation: std::sync::Arc::new(
+                std::sync::atomic::AtomicU64::new(0),
+            ),
+            spell_doc: std::rc::Rc::new(std::cell::RefCell::new(
+                std::sync::Arc::new(spellcheck::SpellDoc::new(None)),
+            )),
+            highlight_dirty: std::rc::Rc::new(std::cell::Cell::new(u32::MAX)),
+            stats_dirty: std::rc::Rc::new(std::cell::Cell::new(u32::MAX)),
+            spell_dirty: std::rc::Rc::new(std::cell::Cell::new(u32::MAX)),
+            edit_count: std::rc::Rc::new(std::cell::Cell::new(0)),
         };
         editor.highlight_now();
         // Code Mode startup state comes from the preference.
@@ -162,14 +206,66 @@ impl Editor {
             });
         }
 
+        // Record the first-affected line of every primitive edit so the
+        // debounced incremental scans (highlight, stats, spell) know where
+        // to start; everything before it is known unchanged.
+        {
+            let editor2 = editor.clone();
+            editor.buffer.connect_insert_text(move |_buf, loc, _text| {
+                editor2.note_edit_line(loc.line().max(0) as u32);
+            });
+            let editor2 = editor.clone();
+            editor.buffer.connect_delete_range(move |_buf, s, e| {
+                editor2.note_edit_line(s.line().min(e.line()).max(0) as u32);
+            });
+        }
+
         editor
+    }
+
+    /// Record a conservative lower bound for the first line an edit
+    /// touched (each primitive edit reports its own start line; the minimum
+    /// over a burst never overshoots the true first affected line).
+    fn note_edit_line(&self, line: u32) {
+        self.edit_count.set(self.edit_count.get() + 1);
+        for cell in [&self.highlight_dirty, &self.stats_dirty, &self.spell_dirty] {
+            cell.set(cell.get().min(line));
+        }
+    }
+
+    /// Number of primitive edits applied to this buffer so far.
+    pub fn edit_count(&self) -> u64 {
+        self.edit_count.get()
+    }
+
+    /// Consume the recorded hint for one scan. `u32::MAX` (nothing
+    /// recorded) means rebuild from the start, which is always correct.
+    fn take_hint(cell: &std::rc::Rc<std::cell::Cell<u32>>) -> usize {
+        let v = cell.replace(u32::MAX);
+        if v == u32::MAX {
+            0
+        } else {
+            v as usize
+        }
     }
 
     /// Run a (debounced by the caller) highlighting scan.
     pub fn highlight_now(&self) {
         let text = self.full_text();
+        let dirty = Self::take_hint(&self.highlight_dirty);
         let code_mode = self.flags.code_mode.get();
-        self.highlighter.schedule(&self.buffer, text, code_mode);
+        let cache = self.highlight_doc.borrow().clone();
+        let slot = self.highlight_doc.clone();
+        self.highlighter.schedule(
+            &self.buffer,
+            text,
+            cache,
+            dirty,
+            code_mode,
+            move |doc| {
+                *slot.borrow_mut() = doc;
+            },
+        );
     }
 
     /// Code Mode (user-added setting): line numbers and a current-line
@@ -187,9 +283,49 @@ impl Editor {
     /// language and effective enabled state.
     pub fn spell_now(&self) {
         let text = self.full_text();
+        let dirty = Self::take_hint(&self.spell_dirty);
         let lang = self.spell_language.borrow().clone();
         let enabled = self.spell_enabled.get() && !self.focus_active.get();
-        self.spell.schedule(&self.buffer, text, lang, enabled);
+        let cache = self.spell_doc.borrow().clone();
+        let slot = self.spell_doc.clone();
+        self.spell.schedule(
+            &self.buffer,
+            text,
+            cache,
+            dirty,
+            lang,
+            enabled,
+            move |doc| {
+                *slot.borrow_mut() = doc;
+            },
+        );
+    }
+
+    /// Consume the statistics edit hint (`None` = nothing edited since the
+    /// last take; totals can be read from the cache directly).
+    pub fn take_stats_hint(&self) -> Option<usize> {
+        let v = self.stats_dirty.replace(u32::MAX);
+        (v != u32::MAX).then_some(v as usize)
+    }
+
+    /// The current statistics state (totals valid without a scan).
+    pub fn stats_doc(&self) -> std::sync::Arc<crate::markdown::stats::StatsDoc> {
+        self.stats_doc.borrow().clone()
+    }
+
+    /// Adopt a background-updated statistics state (generation-checked).
+    pub fn set_stats_doc(&self, doc: std::sync::Arc<crate::markdown::stats::StatsDoc>) {
+        *self.stats_doc.borrow_mut() = doc;
+    }
+
+    pub fn bump_stats_generation(&self) -> u64 {
+        use std::sync::atomic::Ordering;
+        self.stats_generation.fetch_add(1, Ordering::SeqCst) + 1
+    }
+
+    pub fn stats_generation_is(&self, expected: u64) -> bool {
+        use std::sync::atomic::Ordering;
+        self.stats_generation.load(Ordering::SeqCst) == expected
     }
 
     /// Apply a spellcheck-preference change (Focus Mode suspends it).

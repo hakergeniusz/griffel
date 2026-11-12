@@ -10,6 +10,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use crate::appearance::EditorPalette;
+use crate::editor::line_cache::LineProcessor;
 
 /// Names of the tags this module owns.
 pub const TAG_NAMES: &[&str] = &[
@@ -169,117 +170,211 @@ fn patterns() -> &'static Patterns {
 /// Scan the document and produce styled ranges in char offsets. With
 /// `code_mode`, fenced code block interiors additionally get lightweight
 /// code-token colors (strings, numbers, comments, keywords).
+///
+/// This is the reference implementation: a fold of `scan_line` over all
+/// lines. The incremental `DocHighlight` runs the same per-line core and
+/// must agree with it exactly (property-tested).
 pub fn scan(text: &str, code_mode: bool) -> Vec<Span> {
     let mut spans: Vec<Span> = Vec::new();
-    let mut occupied: Vec<(usize, usize)> = Vec::new();
-    let lines: Vec<&str> = text.split('\n').collect();
+    let mut state = HlState { code_mode, ..Default::default() };
+    let mut proc = HlProcessor;
+    // (start, end) of the previous line, for setext underlines.
+    let mut prev_line: Option<(usize, usize)> = None;
     let mut char_pos = 0usize;
-
-    // Fenced code block state: (fence char, run length) while inside.
-    let mut in_fence: Option<(char, usize)> = None;
-
-    // YAML front matter: a `---`/`...` first line opens it; nothing inside
-    // is highlighted (B3).
-    let mut front_matter_open = lines
-        .first()
-        .is_some_and(|l| l.trim_end() == "---" || l.trim_end() == "...");
-
-    // (start, end, blank) of the previous processed line, for setext rules.
-    let mut prev_line: Option<(usize, usize, bool)> = None;
-
-    for line in &lines {
+    for line in text.split('\n') {
         let line_len = line.chars().count();
         let line_start = char_pos;
         let line_end = char_pos + line_len;
+        let (value, out) = proc.process(line, &state, prev_line.is_none());
+        if let Some(level) = value.setext_prev {
+            if let Some((pstart, pend)) = prev_line {
+                spans.push(Span { start: pstart, end: pend, kind: SpanKind::Heading(level) });
+            }
+        }
+        for s in &value.spans {
+            spans.push(Span {
+                start: line_start + s.start,
+                end: line_start + s.end,
+                kind: s.kind,
+            });
+        }
+        prev_line = Some((line_start, line_end));
+        state = out;
+        char_pos = line_end + 1;
+    }
+    spans
+}
+
+/// Cross-line state entering a line during the scan.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct HlState {
+    /// Open fenced code block: (fence char, run length).
+    pub fence: Option<(char, usize)>,
+    /// YAML front matter is open (`03-behavior/01-editing.md` B3).
+    pub front_matter: bool,
+    /// The previous line was blank (setext rule).
+    pub prev_blank: bool,
+    /// This is the first line (front matter can only open here).
+    pub at_start: bool,
+    /// Code Mode token coloring — part of the state so a toggle invalidates
+    /// every cached fenced line.
+    pub code_mode: bool,
+}
+
+impl HlState {
+    /// The state entering the line after this one.
+    fn advance(&mut self, prev_blank: bool) {
+        self.prev_blank = prev_blank;
+        self.at_start = false;
+    }
+}
+
+/// Styled ranges of one line, offsets relative to the line start.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct HlValue {
+    pub spans: Vec<Span>,
+    /// Setext underline: heading level applied to the PREVIOUS line.
+    pub setext_prev: Option<u8>,
+}
+
+struct HlProcessor;
+
+impl crate::editor::line_cache::LineProcessor for HlProcessor {
+    type State = HlState;
+    type Value = HlValue;
+
+    fn process(
+        &mut self,
+        line: &str,
+        st: &HlState,
+        _is_last: bool,
+    ) -> (HlValue, HlState) {
+        let mut value = HlValue::default();
+        let mut out = *st;
+        out.at_start = false;
+
+        let line_len = line.chars().count();
         let trimmed = line.trim_start_matches([' ', '\t']);
+        // Overlap bookkeeping is line-local: block spans always cover whole
+        // lines and inline candidates never leave their line, so nothing
+        // outside this line can conflict (the previous document-wide list
+        // made the check quadratic on block-heavy documents).
+        let mut occupied: Vec<(usize, usize)> = Vec::new();
 
         // Front matter: consume until the closing line.
-        if front_matter_open {
-            let is_opening = prev_line.is_none();
+        if st.front_matter {
+            let is_opening = st.at_start;
             let closing = line.trim_end() == "---" || line.trim_end() == "...";
             if closing && !is_opening {
-                front_matter_open = false;
+                out.front_matter = false;
             }
-            char_pos += line_len + 1;
-            prev_line = Some((line_start, line_end, true));
-            continue;
+            out.advance(true);
+            return (value, out);
         }
 
         // Fences.
         if let Some((ch, run)) = fence_of(trimmed) {
-            match in_fence {
+            match st.fence {
                 None => {
-                    in_fence = Some((ch, run));
-                    spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Fence });
-                    occupied.push((line_start, line_end));
-                    prev_line = Some((line_start, line_end, false));
-                    char_pos += line_len + 1;
-                    continue;
+                    out.fence = Some((ch, run));
+                    value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Fence });
+                    out.advance(false);
+                    return (value, out);
                 }
                 Some((open_ch, open_run)) if ch == open_ch && run >= open_run => {
-                    in_fence = None;
-                    spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Fence });
-                    prev_line = Some((line_start, line_end, false));
-                    char_pos += line_len + 1;
-                    continue;
+                    out.fence = None;
+                    value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Fence });
+                    out.advance(false);
+                    return (value, out);
                 }
                 Some(_) => {}
             }
         }
-        if in_fence.is_some() {
-            spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Fence });
-            if code_mode {
-                scan_code_line(line, line_start, &mut spans);
+        if st.fence.is_some() {
+            value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Fence });
+            if st.code_mode {
+                scan_code_line(line, 0, &mut value.spans);
             }
-            prev_line = Some((line_start, line_end, false));
-            char_pos += line_len + 1;
-            continue;
+            out.advance(false);
+            return (value, out);
         }
 
         // Headings.
         if let Some(level) = heading_level(trimmed) {
-            spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Heading(level) });
-            occupied.push((line_start, line_end));
-            prev_line = Some((line_start, line_end, false));
-            char_pos += line_len + 1;
-            continue;
+            value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Heading(level) });
+            out.advance(false);
+            return (value, out);
         }
 
         // Block quotes.
         if trimmed.starts_with('>') {
-            spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Quote });
-            occupied.push((line_start, line_end));
-            prev_line = Some((line_start, line_end, false));
-            char_pos += line_len + 1;
-            continue;
+            value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Quote });
+            out.advance(false);
+            return (value, out);
         }
 
         // Horizontal rules and setext underlines.
         if let Some(rule_ch) = rule_char(trimmed) {
-            let prev_blank = prev_line.map(|(_, _, b)| b).unwrap_or(true);
-            if (rule_ch == '-' || rule_ch == '=') && !prev_blank {
-                if let Some((pstart, pend, false)) = prev_line {
-                    spans.push(Span { start: pstart, end: pend, kind: SpanKind::Heading(2) });
-                    occupied.push((pstart, pend));
-                }
-                // The underline itself is not styled.
-            } else {
-                spans.push(Span { start: line_start, end: line_end, kind: SpanKind::Rule });
-                occupied.push((line_start, line_end));
+            if (rule_ch == '-' || rule_ch == '=') && !st.prev_blank {
+                // Setext underline: the previous line becomes an H2. The
+                // underline itself is not styled.
+                value.setext_prev = Some(2);
+                out.advance(false);
+                return (value, out);
             }
-            prev_line = Some((line_start, line_end, false));
-            char_pos += line_len + 1;
-            continue;
+            value.spans.push(Span { start: 0, end: line_len, kind: SpanKind::Rule });
+            out.advance(false);
+            return (value, out);
         }
 
         // Inline constructs.
-        scan_inline(line, line_start, &mut spans, &mut occupied);
+        scan_inline(line, 0, &mut value.spans, &mut occupied);
+        out.advance(line.trim().is_empty());
+        (value, out)
+    }
+}
 
-        prev_line = Some((line_start, line_end, line.trim().is_empty()));
-        char_pos += line_len + 1;
+/// Incrementally maintained highlighting for one document: per-line spans
+/// plus the cross-line scan state, synced through the shared line cache.
+#[derive(Clone, Default)]
+pub struct DocHighlight {
+    cache: crate::editor::line_cache::LineCache<HlProcessor>,
+    code_mode: bool,
+}
+
+impl DocHighlight {
+    /// Sync with `text`; `dirty_from` is the conservative first-affected
+    /// line hint (0 = rebuild). Returns the inclusive line ranges whose
+    /// spans were recomputed (re-tagging those ranges on the buffer is
+    /// sufficient).
+    pub fn update(
+        &mut self,
+        text: &str,
+        dirty_from: usize,
+        code_mode: bool,
+    ) -> Vec<(usize, usize)> {
+        // A toggle changes the state every cached line was computed with,
+        // so the whole document must be walked regardless of the hint.
+        let toggled = code_mode != self.code_mode;
+        self.code_mode = code_mode;
+        let mut initial = HlState::default();
+        initial.code_mode = code_mode;
+        let mut proc = HlProcessor;
+        let dirty = if toggled { 0 } else { dirty_from };
+        let changed = self.cache.update_with(text, dirty, &mut proc, &initial);
+        if toggled && changed.is_empty() && self.cache.line_count() > 0 {
+            return vec![(0, self.cache.line_count() - 1)];
+        }
+        changed
     }
 
-    spans
+    pub fn line_count(&self) -> usize {
+        self.cache.line_count()
+    }
+
+    fn entry(&self, line: usize) -> Option<&std::sync::Arc<crate::editor::line_cache::Entry<HlProcessor>>> {
+        self.cache.entries().get(line)
+    }
 }
 
 /// Sorted keyword list for the Code Mode tokenizer (binary searched).
@@ -537,7 +632,7 @@ fn push_emphasis(
 
 #[derive(Clone, Default)]
 pub struct Highlighter {
-    generation_id: Arc<AtomicU64>,
+    generation: Arc<AtomicU64>,
 }
 
 impl Highlighter {
@@ -545,25 +640,157 @@ impl Highlighter {
         Self::default()
     }
 
-    /// Schedule a scan of `text`; results are applied to `buffer` on the
-    /// main loop if the text length still matches (stale results dropped).
-    pub fn schedule(&self, buffer: &sourceview5::Buffer, text: String, code_mode: bool) {
-        let _generation_id = self.generation_id.fetch_add(1, Ordering::SeqCst) + 1;
+    /// Schedule an incremental scan: `cache` is the current main-thread
+    /// document state, `dirty_from` the conservative first-affected line.
+    /// On completion (still current generation) the new state is adopted
+    /// via `adopt` and only the changed line ranges are re-tagged on
+    /// `buffer` — stale results are dropped whole, which also fixes the
+    /// previous char-count-only staleness check (a char-for-char
+    /// replacement could apply tags for the wrong text).
+    pub fn schedule(
+        &self,
+        buffer: &sourceview5::Buffer,
+        text: String,
+        cache: Arc<DocHighlight>,
+        dirty_from: usize,
+        code_mode: bool,
+        adopt: impl Fn(Arc<DocHighlight>) + 'static,
+    ) {
+        let generation_id = self.generation.fetch_add(1, Ordering::SeqCst) + 1;
+        let generation = self.generation.clone();
         let cb_buffer = buffer.clone();
         glib::spawn_future_local(async move {
             // Scan off the main thread; the buffer never leaves it.
-            let len = text.chars().count();
-            let handle = gio::spawn_blocking(move || scan(&text, code_mode));
-            let spans = handle.await.unwrap_or_default();
-            if cb_buffer.char_count() as usize != len {
+            let handle = gio::spawn_blocking(move || {
+                let mut doc = (*cache).clone();
+                let changed = doc.update(&text, dirty_from, code_mode);
+                (Arc::new(doc), changed)
+            });
+            let Ok((doc, changed)) = handle.await else {
+                return;
+            };
+            if generation.load(Ordering::SeqCst) != generation_id {
                 return;
             }
-            apply_spans(&cb_buffer, &spans);
+            apply_ranges(&cb_buffer, &doc, &changed);
+            adopt(doc);
         });
     }
 }
 
-/// Remove all md-* tags and apply the scanned spans.
+/// GTK tag names for one span kind (shared by the whole-range and the
+/// per-line apply paths).
+fn tag_names(kind: SpanKind) -> &'static [&'static str] {
+    match kind {
+        SpanKind::Bold => &["md-bold"],
+        SpanKind::Italic => &["md-italic"],
+        SpanKind::Strike => &["md-strike"],
+        SpanKind::Code => &["md-code"],
+        SpanKind::LinkLabel => &["md-link-label"],
+        SpanKind::Dim => &["md-dim"],
+        SpanKind::Rule => &["md-rule"],
+        SpanKind::Heading(l) => match l {
+            1 => &["md-heading", "md-heading-1"],
+            2 => &["md-heading", "md-heading-2"],
+            3 => &["md-heading", "md-heading-3"],
+            4 => &["md-heading", "md-heading-4"],
+            5 => &["md-heading", "md-heading-5"],
+            _ => &["md-heading", "md-heading-6"],
+        },
+        SpanKind::Quote => &["md-quote"],
+        SpanKind::Fence => &["md-fence"],
+        SpanKind::CodeStr => &["md-code-str"],
+        SpanKind::CodeNum => &["md-code-num"],
+        SpanKind::CodeComment => &["md-code-comment"],
+        SpanKind::CodeKeyword => &["md-code-keyword"],
+    }
+}
+
+/// Re-tag only the given line ranges (inclusive, per the cache update).
+/// Untouched lines keep their tags: GTK moves tag boundaries with the
+/// text, so an edit elsewhere never invalidates them.
+pub fn apply_ranges(
+    buffer: &sourceview5::Buffer,
+    doc: &DocHighlight,
+    ranges: &[(usize, usize)],
+) {
+    let all = doc.line_count();
+    let full = ranges.len() == 1 && ranges[0] == (0, all.saturating_sub(1));
+    if full {
+        // Fresh document (load, Code Mode toggle): one whole-range clear
+        // beats per-line clears.
+        let start = buffer.start_iter();
+        let end = buffer.end_iter();
+        for name in TAG_NAMES {
+            buffer.remove_tag_by_name(name, &start, &end);
+        }
+    }
+    for (first, last) in ranges {
+        for line in *first..=*last {
+            apply_line(buffer, doc, line, full);
+        }
+    }
+}
+
+/// Re-tag one line: clear the owned tags, apply the body margin, then the
+/// line's spans and (when this line is a setext underline) the heading on
+/// the previous line.
+fn apply_line(
+    buffer: &sourceview5::Buffer,
+    doc: &DocHighlight,
+    line: usize,
+    already_cleared: bool,
+) {
+    let Some(entry) = doc.entry(line) else {
+        return;
+    };
+    let Some(mut start) = buffer.iter_at_line(line as i32) else {
+        return;
+    };
+    let mut end = start.clone();
+    end.forward_to_line_end();
+    if !already_cleared {
+        for name in TAG_NAMES {
+            buffer.remove_tag_by_name(name, &start, &end);
+        }
+    }
+    // Body margin over the line; outdented tags override it (higher tag
+    // priority).
+    buffer.apply_tag_by_name("md-body", &start, &end);
+    for span in &entry.value.spans {
+        let Some(s) = buffer.iter_at_line_offset(line as i32, span.start as i32) else {
+            continue;
+        };
+        let Some(e) = buffer.iter_at_line_offset(line as i32, span.end as i32) else {
+            continue;
+        };
+        for name in tag_names(span.kind) {
+            buffer.apply_tag_by_name(name, &s, &e);
+        }
+    }
+    // Setext underline: the heading lives on the previous line (its own
+    // tags are otherwise untouched).
+    if let Some(level) = entry.value.setext_prev {
+        if line > 0 {
+            if let (Some(mut ps), Some(mut pe)) = (
+                buffer.iter_at_line(line as i32 - 1),
+                buffer.iter_at_line(line as i32 - 1),
+            ) {
+                pe.forward_to_line_end();
+                for name in TAG_NAMES {
+                    buffer.remove_tag_by_name(name, &ps, &pe);
+                }
+                buffer.apply_tag_by_name("md-body", &ps, &pe);
+                for name in tag_names(SpanKind::Heading(level)) {
+                    buffer.apply_tag_by_name(name, &ps, &pe);
+                }
+            }
+        }
+    }
+}
+
+/// Remove all md-* tags and apply the scanned spans (whole-document form,
+/// used by callers holding a plain scan result).
 pub fn apply_spans(buffer: &sourceview5::Buffer, spans: &[Span]) {
     let start = buffer.start_iter();
     let end = buffer.end_iter();
@@ -577,30 +804,7 @@ pub fn apply_spans(buffer: &sourceview5::Buffer, spans: &[Span]) {
     for span in spans {
         let s = buffer.iter_at_offset(span.start as i32);
         let e = buffer.iter_at_offset(span.end as i32);
-        let names: &[&str] = match span.kind {
-            SpanKind::Bold => &["md-bold"],
-            SpanKind::Italic => &["md-italic"],
-            SpanKind::Strike => &["md-strike"],
-            SpanKind::Code => &["md-code"],
-            SpanKind::LinkLabel => &["md-link-label"],
-            SpanKind::Dim => &["md-dim"],
-            SpanKind::Rule => &["md-rule"],
-            SpanKind::Heading(l) => match l {
-                1 => &["md-heading", "md-heading-1"],
-                2 => &["md-heading", "md-heading-2"],
-                3 => &["md-heading", "md-heading-3"],
-                4 => &["md-heading", "md-heading-4"],
-                5 => &["md-heading", "md-heading-5"],
-                _ => &["md-heading", "md-heading-6"],
-            },
-            SpanKind::Quote => &["md-quote"],
-            SpanKind::Fence => &["md-fence"],
-            SpanKind::CodeStr => &["md-code-str"],
-            SpanKind::CodeNum => &["md-code-num"],
-            SpanKind::CodeComment => &["md-code-comment"],
-            SpanKind::CodeKeyword => &["md-code-keyword"],
-        };
-        for name in names {
+        for name in tag_names(span.kind) {
             buffer.apply_tag_by_name(name, &s, &e);
         }
     }
@@ -771,5 +975,202 @@ mod tests {
         assert!(kinds(&spans, text, "# real comment").contains(&CodeComment));
         assert!(!kinds(&spans, text, "#include").contains(&CodeComment));
         assert!(kinds(&spans, text, "include").contains(&CodeKeyword));
+    }
+}
+
+#[cfg(test)]
+mod incremental {
+    use super::*;
+    use crate::editor::line_cache::LineProcessor as _;
+    use std::time::Instant;
+
+    /// Deterministic xorshift PRNG — reproducible property tests without
+    /// a dependency.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            let mut x = self.0;
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            self.0 = x;
+            x
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n as u64) as usize
+        }
+    }
+
+    const LINES: &[&str] = &[
+        "# Heading one",
+        "## Sub",
+        "",
+        "- item one",
+        "  - nested item",
+        "> quoted **text**",
+        "```",
+        "let x = 42; // note",
+        "```",
+        "plain *text* with [link](https://x.example) and `code`",
+        "| a | b |",
+        "|---|---|",
+        "---",
+        "setext body",
+        "===",
+        "~~~",
+        "tilde ~fenced~",
+        "~~~",
+        "***rule***",
+        "trailing sentence. Another one!",
+    ];
+
+    fn random_doc(rng: &mut Rng, lines: usize) -> String {
+        let mut out = String::new();
+        for i in 0..lines {
+            if i > 0 {
+                out.push('\n');
+            }
+            out.push_str(LINES[rng.below(LINES.len())]);
+        }
+        out
+    }
+
+    fn random_edit(rng: &mut Rng, text: &mut String) -> usize {
+        let pos = rng.below(text.len() + 1);
+        let mut pos = pos;
+        while !text.is_char_boundary(pos) {
+            pos += 1;
+        }
+        let hint = text[..pos].matches('\n').count();
+        match rng.below(3) {
+            0 => text.insert_str(pos, LINES[rng.below(LINES.len())]),
+            1 => {
+                let mut end = (pos + rng.below(30)).min(text.len());
+                while !text.is_char_boundary(end) {
+                    end += 1;
+                }
+                text.replace_range(pos..end, "");
+            }
+            _ => text.insert_str(pos, "\n"),
+        }
+        hint
+    }
+
+    /// Expand the incremental cache to document-absolute spans in `scan`'s
+    /// output order (setext span first, then the line's own spans).
+    fn doc_spans(doc: &DocHighlight, text: &str) -> Vec<Span> {
+        let lines: Vec<&str> = text.split('\n').collect();
+        let mut out = Vec::new();
+        let mut pos = 0usize;
+        for (i, line) in lines.iter().enumerate() {
+            if let Some(entry) = doc.entry(i) {
+                if let Some(level) = entry.value.setext_prev {
+                    if i > 0 {
+                        let prev_len = lines[i - 1].chars().count();
+                        out.push(Span {
+                            start: pos - prev_len - 1,
+                            end: pos - 1,
+                            kind: SpanKind::Heading(level),
+                        });
+                    }
+                }
+                for s in &entry.value.spans {
+                    out.push(Span { start: pos + s.start, end: pos + s.end, kind: s.kind });
+                }
+            }
+            pos += line.chars().count() + 1;
+        }
+        out
+    }
+
+    /// The incremental cache must agree with the reference `scan()` after
+    /// every edit — the two share the per-line core, but the resync walk,
+    /// state propagation and dirty hints are where divergence would hide.
+    #[test]
+    fn incremental_matches_scan_through_random_edits() {
+        let mut rng = Rng(0xa11c_e5c0_0000_0001);
+        for round in 0..30 {
+            let lines = 5 + rng.below(20);
+            let mut text = random_doc(&mut rng, lines);
+            for code_mode in [false, true] {
+                let mut doc = DocHighlight::default();
+                doc.update(&text, 0, code_mode);
+                assert_eq!(
+                    doc_spans(&doc, &text),
+                    scan(&text, code_mode),
+                    "round {round} initial (code_mode {code_mode}): {text:?}"
+                );
+                for edit in 0..20 {
+                    let hint = random_edit(&mut rng, &mut text);
+                    doc.update(&text, hint, code_mode);
+                    assert_eq!(
+                        doc_spans(&doc, &text),
+                        scan(&text, code_mode),
+                        "round {round} edit {edit} (code_mode {code_mode}): {text:?}"
+                    );
+                }
+            }
+        }
+    }
+
+    /// A maintained cache rebuilt from scratch must equal one kept through
+    /// edits.
+    #[test]
+    fn maintained_matches_fresh_rebuild() {
+        let mut rng = Rng(0xba5e_0000_0000_0042);
+        let mut text = random_doc(&mut rng, 40);
+        let mut maintained = DocHighlight::default();
+        maintained.update(&text, 0, false);
+        for _ in 0..30 {
+            let hint = random_edit(&mut rng, &mut text);
+            maintained.update(&text, hint, false);
+        }
+        let mut fresh = DocHighlight::default();
+        fresh.update(&text, 0, false);
+        assert_eq!(doc_spans(&maintained, &text), doc_spans(&fresh, &text));
+    }
+
+
+    #[test]
+    fn code_mode_toggle_retags_everything() {
+        let text = "```rust\nlet s = \"hi\";\n```";
+        let mut doc = DocHighlight::default();
+        doc.update(&text, 0, false);
+        let plain = doc_spans(&doc, &text);
+        assert!(!plain.iter().any(|s| s.kind == SpanKind::CodeStr));
+        assert!(!plain.iter().any(|s| s.kind == SpanKind::CodeKeyword));
+        let changed = doc.update(&text, 5, true);
+        assert_eq!(changed, vec![(0, 2)]);
+        let with_code = doc_spans(&doc, &text);
+        assert!(with_code.iter().any(|s| s.kind == SpanKind::CodeStr));
+        assert!(with_code.iter().any(|s| s.kind == SpanKind::CodeKeyword));
+    }
+
+    /// The point of the incremental pass: one character edited in a 2 MB
+    /// document must not rescan it. The budget is generous (real runs land
+    /// near a few ms; a full rescan takes seconds) — it catches the 100x
+    /// regression.
+    #[test]
+    fn single_edit_on_two_megabytes_stays_local() {
+        let para = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
+                    Sed do eiusmod tempor incididunt ut labore.\n\n";
+        let mut text = String::with_capacity(2_200_000);
+        while text.len() < 2_000_000 {
+            text.push_str(para);
+        }
+        let mut doc = DocHighlight::default();
+        doc.update(&text, 0, false);
+        // Type one character into the middle of the document.
+        let pos = text.len() / 2;
+        let hint = text[..pos].matches('\n').count();
+        text.insert(pos, 'x');
+        let start = Instant::now();
+        doc.update(&text, hint, false);
+        let elapsed = start.elapsed();
+        assert!(
+            elapsed.as_millis() < 250,
+            "incremental highlight took {} ms",
+            elapsed.as_millis()
+        );
     }
 }
