@@ -212,15 +212,12 @@ fn empty_unmodified_tab() -> Option<(AppWindow, Rc<TabState>)> {
     None
 }
 
-/// Load `file` into `tab` (§2.2). On failure the caller shows an error
-/// dialog and resets the tab to a new empty document.
-pub fn load_into_tab(
-    window: &AppWindow,
-    tab: &Rc<TabState>,
-    file: &gio::File,
-) -> Result<(), String> {
+/// Read and decode a file off the main thread (`§2.2` steps 1): bytes,
+/// then encoding detection. The caller applies the result on the main
+/// thread via `AppWindow::apply_loaded`.
+pub fn read_and_decode(file: &gio::File) -> Result<encoding::Decoded, String> {
     let bytes = read_file_bytes(file)?;
-    let decoded = encoding::decode(&bytes).map_err(|e| {
+    encoding::decode(&bytes).map_err(|e| {
         crate::i18n::i18n_f(
             "The file “{}” could not be opened as text:\n{}",
             &[
@@ -231,10 +228,7 @@ pub fn load_into_tab(
                 &e,
             ],
         )
-    })?;
-
-    window.apply_loaded(tab, file, &decoded);
-    Ok(())
+    })
 }
 
 fn read_file_bytes(file: &gio::File) -> Result<Vec<u8>, String> {
@@ -385,7 +379,10 @@ pub fn save_as_dialog(window: &AppWindow, tab: &Rc<TabState>) {
         gio::Cancellable::NONE,
         move |result| match result {
             Ok(file) => {
-                win.save_tab_to(tab, file);
+                let win = win.clone();
+                glib::spawn_future_local(async move {
+                    win.save_tab_to(tab, file).await;
+                });
             }
             Err(_) => {
                 // Cancelled.

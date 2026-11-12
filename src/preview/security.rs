@@ -4,13 +4,18 @@
 /// case-insensitive). Used when the policy is "always ask": files without
 /// HTML are previewed restricted automatically.
 pub fn contains_raw_html(text: &str) -> bool {
-    // Any `<tag`, `</tag`, or comment; autolinks like `<https://…>` do not
-    // match because `:`/`/` interrupt the tag-name pattern.
-    let re = regex::Regex::new(r"(?i)</?[a-zA-Z][a-zA-Z0-9-]*(\s|>|/>|/)").unwrap();
-    // Cheap pre-filter to avoid building/running the regex on plain text.
+    // Cheap pre-filter to avoid running the regex on plain text.
     if !text.contains('<') {
         return false;
     }
+    // Any `<tag`, `</tag`, or comment; autolinks like `<https://…>` do not
+    // match because `:`/`/` interrupt the tag-name pattern. Compiled once:
+    // the scan is O(document) on tab switch and file open.
+    use std::sync::OnceLock;
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    let re = RE.get_or_init(|| {
+        regex::Regex::new(r"(?i)</?[a-zA-Z][a-zA-Z0-9-]*(\s|>|/>|/)").unwrap()
+    });
     re.is_match(text)
 }
 

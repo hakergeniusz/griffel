@@ -9,7 +9,7 @@ use gtk::prelude::*;
 use gtk::gio;
 use gtk::glib;
 use std::cell::Cell;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 
 use crate::settings::{self, settings, ColorScheme, PreviewMode, PreviewSecurity};
@@ -34,6 +34,18 @@ pub struct PreviewPane {
     /// The security level chosen for the current document (Ask until
     /// decided).
     level: Cell<SecurityLevel>,
+    /// The running pandoc child, so a superseded update can kill it instead
+    /// of leaving one process per keystroke burst behind.
+    child_slot: Arc<std::sync::Mutex<Option<std::process::Child>>>,
+    /// Set when a running conversion was cancelled (child killed).
+    cancelled: Arc<AtomicBool>,
+    /// The preview's own scroll fraction, captured from sync traffic so a
+    /// re-render can restore the position (a full `load_html` resets to
+    /// the top).
+    last_scroll: Cell<f64>,
+    /// An update was skipped because the pane was not mapped (windowed
+    /// preview minimized); re-run when it maps again.
+    pub pending: Cell<bool>,
 }
 
 impl Clone for PreviewPane {
@@ -46,6 +58,10 @@ impl Clone for PreviewPane {
             generation: self.generation.clone(),
             syncing: Cell::new(false),
             level: Cell::new(self.level.get()),
+            child_slot: self.child_slot.clone(),
+            cancelled: self.cancelled.clone(),
+            last_scroll: Cell::new(self.last_scroll.get()),
+            pending: Cell::new(self.pending.get()),
         }
     }
 }
@@ -95,9 +111,37 @@ impl PreviewPane {
             generation: Arc::new(AtomicU64::new(0)),
             syncing: Cell::new(false),
             level: Cell::new(SecurityLevel::Ask),
+            child_slot: Arc::new(std::sync::Mutex::new(None)),
+            cancelled: Arc::new(AtomicBool::new(false)),
+            last_scroll: Cell::new(0.0),
+            pending: Cell::new(false),
         };
         pane.setup_webview_policy();
+        pane.setup_scroll_restore();
         pane
+    }
+
+    /// Restore the previous scroll fraction after each page load — a full
+    /// `load_html` navigation resets the position to the top, which on a
+    /// multi-megabyte document means the preview jumps away on every
+    /// debounced update.
+    fn setup_scroll_restore(&self) {
+        let pane = self.clone();
+        self.webview.connect_load_changed(move |_wv, event| {
+            if event != webkit6::LoadEvent::Finished {
+                return;
+            }
+            let f = pane.last_scroll.get();
+            if f <= 0.0 {
+                return;
+            }
+            let js = format!(
+                "window.scrollTo(0, ({f}) * (document.documentElement.scrollHeight - window.innerHeight)); true;",
+                f = f
+            );
+            pane.webview
+                .evaluate_javascript(&js, None::<&str>, None::<&str>, None::<&gio::Cancellable>, |_| {});
+        });
     }
 
     fn setup_webview_policy(&self) {
@@ -179,8 +223,15 @@ impl PreviewPane {
         self.level.get()
     }
 
-    /// Trigger a (debounced by caller) re-render of `text`.
-    pub fn update(&self, text: &str, doc_dir: Option<std::path::PathBuf>) {
+    /// Trigger a (debounced by caller) re-render of `text`. Takes ownership
+    /// of the text (the caller's extraction is the only full copy).
+    pub fn update(&self, text: String, doc_dir: Option<std::path::PathBuf>) {
+        // An unmapped pane (windowed preview minimized) would still run a
+        // full conversion nobody can see; defer it.
+        if !self.root.is_mapped() {
+            self.pending.set(true);
+            return;
+        }
         let flavor = settings().input_format();
         let dark_scheme = match settings().color_scheme() {
             ColorScheme::Dark => true,
@@ -194,6 +245,11 @@ impl PreviewPane {
             return;
         }
 
+        // Cancel the previous conversion: with multi-megabyte documents a
+        // pandoc run takes seconds, and without cancellation every burst
+        // leaves another process crunching the whole file behind it.
+        self.cancel_running();
+
         // Show the spinner only while waiting for the FIRST render or
         // when the level was just decided; later updates keep the old
         // frame visible (§3).
@@ -203,14 +259,24 @@ impl PreviewPane {
             self.root.set_visible_child_name("spinner");
         }
 
-        let text = text.to_owned();
         let doc_dir_for_cb = doc_dir.clone();
         let pane = self.clone();
+        let child_slot = self.child_slot.clone();
+        let cancelled = self.cancelled.clone();
         glib::spawn_future_local(async move {
             let handle = gio::spawn_blocking(move || {
-                convert::to_html_fragment(&text, flavor, restricted, doc_dir.as_deref())
+                convert::to_html_fragment_cancellable(
+                    &text,
+                    flavor,
+                    restricted,
+                    doc_dir.as_deref(),
+                    &child_slot,
+                    &cancelled,
+                )
             });
-            let result = handle.await.unwrap_or_else(|_| Err("conversion cancelled".to_owned()));
+            let result = handle
+                .await
+                .unwrap_or_else(|_| Err("conversion cancelled".to_owned()));
             // Drop stale results.
             if pane.generation.load(Ordering::SeqCst) != generation_id {
                 return;
@@ -233,6 +299,23 @@ impl PreviewPane {
                 }
             }
         });
+    }
+
+    /// Kill a running converter process (the slot holds it until the
+    /// polling loop reaps it).
+    fn cancel_running(&self) {
+        self.cancelled.store(true, Ordering::SeqCst);
+        if let Ok(mut slot) = self.child_slot.lock() {
+            if let Some(child) = slot.as_mut() {
+                let _ = child.kill();
+            }
+        }
+        self.cancelled.store(false, Ordering::SeqCst);
+    }
+
+    /// Re-run a deferred update (the pane mapped again).
+    pub fn take_pending(&self) -> bool {
+        self.pending.replace(false)
     }
 
     fn show_warning_page(&self) {
@@ -269,6 +352,9 @@ impl PreviewPane {
 
     /// Editor → preview scroll sync (proportional).
     pub fn sync_from_editor(&self, fraction: f64) {
+        // Remember the preview's position even when syncing is disabled —
+        // a re-render restores it (§3: no jump to the top).
+        self.last_scroll.set(fraction.clamp(0.0, 1.0));
         if self.syncing.get() {
             return;
         }
@@ -290,6 +376,7 @@ impl PreviewPane {
 
     /// Preview → editor sync hook: called from the injected JS handler.
     pub fn sync_from_preview(&self, fraction: f64, apply: impl Fn(f64)) {
+        self.last_scroll.set(fraction.clamp(0.0, 1.0));
         if self.syncing.get() {
             return;
         }

@@ -62,22 +62,30 @@ pub fn schedule(window: &AppWindow, tab: &Rc<TabState>) {
             *timer_tab.snapshot_file.borrow_mut() = Some(p.clone());
             p
         };
-        if fs::write(&path, text.as_bytes()).is_ok() {
-            let orig = timer_tab
-                .doc()
-                .file
-                .clone()
-                .and_then(|f| f.path().map(|p| p.display().to_string()));
-            let comp = companion(&path);
-            match orig {
-                Some(s) => {
-                    let _ = fs::write(&comp, s);
+        // Write off the main thread: a multi-megabyte snapshot must not
+        // block typing (01-editing.md §9). Best-effort, as before.
+        let orig = timer_tab
+            .doc()
+            .file
+            .clone()
+            .and_then(|f| f.path().map(|p| p.display().to_string()));
+        let bytes = text.into_bytes();
+        glib::spawn_future_local(async move {
+            let _ = gio::spawn_blocking(move || {
+                if fs::write(&path, &bytes).is_ok() {
+                    let comp = companion(&path);
+                    match orig {
+                        Some(s) => {
+                            let _ = fs::write(&comp, s);
+                        }
+                        None => {
+                            let _ = fs::remove_file(&comp);
+                        }
+                    }
                 }
-                None => {
-                    let _ = fs::remove_file(&comp);
-                }
-            }
-        }
+            })
+            .await;
+        });
         glib::ControlFlow::Continue
     });
     *tab.snapshot_timer.borrow_mut() = Some(id);

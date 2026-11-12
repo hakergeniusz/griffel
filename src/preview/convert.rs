@@ -36,6 +36,23 @@ pub fn to_html_fragment(
     restricted: bool,
     doc_dir: Option<&Path>,
 ) -> Result<String, String> {
+    let slot = std::sync::Arc::new(std::sync::Mutex::new(None));
+    let cancelled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    to_html_fragment_cancellable(text, flavor, restricted, doc_dir, &slot, &cancelled)
+}
+
+/// `to_html_fragment` with cancellation support: `slot` receives the child
+/// process so a superseded preview update can kill it, `cancelled` is set
+/// while killing. Without this, typing into a multi-megabyte document
+/// leaves one pandoc process per burst running to completion.
+pub fn to_html_fragment_cancellable(
+    text: &str,
+    flavor: InputFormat,
+    restricted: bool,
+    doc_dir: Option<&Path>,
+    slot: &std::sync::Arc<std::sync::Mutex<Option<std::process::Child>>>,
+    cancelled: &std::sync::Arc<std::sync::atomic::AtomicBool>,
+) -> Result<String, String> {
     let mut cmd = converter::command("pandoc", doc_dir);
     cmd.arg("--from")
         .arg(flavor.pandoc_format(restricted))
@@ -43,7 +60,7 @@ pub fn to_html_fragment(
         .arg("html5")
         .arg("--mathml")
         .arg("--wrap=none");
-    run_converter(&mut cmd, text)
+    run_converter(&mut cmd, text, slot, cancelled)
 }
 
 /// Standalone HTML document with the given stylesheet embedded (used by
@@ -74,9 +91,21 @@ pub fn preview_document(fragment: &str, base_css: &str, scheme_css: &str, dark: 
     )
 }
 
-fn run_converter(cmd: &mut Command, input: &str) -> Result<String, String> {
-    use std::io::Write;
+/// A converter may not run longer than this before it is killed — a hung
+/// converter otherwise leaks its thread and process forever. Generous:
+/// a multi-megabyte document converts in a few seconds.
+const CONVERT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+
+fn run_converter(
+    cmd: &mut Command,
+    input: &str,
+    slot: &std::sync::Arc<std::sync::Mutex<Option<std::process::Child>>>,
+    cancelled: &std::sync::Arc<std::sync::atomic::AtomicBool>,
+) -> Result<String, String> {
+    use std::io::{Read, Write};
     use std::process::Stdio;
+    use std::sync::atomic::Ordering;
+    use std::time::{Duration, Instant};
 
     let mut child = cmd
         .stdin(Stdio::piped())
@@ -94,22 +123,101 @@ fn run_converter(cmd: &mut Command, input: &str) -> Result<String, String> {
         let mut stdin = child.stdin.take().expect("piped stdin");
         let _ = stdin.write_all(input.as_bytes());
     }
-    let output = child
-        .wait_with_output()
-        .map_err(|e| format!("converter failed: {e}"))?;
-    if !output.status.success() {
+    let mut stdout = child.stdout.take().expect("piped stdout");
+    let mut stderr = child.stderr.take().expect("piped stderr");
+    // Reader threads: a large document's output must drain while we poll,
+    // or the converter deadlocks on a full pipe.
+    let out_reader = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = stdout.read_to_end(&mut buf);
+        buf
+    });
+    let err_reader = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = stderr.read_to_end(&mut buf);
+        buf
+    });
+
+    // Publish the child for cancellation, then poll.
+    *slot.lock().unwrap_or_else(|e| e.into_inner()) = Some(child);
+    let deadline = Instant::now() + CONVERT_TIMEOUT;
+    let status = loop {
+        {
+            let mut guard = slot.lock().unwrap_or_else(|e| e.into_inner());
+            if let Some(c) = guard.as_mut() {
+                if let Ok(Some(st)) = c.try_wait() {
+                    guard.take();
+                    break Ok(st);
+                }
+            } else {
+                // Someone else reaped it (should not happen); treat as loss.
+                break Err("converter lost".to_owned());
+            }
+        }
+        if cancelled.load(Ordering::SeqCst) {
+            break Err("conversion cancelled".to_owned());
+        }
+        if Instant::now() > deadline {
+            if let Ok(mut guard) = slot.lock() {
+                if let Some(c) = guard.as_mut() {
+                    let _ = c.kill();
+                }
+            }
+            // Give the kill a moment to take effect.
+            let hard_deadline = Instant::now() + Duration::from_secs(2);
+            loop {
+                let mut guard = slot.lock().unwrap_or_else(|e| e.into_inner());
+                match guard.as_mut() {
+                    Some(c) => {
+                        if c.try_wait().map(|s| s.is_some()).unwrap_or(false) {
+                            break;
+                        }
+                    }
+                    None => break,
+                }
+                if Instant::now() > hard_deadline {
+                    if let Some(c) = guard.as_mut() {
+                        let _ = c.kill();
+                    }
+                    break;
+                }
+                drop(guard);
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            break Err("conversion timed out".to_owned());
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    };
+    // The slot is ours again; nothing may kill a process that is gone.
+    *slot.lock().unwrap_or_else(|e| e.into_inner()) = None;
+
+    let status = match status {
+        Ok(st) => st,
+        Err(e) => {
+            // Wait for the readers so the threads never leak.
+            let _ = out_reader.join();
+            let _ = err_reader.join();
+            return Err(e);
+        }
+    };
+    let output_stdout = out_reader.join().unwrap_or_default();
+    let output_stderr = err_reader.join().unwrap_or_default();
+    if !status.success() {
+        if cancelled.load(Ordering::SeqCst) {
+            return Err("conversion cancelled".to_owned());
+        }
         // Inside Flatpak a missing host converter is reported by the `sh`
         // wrapper as exit 127, not as a spawn failure.
-        if converter::in_flatpak() && output.status.code() == Some(127) {
+        if converter::in_flatpak() && status.code() == Some(127) {
             return Err(converter::missing_converter_message());
         }
-        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stderr = String::from_utf8_lossy(&output_stderr);
         return Err(format!(
             "conversion failed: {}",
             stderr.lines().next().unwrap_or("unknown error")
         ));
     }
-    String::from_utf8(output.stdout).map_err(|_| "converter produced invalid UTF-8".to_owned())
+    String::from_utf8(output_stdout).map_err(|_| "converter produced invalid UTF-8".to_owned())
 }
 
 #[cfg(test)]
@@ -134,8 +242,48 @@ mod tests {
         // A nonexistent converter binary produces a clear error.
         let mut cmd = Command::new("definitely-not-a-real-converter-xyz");
         cmd.arg("--version");
-        let err = run_converter(&mut cmd, "").unwrap_err();
+        let slot = std::sync::Arc::new(std::sync::Mutex::new(None));
+        let cancelled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let err = run_converter(&mut cmd, "", &slot, &cancelled).unwrap_err();
         assert!(err.contains("cannot start") || err.contains("not installed"), "{err}");
+    }
+
+    #[test]
+    fn cancelled_run_is_killed() {
+        // A long-running converter is killed by cancellation instead of
+        // leaking the process and its threads.
+        let slot = std::sync::Arc::new(std::sync::Mutex::new(None));
+        let cancelled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let slot2 = slot.clone();
+        let cancelled2 = cancelled.clone();
+        let handle = std::thread::spawn(move || {
+            run_converter(
+                &mut {
+                    let mut c = Command::new("sleep");
+                    c.arg("60");
+                    c
+                },
+                "",
+                &slot2,
+                &cancelled2,
+            )
+        });
+        // Wait for the child to be registered, then cancel it.
+        for _ in 0..100 {
+            if slot.lock().unwrap().is_some() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        cancelled.store(true, std::sync::atomic::Ordering::SeqCst);
+        if let Ok(mut guard) = slot.lock() {
+            if let Some(child) = guard.as_mut() {
+                let _ = child.kill();
+            }
+        }
+        let result = handle.join().expect("runner thread");
+        assert!(result.is_err(), "a cancelled conversion must fail");
+        assert!(slot.lock().unwrap().is_none(), "the slot must be cleared");
     }
 
     #[test]

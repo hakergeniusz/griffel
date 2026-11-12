@@ -578,11 +578,25 @@ impl AppWindow {
                 }
             }
             // Persist window geometry (`05-file-formats-and-persistence.md`).
+            // GSettings writes go through dbus; only write when a value
+            // actually changed so an idle window costs no round-trips.
             if win.root.width() > 0 {
-                settings().set_integer("window-width", win.root.width());
-                settings().set_integer("window-height", win.root.height());
-                settings().set_boolean("window-maximized", win.root.is_maximized());
-                settings().set_boolean("window-fullscreen", win.root.is_fullscreen());
+                let w = win.root.width();
+                let h = win.root.height();
+                let maxed = win.root.is_maximized();
+                let full = win.root.is_fullscreen();
+                if settings().integer("window-width") != w {
+                    settings().set_integer("window-width", w);
+                }
+                if settings().integer("window-height") != h {
+                    settings().set_integer("window-height", h);
+                }
+                if settings().boolean("window-maximized") != maxed {
+                    settings().set_boolean("window-maximized", maxed);
+                }
+                if settings().boolean("window-fullscreen") != full {
+                    settings().set_boolean("window-fullscreen", full);
+                }
             }
             glib::ControlFlow::Continue
         });
@@ -976,6 +990,17 @@ impl AppWindow {
             });
         }
 
+        // The windowed preview mapping again (un-minimized) runs a preview
+        // update that was deferred while it was invisible.
+        {
+            let win = self.clone();
+            self.preview.root.connect_map(move |_| {
+                if win.preview.take_pending() {
+                    win.schedule_preview();
+                }
+            });
+        }
+
         // Warning page choice wiring.
         {
             let win = self.clone();
@@ -1233,7 +1258,11 @@ impl AppWindow {
             return;
         }
         if let Some(file) = tab.doc().file.clone() {
-            self.save_tab_to(tab.clone(), file);
+            let win = self.clone();
+            let tab = tab.clone();
+            glib::spawn_future_local(async move {
+                win.save_tab_to(tab, file).await;
+            });
         }
     }
 
@@ -1395,13 +1424,31 @@ impl AppWindow {
         self.load_file_into(&tab, file);
     }
 
-    /// Load a file into `tab` (used by routing and reload). On failure an
-    /// error dialog is shown and the tab resets to a new empty document.
+    /// Load a file into `tab` (used by routing and reload). The read and
+    /// decode run off the main thread (multi-megabyte files must not block
+    /// typing); on failure an error dialog is shown and the tab resets to a
+    /// new empty document.
     pub fn load_file_into(&self, tab: &Rc<TabState>, file: &gio::File) {
-        if let Err(e) = files::load_into_tab(self, tab, file) {
-            self.show_error(&i18n("Cannot open file"), &e);
-            self.reset_to_new_document(tab);
-        }
+        let win = self.clone();
+        let tab = tab.clone();
+        let file = file.clone();
+        glib::spawn_future_local(async move {
+            let f = file.clone();
+            match gio::spawn_blocking(move || files::read_and_decode(&f)).await {
+                Ok(Ok(decoded)) => win.apply_loaded(&tab, &file, &decoded),
+                Ok(Err(e)) => {
+                    win.show_error(&i18n("Cannot open file"), &e);
+                    win.reset_to_new_document(&tab);
+                }
+                Err(_) => {
+                    win.show_error(
+                        &i18n("Cannot open file"),
+                        &i18n("cannot read file"),
+                    );
+                    win.reset_to_new_document(&tab);
+                }
+            }
+        });
     }
 
     /// Reset the tab to a new empty, clean document (load-failure path).
@@ -1429,7 +1476,12 @@ impl AppWindow {
         let tab = self.active_tab();
         let file = tab.doc().file.clone();
         match file {
-            Some(file) => self.save_tab_to(tab, file),
+            Some(file) => {
+                let win = self.clone();
+                glib::spawn_future_local(async move {
+                    win.save_tab_to(tab, file).await;
+                });
+            }
             None => files::save_as_dialog(self, &tab),
         }
     }
@@ -1438,19 +1490,32 @@ impl AppWindow {
     /// register recents, drop the recovery snapshot. Saves the active tab.
     pub fn save_to(&self, file: gio::File) {
         let tab = self.active_tab();
-        self.save_tab_to(tab, file);
+        let win = self.clone();
+        glib::spawn_future_local(async move {
+            win.save_tab_to(tab, file).await;
+        });
     }
 
     /// Write `tab`'s document to `file`, associate it as the backing file,
     /// clear dirty, register recents, drop the recovery snapshot.
-    pub(crate) fn save_tab_to(&self, tab: Rc<TabState>, file: gio::File) {
+    ///
+    /// Encoding and the file write run off the main thread (a multi-megabyte
+    /// save must not block typing, `01-editing.md` §9). Edits made while
+    /// the write is in flight keep the document dirty — the next autosave
+    /// persists them.
+    pub async fn save_tab_to(&self, tab: Rc<TabState>, file: gio::File) {
         // A save starting reveals the auto-hidden bars (03/13 §2).
         self.reveal_bars();
         files::monitor::pause_tab(&tab);
         self.save_progress.set_reveal_child(true);
         let text = tab.editor.full_text();
-        let encoding = tab.doc().encoding.to_owned();
-        let result = files::write_to(&file, &text, &encoding);
+        let edits_at_start = tab.editor.edit_count();
+        let encoding_label = tab.doc().encoding.to_owned();
+        let f = file.clone();
+        let result =
+            gio::spawn_blocking(move || files::write_to(&f, &text, &encoding_label))
+                .await
+                .unwrap_or_else(|_| Err("cannot save file".to_owned()));
         self.save_progress.set_reveal_child(false);
 
         match result {
@@ -1459,7 +1524,9 @@ impl AppWindow {
                     let mut doc = tab.doc_mut();
                     doc.file = Some(file.clone());
                     doc.encoding = Box::leak(effective.into_boxed_str());
-                    doc.dirty = false;
+                    // The written text is what was captured at save start;
+                    // edits during the write stay dirty.
+                    doc.dirty = tab.editor.edit_count() != edits_at_start;
                 }
                 *tab.editor.flags.doc_dir.borrow_mut() = file.parent().and_then(|p| p.path());
                 // A session-chosen spell language persists on first save.
@@ -1470,8 +1537,10 @@ impl AppWindow {
                 self.update_title();
                 self.update_tab_title(&tab);
                 recents::add(&file);
-                files::delete_snapshot_tab(self, &tab);
-                self.cancel_snapshot_timer(&tab);
+                if !tab.doc().dirty {
+                    files::delete_snapshot_tab(self, &tab);
+                    self.cancel_snapshot_timer(&tab);
+                }
                 // Re-arm the file monitor after a grace delay so our own
                 // write does not trigger the external-change banner.
                 {
@@ -1528,7 +1597,7 @@ impl AppWindow {
             "save" => {
                 let file = tab.doc().file.clone();
                 match file {
-                    Some(file) => self.save_tab_to(tab.clone(), file),
+                    Some(file) => self.save_tab_to(tab.clone(), file).await,
                     None => files::save_as_dialog(self, &tab),
                 }
                 // A failed save aborts the close (dirty stays set).
@@ -2032,7 +2101,7 @@ impl AppWindow {
             if win.state.preview_generation.get() == generation {
                 let text = win.editor().full_text();
                 let doc_dir = win.editor().flags.doc_dir.borrow().clone();
-                win.preview.update(&text, doc_dir);
+                win.preview.update(text, doc_dir);
             }
             glib::ControlFlow::Break
         });
