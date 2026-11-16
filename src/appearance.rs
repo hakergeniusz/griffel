@@ -26,8 +26,11 @@ pub struct EditorPalette {
     pub code_number: String,
     pub code_comment: String,
     pub code_keyword: String,
+    /// Background of search-match highlighting (07 §1: a yellow background
+    /// over the normal highlighting, palette-adapted per scheme).
+    pub search_match: String,
     /// Identifier of the generated GtkSourceView style scheme for this
-    /// palette (Code Mode gutter and current-line highlight).
+    /// palette (Code Mode gutter, current-line highlight, search-match).
     pub scheme_key: String,
 }
 
@@ -46,6 +49,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#ffbe6f".into(),
             code_comment: "#8a909b".into(),
             code_keyword: "#dc8add".into(),
+            search_match: "#5f5420".into(),
             scheme_key: "system-dark".into(),
         },
         (ColorScheme::System, _) | (ColorScheme::Light, _) => EditorPalette {
@@ -61,6 +65,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#c64600".into(),
             code_comment: "#8a919c".into(),
             code_keyword: "#613583".into(),
+            search_match: "#ffeeaa".into(),
             scheme_key: if scheme == ColorScheme::System {
                 "system-light".into()
             } else {
@@ -80,6 +85,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#a84a10".into(),
             code_comment: "#a2916f".into(),
             code_keyword: "#7d4a8a".into(),
+            search_match: "#e9cf8f".into(),
             scheme_key: "sepia".into(),
         },
         (ColorScheme::Dark, _) => EditorPalette {
@@ -95,6 +101,7 @@ fn palettes(scheme: ColorScheme, system_dark: bool) -> EditorPalette {
             code_number: "#ffbe6f".into(),
             code_comment: "#8a909b".into(),
             code_keyword: "#dc8add".into(),
+            search_match: "#5f5420".into(),
             scheme_key: "dark".into(),
         },
     }
@@ -129,12 +136,14 @@ fn scheme_xml(p: &EditorPalette) -> String {
   <description>Generated from the Griffel editor palette.</description>
   <style name="current-line" background="{current_line}"/>
   <style name="line-numbers" foreground="{gutter_fg}" background="{paper}"/>
+  <style name="search-match" background="{search_match}"/>
 </style-scheme>
 "#,
         id = p.scheme_key,
         current_line = p.code_background,
         gutter_fg = p.dimmed,
         paper = p.background,
+        search_match = p.search_match,
     )
 }
 

@@ -515,7 +515,8 @@ impl AppWindow {
             let find_btn = win.find_button.clone();
             find_btn.connect_toggled(move |t| {
                 if t.is_active() {
-                    win2.search.open(false, &win2.editor().buffer);
+                    let editor = win2.editor();
+                    win2.search.open(false, &editor.view, &editor.buffer);
                 } else {
                     win2.search.close();
                 }
@@ -747,8 +748,14 @@ impl AppWindow {
             }
         });
         bind!("preview-close", AppWindow::preview_off);
-        bind!("find", |w: &AppWindow| w.search.open(false, &w.editor().buffer));
-        bind!("find-replace", |w: &AppWindow| w.search.open(true, &w.editor().buffer));
+        bind!("find", |w: &AppWindow| {
+            let editor = w.editor();
+            w.search.open(false, &editor.view, &editor.buffer)
+        });
+        bind!("find-replace", |w: &AppWindow| {
+            let editor = w.editor();
+            w.search.open(true, &editor.view, &editor.buffer)
+        });
 
         // Default statistic selection (persisted, F2).
         let statistic = gio::SimpleAction::new_stateful(
@@ -1097,7 +1104,7 @@ impl AppWindow {
         self.update_stats_now();
         let tab = self.active_tab();
         // The search bar's matches always target the visible document.
-        self.search.retarget(&tab.editor.buffer);
+        self.search.retarget(&tab.editor.view, &tab.editor.buffer);
         if self.state.preview_active.get() {
             if self.active_code_file() {
                 // Markdown preview does not follow onto a code file.
@@ -2348,7 +2355,6 @@ impl AppWindow {
         let hint = editor.take_stats_hint();
         let doc = editor.stats_doc();
         let generation = editor.bump_stats_generation();
-        eprintln!("STATS-DBG: schedule hint={hint:?} gen={generation} cached_words={}", doc.totals().words);
         let full = hint.is_some().then(|| editor.full_text());
         let selection_text: Option<String> = editor
             .buffer
