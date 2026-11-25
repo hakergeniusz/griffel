@@ -1,3 +1,15 @@
+griffel (51.0.0~rc2-1) unstable; urgency=medium
+
+  * Second release candidate of the 51.0.0 series.
+  * Stop rewriting unchanged autosave snapshots: an idle dirty document
+    no longer causes continuous SSD writes.
+  * Handle multi-megabyte documents incrementally with a shared text
+    snapshot for highlighting, statistics, spell checking and preview.
+  * Add a Tokens statistic and allow reviewing autosave recoveries in
+    Preferences instead of new windows.
+
+ -- hakergeniusz <hakergeniusz@users.noreply.github.com>  Wed, 25 Nov 2026 12:00:00 +0000
+
 griffel (51.0.0~rc1-1) unstable; urgency=medium
 
   * Release candidate of the 51.0.0 series.

@@ -299,22 +299,30 @@ impl Editor {
     ///
     /// The sentence is found by scanning outward from the cursor over a
     /// bounded window (`01-editing.md` §9: no per-keystroke whole-document
-    /// work); only an unbounded sentence inside a giant windowless document
-    /// falls back to the full scan.
+    /// work). If a sentence runs past the window, the window grows
+    /// geometrically up to a cap. Documents smaller than the cap are always
+    /// exact; for an even larger windowless sentence we dim to the window
+    /// edges instead of copying the whole multi-megabyte buffer on every
+    /// keystroke.
     pub fn focus_update(&self) {
         if !self.focus_active.get() {
             return;
         }
         const WINDOW: i32 = 64 * 1024;
+        // Upper bound on the localized scan. At this size a scan costs a
+        // few milliseconds; growing without bound reintroduced exactly the
+        // per-keystroke full-document copy this design avoids.
+        const MAX_WINDOW: i32 = 2 * 1024 * 1024;
         let cursor_i = self
             .buffer
             .iter_at_mark(&self.buffer.get_insert())
             .offset()
             .max(0);
         let total = self.buffer.char_count();
-        let w0 = (cursor_i - WINDOW).max(0);
-        let w1 = (cursor_i + WINDOW).min(total);
-        let (start, end) = {
+        let mut half = WINDOW;
+        let (start, end) = loop {
+            let w0 = (cursor_i - half).max(0);
+            let w1 = (cursor_i + half).min(total);
             let window: Vec<char> = self
                 .buffer
                 .text(
@@ -330,10 +338,18 @@ impl Editor {
                 w0 == 0,
                 w1 == total,
             ) {
-                SentenceResult::Bounds(s, e) => ((w0 as usize) + s, (w0 as usize) + e),
+                SentenceResult::Bounds(s, e) => break ((w0 as usize) + s, (w0 as usize) + e),
                 SentenceResult::NeedMore => {
-                    let text = self.full_text();
-                    sentence_bounds(&text, cursor_i as usize)
+                    if w0 == 0 && w1 == total {
+                        // The whole document is in the window: the pure
+                        // scanner always resolves it, so this is defensive.
+                        break (0, total as usize);
+                    }
+                    if half >= MAX_WINDOW {
+                        // Cap the work: dim only outside the window.
+                        break (w0 as usize, w1 as usize);
+                    }
+                    half = (half.saturating_mul(4)).min(MAX_WINDOW).max(half + 1);
                 }
             }
         };

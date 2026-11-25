@@ -31,6 +31,10 @@ pub struct TabState {
     pub monitor: RefCell<Option<gio::FileMonitor>>,
     pub snapshot_timer: RefCell<Option<glib::SourceId>>,
     pub snapshot_file: RefCell<Option<std::path::PathBuf>>,
+    /// `edit_count` at the last successful snapshot write. The periodic
+    /// timer skips the write entirely when no edit happened in between, so
+    /// an idle dirty document costs no SSD writes.
+    pub last_snapshot_edit: Cell<u64>,
     /// Debounce timer for the autosave preference.
     pub autosave_timer: RefCell<Option<glib::SourceId>>,
 }
@@ -46,6 +50,7 @@ impl TabState {
             monitor: RefCell::new(None),
             snapshot_timer: RefCell::new(None),
             snapshot_file: RefCell::new(None),
+            last_snapshot_edit: Cell::new(0),
             autosave_timer: RefCell::new(None),
         }
     }
@@ -780,7 +785,7 @@ impl AppWindow {
         actions.add_action(&statistic);
         {
             let menu = gio::Menu::new();
-            for st in [crate::markdown::stats::Statistic::Characters, crate::markdown::stats::Statistic::Words, crate::markdown::stats::Statistic::Sentences, crate::markdown::stats::Statistic::Paragraphs, crate::markdown::stats::Statistic::ReadTime] {
+            for st in [crate::markdown::stats::Statistic::Characters, crate::markdown::stats::Statistic::Words, crate::markdown::stats::Statistic::Tokens, crate::markdown::stats::Statistic::Sentences, crate::markdown::stats::Statistic::Paragraphs, crate::markdown::stats::Statistic::ReadTime] {
                 menu.append(
                     Some(&st.display_name()),
                     Some(&format!("win.statistic::{}", st.as_name())),
@@ -2106,7 +2111,7 @@ impl AppWindow {
         let win = self.clone();
         glib::timeout_add_local(std::time::Duration::from_millis(300), move || {
             if win.state.preview_generation.get() == generation {
-                let text = win.editor().full_text();
+                let text = win.editor().full_text_shared();
                 let doc_dir = win.editor().flags.doc_dir.borrow().clone();
                 win.preview.update(text, doc_dir);
             }
@@ -2355,7 +2360,7 @@ impl AppWindow {
         let hint = editor.take_stats_hint();
         let doc = editor.stats_doc();
         let generation = editor.bump_stats_generation();
-        let full = hint.is_some().then(|| editor.full_text());
+        let full = hint.is_some().then(|| editor.full_text_shared());
         let selection_text: Option<String> = editor
             .buffer
             .selection_bounds()

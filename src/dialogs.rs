@@ -2,9 +2,78 @@
 
 use adw::prelude::*;
 use gtk::gio;
+use gtk::prelude::*;
 
 use crate::i18n::i18n;
 use crate::settings::{settings, InputFormat, PreviewSecurity};
+
+/// Rebuild the "Recovered Files" group from the snapshots still on disk.
+fn refresh_recoveries(
+    group: &adw::PreferencesGroup,
+    app: &gtk::Application,
+    dialog: &adw::PreferencesDialog,
+) {
+    while let Some(child) = group.first_child() {
+        group.remove(&child);
+    }
+    let recoveries = crate::files::list_recoveries();
+    if recoveries.is_empty() {
+        let row = adw::ActionRow::new();
+        row.set_title(&i18n("No recovered files"));
+        group.add(&row);
+        return;
+    }
+
+    for recovery in recoveries {
+        let title = recovery
+            .original
+            .as_deref()
+            .and_then(|p| p.file_name())
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_else(|| i18n("Unsaved document"));
+        let subtitle = if recovery.preview.is_empty() {
+            recovery.path.to_string_lossy().into_owned()
+        } else {
+            recovery.preview.clone()
+        };
+        let row = adw::ActionRow::new();
+        row.set_title(&title);
+        row.set_subtitle(&subtitle);
+
+        let open = gtk::Button::from_icon_name("document-open-symbolic");
+        open.set_tooltip_text(Some(&i18n("Open recovered document")));
+        open.set_valign(gtk::Align::Center);
+        let discard = gtk::Button::from_icon_name("user-trash-symbolic");
+        discard.set_tooltip_text(Some(&i18n("Discard snapshot")));
+        discard.set_valign(gtk::Align::Center);
+        row.add_suffix(&open);
+        row.add_suffix(&discard);
+
+        {
+            let group = group.clone();
+            let app = app.clone();
+            let dialog = dialog.clone();
+            let path = recovery.path.clone();
+            open.connect_clicked(move |_| {
+                crate::files::recover_one(&app, &path);
+                refresh_recoveries(&group, &app, &dialog);
+                // Close Preferences so the recovered document is visible.
+                dialog.close();
+            });
+        }
+        {
+            let group = group.clone();
+            let app = app.clone();
+            let dialog = dialog.clone();
+            let path = recovery.path.clone();
+            discard.connect_clicked(move |_| {
+                crate::files::discard_snapshot(&path);
+                refresh_recoveries(&group, &app, &dialog);
+            });
+        }
+        group.add(&row);
+    }
+}
 
 pub fn show_preferences(parent: &adw::ApplicationWindow) {
     let dialog = adw::PreferencesDialog::new();
@@ -45,6 +114,38 @@ pub fn show_preferences(parent: &adw::ApplicationWindow) {
     autosave_row.set_subtitle(&i18n("Save the document five seconds after you stop typing"));
     let _ = settings().inner().bind("autosave", &autosave_row, "active").build();
     group.add(&autosave_row);
+
+    // 4b. Review autosave recoveries here instead of in new windows.
+    let recovery_row = adw::SwitchRow::new();
+    recovery_row.set_title(&i18n("Review recoveries in Preferences"));
+    recovery_row.set_subtitle(&i18n(
+        "List autosave recoveries here instead of opening them in new windows",
+    ));
+    let _ = settings()
+        .inner()
+        .bind("recovery-in-preferences", &recovery_row, "active")
+        .build();
+    group.add(&recovery_row);
+
+    let recoveries_group = adw::PreferencesGroup::new();
+    recoveries_group.set_title(&i18n("Recovered Files"));
+    recoveries_group.set_description(Some(&i18n("Autosave snapshots waiting to be reviewed")));
+    let _ = settings()
+        .inner()
+        .bind("recovery-in-preferences", &recoveries_group, "visible")
+        .build();
+    page.add(&recoveries_group);
+
+    if let Some(app) = parent.application() {
+        refresh_recoveries(&recoveries_group, &app, &dialog);
+        let group = recoveries_group.clone();
+        let dialog2 = dialog.clone();
+        recovery_row.connect_notify_local(Some("active"), move |row, _| {
+            if row.is_active() {
+                refresh_recoveries(&group, &app, &dialog2);
+            }
+        });
+    }
 
     let format_group = adw::PreferencesGroup::new();
     format_group.set_title(&i18n("Formatting &amp; Preview"));

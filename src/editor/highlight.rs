@@ -650,7 +650,7 @@ impl Highlighter {
     pub fn schedule(
         &self,
         buffer: &sourceview5::Buffer,
-        text: String,
+        text: Arc<String>,
         cache: Arc<DocHighlight>,
         dirty_from: usize,
         code_mode: bool,

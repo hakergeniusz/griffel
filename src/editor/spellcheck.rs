@@ -231,15 +231,18 @@ fn misspelled_cached(
     lang: Option<&str>,
     word: &str,
 ) -> bool {
-    let key: Box<str> = word.into();
+    // `HashMap<Box<str>, _>` borrows as `str`, so a cache hit needs no
+    // allocation at all (the old code boxed every word before the lookup).
+    // On a miss, keep the checker call outside the lock so different words
+    // can still be checked concurrently.
     if let Ok(map) = cache.lock() {
-        if let Some(&v) = map.get(&key) {
+        if let Some(&v) = map.get(word) {
             return v;
         }
     }
     let v = checker.is_misspelled(lang, word);
     if let Ok(mut map) = cache.lock() {
-        map.insert(key, v);
+        map.insert(word.into(), v);
     }
     v
 }
@@ -252,7 +255,7 @@ impl SpellRunner {
     pub fn schedule(
         &self,
         buffer: &sourceview5::Buffer,
-        text: String,
+        text: Arc<String>,
         cache: Arc<SpellDoc>,
         dirty_from: usize,
         lang: Option<String>,

@@ -112,6 +112,13 @@ Unsaved work is periodically snapshotted to disk:
   announcing that the file was recovered from an autosave. The document is
   marked dirty, and if the snapshot recorded an original path, the backing
   file is re-associated (saving writes to the original file).
+- **Recovery review in Preferences**: when the "Review recoveries in
+  Preferences" setting is enabled, startup does not load any snapshot into a
+  window. The Preferences dialog instead lists the pending snapshots (their
+  original filename and first line); each entry can be **Open**ed (which
+  follows the same recovery flow above) or **Discard**ed (which deletes the
+  snapshot and its companion). The list is refreshed whenever Preferences
+  opens and after each action.
 - **Deletion**: the snapshot is deleted when the document is saved
   successfully, and when the window is closed or destroyed (including after
   the user confirms discarding unsaved changes in the close dialog). A

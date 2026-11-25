@@ -223,9 +223,14 @@ impl PreviewPane {
         self.level.get()
     }
 
-    /// Trigger a (debounced by caller) re-render of `text`. Takes ownership
-    /// of the text (the caller's extraction is the only full copy).
-    pub fn update(&self, text: String, doc_dir: Option<std::path::PathBuf>) {
+    /// Trigger a (debounced by caller) re-render of `text`. Takes a shared
+    /// snapshot so several scanners in the same edit burst never extract
+    /// the whole document more than once.
+    pub fn update(
+        &self,
+        text: std::sync::Arc<String>,
+        doc_dir: Option<std::path::PathBuf>,
+    ) {
         // An unmapped pane (windowed preview minimized) would still run a
         // full conversion nobody can see; defer it.
         if !self.root.is_mapped() {
@@ -263,6 +268,10 @@ impl PreviewPane {
         let pane = self.clone();
         let child_slot = self.child_slot.clone();
         let cancelled = self.cancelled.clone();
+        // Assemble the final HTML off-thread too: formatting a large
+        // fragment with `format!` on the main loop is a needless stall.
+        let base = resource_string("styles/base.css");
+        let scheme_css = resource_string(&settings().color_scheme().preview_css(dark_scheme));
         glib::spawn_future_local(async move {
             let handle = gio::spawn_blocking(move || {
                 convert::to_html_fragment_cancellable(
@@ -273,6 +282,9 @@ impl PreviewPane {
                     &child_slot,
                     &cancelled,
                 )
+                .map(|fragment| {
+                    convert::preview_document(&fragment, &base, &scheme_css, dark_scheme)
+                })
             });
             let result = handle
                 .await
@@ -285,12 +297,7 @@ impl PreviewPane {
                 Err(e) => {
                     pane.show_error_page(&e);
                 }
-                Ok(fragment) => {
-                    let base = resource_string("styles/base.css");
-                    let scheme_css = resource_string(
-                        &settings().color_scheme().preview_css(dark_scheme),
-                    );
-                    let doc = convert::preview_document(&fragment, &base, &scheme_css, dark_scheme);
+                Ok(doc) => {
                     let base_uri: Option<String> = doc_dir_for_cb
                         .as_ref()
                         .map(|d| gio::File::for_path(d).uri().to_string());

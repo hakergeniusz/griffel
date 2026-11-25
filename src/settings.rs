@@ -187,6 +187,7 @@ string_enum!(
     Statistic {
         Characters => "characters",
         Words => "words",
+        Tokens => "tokens",
         Sentences => "sentences",
         Paragraphs => "paragraphs",
         ReadTime => "read_time",

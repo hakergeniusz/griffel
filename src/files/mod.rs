@@ -407,6 +407,21 @@ pub fn delete_snapshot_tab(window: &AppWindow, tab: &Rc<TabState>) {
     snapshots::delete(window, tab);
 }
 
+/// Snapshots still on disk, for the Preferences recovery list.
+pub fn list_recoveries() -> Vec<snapshots::Recovery> {
+    snapshots::list_recoveries()
+}
+
+/// Recover one snapshot on demand (from the Preferences list).
+pub fn recover_one(app: &gtk::Application, path: &std::path::Path) -> bool {
+    snapshots::recover_one(app, path)
+}
+
+/// Permanently discard a snapshot listed in Preferences.
+pub fn discard_snapshot(path: &std::path::Path) {
+    snapshots::discard(path);
+}
+
 pub fn schedule_snapshot_tab(window: &AppWindow, tab: &Rc<TabState>) {
     snapshots::schedule(window, tab);
 }

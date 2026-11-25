@@ -57,6 +57,13 @@ msgid_plural "{} words"
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/markdown/stats.rs
+#, rust-format
+msgid "{} token"
+msgid_plural "{} tokens"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/window.rs:391
 msgid "This document was recovered from an autosave."
 msgstr ""
@@ -353,6 +360,38 @@ msgstr ""
 
 #: src/dialogs.rs:45
 msgid "Save the document five seconds after you stop typing"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Review recoveries in Preferences"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "List autosave recoveries here instead of opening them in new windows"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Recovered Files"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Autosave snapshots waiting to be reviewed"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "No recovered files"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Unsaved document"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Open recovered document"
+msgstr ""
+
+#: src/dialogs.rs
+msgid "Discard snapshot"
 msgstr ""
 
 #: src/dialogs.rs:50
@@ -806,6 +845,10 @@ msgstr ""
 
 #: src/markdown/stats.rs:49
 msgid "Words"
+msgstr ""
+
+#: src/markdown/stats.rs
+msgid "Tokens"
 msgstr ""
 
 #: src/markdown/stats.rs:50

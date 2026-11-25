@@ -5,8 +5,8 @@
 # Maintainer: hakergeniusz <hakergeniusz@users.noreply.github.com>
 
 pkgname=griffel
-_tag=v51.0.0-rc.1
-pkgver=51.0.0rc1
+_tag=v51.0.0-rc.2
+pkgver=51.0.0rc2
 pkgrel=1
 pkgdesc="Distraction-free Markdown editor for the Linux desktop"
 arch=('x86_64' 'aarch64')
@@ -19,16 +19,18 @@ optdepends=('pandoc: live preview and export'
 makedepends=('cargo')
 options=('!lto')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
+# Refresh with `updpkgsums` once the v51.0.0-rc.2 tag exists; the checksum
+# below still belongs to the rc.1 tarball.
 sha256sums=('01a9e254ca88eeb0ca2cecafdafa22c08b93e4f45976a1c84dd78362c36b8df6')
 
 prepare() {
-  cd "$pkgname-51.0.0-rc.1"
+  cd "$pkgname-51.0.0-rc.2"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "$pkgname-51.0.0-rc.1"
+  cd "$pkgname-51.0.0-rc.2"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="target"
   # --frozen = --locked --offline: deps are pinned and already fetched.
@@ -36,7 +38,7 @@ build() {
 }
 
 check() {
-  cd "$pkgname-51.0.0-rc.1"
+  cd "$pkgname-51.0.0-rc.2"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR="target"
   cargo test --frozen
@@ -44,7 +46,7 @@ check() {
 }
 
 package() {
-  cd "$pkgname-51.0.0-rc.1"
+  cd "$pkgname-51.0.0-rc.2"
   install -Dm755 target/release/griffel -t "$pkgdir/usr/bin"
   install -Dm644 data/io.github.hakergeniusz.Griffel.desktop \
     "$pkgdir/usr/share/applications/io.github.hakergeniusz.Griffel.desktop"

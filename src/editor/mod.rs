@@ -75,6 +75,14 @@ pub struct Editor {
     /// to detect concurrent edits during a background save. Shared like
     /// the hint cells.
     edit_count: std::rc::Rc<std::cell::Cell<u64>>,
+    /// One coalesced plain-text snapshot, invalidated on every `changed`
+    /// signal. The four debounced scanners (highlight, spell, stats,
+    /// preview) often fire in the same burst; without this they each walk
+    /// GTK's text B-tree to extract the whole multi-megabyte buffer on the
+    /// UI thread. The first one extracts, the rest share the same `Arc`.
+    text_snapshot: std::rc::Rc<
+        std::cell::RefCell<Option<std::sync::Arc<String>>>,
+    >,
 }
 
 impl Editor {
@@ -184,6 +192,7 @@ impl Editor {
             stats_dirty: std::rc::Rc::new(std::cell::Cell::new(u32::MAX)),
             spell_dirty: std::rc::Rc::new(std::cell::Cell::new(u32::MAX)),
             edit_count: std::rc::Rc::new(std::cell::Cell::new(0)),
+            text_snapshot: std::rc::Rc::new(std::cell::RefCell::new(None)),
         };
         editor.highlight_now();
         // Code Mode startup state comes from the preference.
@@ -220,6 +229,15 @@ impl Editor {
             });
         }
 
+        // `changed` fires after the content settled, so this is the safe
+        // point to drop a snapshot that no longer describes the buffer.
+        {
+            let editor2 = editor.clone();
+            editor.buffer.connect_changed(move |_| {
+                *editor2.text_snapshot.borrow_mut() = None;
+            });
+        }
+
         editor
     }
 
@@ -251,7 +269,7 @@ impl Editor {
 
     /// Run a (debounced by the caller) highlighting scan.
     pub fn highlight_now(&self) {
-        let text = self.full_text();
+        let text = self.full_text_shared();
         let dirty = Self::take_hint(&self.highlight_dirty);
         let code_mode = self.flags.code_mode.get();
         let cache = self.highlight_doc.borrow().clone();
@@ -282,7 +300,7 @@ impl Editor {
     /// Run a (debounced by the caller) spell scan with the current
     /// language and effective enabled state.
     pub fn spell_now(&self) {
-        let text = self.full_text();
+        let text = self.full_text_shared();
         let dirty = Self::take_hint(&self.spell_dirty);
         let lang = self.spell_language.borrow().clone();
         let enabled = self.spell_enabled.get() && !self.focus_active.get();
@@ -476,16 +494,33 @@ impl Editor {
         &self.buffer
     }
 
+    /// A shared, whole-document snapshot. Extracted from GTK at most once
+    /// per edit burst; subsequent callers in the same burst get a cheap
+    /// `Arc` clone instead of another full-buffer walk on the UI thread.
+    pub fn full_text_shared(&self) -> std::sync::Arc<String> {
+        if let Some(text) = self.text_snapshot.borrow().as_ref() {
+            return text.clone();
+        }
+        let text: std::sync::Arc<String> = std::sync::Arc::new(
+            self.buffer
+                .text(&self.buffer.start_iter(), &self.buffer.end_iter(), false)
+                .into(),
+        );
+        *self.text_snapshot.borrow_mut() = Some(text.clone());
+        text
+    }
+
     pub fn full_text(&self) -> String {
-        self.buffer
-            .text(&self.buffer.start_iter(), &self.buffer.end_iter(), false)
-            .into()
+        (*self.full_text_shared()).clone()
     }
 
     pub fn set_full_text(&self, text: &str) {
         self.buffer.begin_irreversible_action();
         self.buffer.set_text(text);
         self.buffer.end_irreversible_action();
+        // `set_text` emits `changed` (which clears the snapshot), but never
+        // trust a snapshot taken before a load.
+        *self.text_snapshot.borrow_mut() = None;
     }
 }
 

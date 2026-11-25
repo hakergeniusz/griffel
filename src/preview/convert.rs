@@ -119,14 +119,13 @@ fn run_converter(
                 format!("cannot start the converter: {e}")
             }
         })?;
-    {
-        let mut stdin = child.stdin.take().expect("piped stdin");
-        let _ = stdin.write_all(input.as_bytes());
-    }
     let mut stdout = child.stdout.take().expect("piped stdout");
     let mut stderr = child.stderr.take().expect("piped stderr");
-    // Reader threads: a large document's output must drain while we poll,
-    // or the converter deadlocks on a full pipe.
+    // Start the readers BEFORE feeding stdin: a converter may produce more
+    // than a pipe's worth of HTML while still consuming input. Writing the
+    // whole (possibly multi-megabyte) document first would then block on a
+    // full stdout pipe while pandoc blocks on a full stdin pipe — a classic
+    // deadlock that only shows up on large documents.
     let out_reader = std::thread::spawn(move || {
         let mut buf = Vec::new();
         let _ = stdout.read_to_end(&mut buf);
@@ -137,6 +136,11 @@ fn run_converter(
         let _ = stderr.read_to_end(&mut buf);
         buf
     });
+    {
+        let mut stdin = child.stdin.take().expect("piped stdin");
+        let _ = stdin.write_all(input.as_bytes());
+        // Closing stdin signals EOF so the converter can finish.
+    }
 
     // Publish the child for cancellation, then poll.
     *slot.lock().unwrap_or_else(|e| e.into_inner()) = Some(child);
@@ -246,6 +250,20 @@ mod tests {
         let cancelled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
         let err = run_converter(&mut cmd, "", &slot, &cancelled).unwrap_err();
         assert!(err.contains("cannot start") || err.contains("not installed"), "{err}");
+    }
+
+    #[test]
+    fn large_input_does_not_deadlock_pipes() {
+        // `cat` echoes stdin to stdout. With more than a pipe's worth of
+        // data, feeding all input before draining stdout deadlocks: cat
+        // blocks on a full stdout pipe and the writer blocks on a full
+        // stdin pipe. The readers must run first (regression guard).
+        let slot = std::sync::Arc::new(std::sync::Mutex::new(None));
+        let cancelled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let input = "a".repeat(3_000_000);
+        let out = run_converter(&mut Command::new("cat"), &input, &slot, &cancelled)
+            .expect("cat must succeed");
+        assert_eq!(out.len(), input.len());
     }
 
     #[test]

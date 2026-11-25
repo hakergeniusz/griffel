@@ -5,12 +5,13 @@ and opens a menu to choose which one is shown.
 
 ## 1. Counted statistics
 
-Five statistics are computed continuously from the document text:
+Six statistics are computed continuously from the document text:
 
 | Statistic | Definition |
 |---|---|
 | Characters | Non-whitespace characters, counting runs of whitespace (except newlines) as one |
 | Words | Whitespace-delimited words; each CJK character counts as one word |
+| Tokens | Estimate of LLM subword tokens: whitespace is folded away, each CJK character and each punctuation mark is one token, and a run of letters/digits is one token plus one extra per six characters beyond the first |
 | Sentences | Text segments ending in sentence-terminal punctuation (`.`, `?`, `!`, and their fullwidth/international variants), line breaks terminate a potential sentence |
 | Paragraphs | Blocks separated by one or more blank lines |
 | Read time | Words ÷ 200 words per minute, displayed as `H:MM:SS` |
@@ -33,7 +34,7 @@ selection change.
 - **With an active selection**, the button shows the selection count
   relative to the whole document: "X of Y Words" (selection and total for the
   same statistic; read time shown as two `H:MM:SS` values).
-- Clicking the button opens an upward-pointing popover menu listing all five
+- Clicking the button opens an upward-pointing popover menu listing all six
   statistics; choosing one makes it the displayed default (and persists).
 - The popover closes when a choice is made; focus returns to the editor when
   it closes.

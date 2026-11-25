@@ -16,7 +16,7 @@ converter.
   headings, quotes, rules) without leaving the source
 - Live preview beside, above, in place of, or in a separate window
 - Focus Mode (current sentence lit) and Hemingway Mode (no deletions)
-- Live statistics: characters, words, sentences, paragraphs, reading time
+- Live statistics: characters, words, tokens, sentences, paragraphs, reading time
 - Spell checking with per-file language memory
 - Automatic crash-recovery snapshots and autosave
 - Search & replace including regular expressions

@@ -367,6 +367,12 @@ impl SearchBar {
     /// from the selection start identifies the selected match.
     fn selection_is_match(&self) -> bool {
         let context = self.context();
+        // A completed zero-match scan makes `forward()` walk the whole
+        // buffer on every cursor move for no reason. `-1` means the
+        // background scan has not finished yet — leave that case alone.
+        if context.occurrences_count() == 0 {
+            return false;
+        }
         let buffer = context.buffer();
         let Some((s, e)) = buffer.selection_bounds() else {
             return false;

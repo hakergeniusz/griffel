@@ -31,6 +31,15 @@
   </provides>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="51.0.0-rc.2" date="2026-11-25">
+      <description>
+        <p>Second release candidate: large documents are now handled
+        incrementally with a shared text snapshot, so editing stays
+        responsive. Autosave no longer rewrites an unchanged document every
+        few seconds, a new Tokens statistic is available, and autosave
+        recoveries can be reviewed from Preferences instead of new windows.</p>
+      </description>
+    </release>
     <release version="51.0.0-rc.1" date="2026-11-02">
       <description>
         <p>First release candidate of the 51.0.0 series: Code Mode (F8) and

@@ -117,10 +117,13 @@ impl<P: LineProcessor + ?Sized> LineCache<P> {
         initial_state: &P::State,
     ) -> Vec<(usize, usize)> {
         let old = std::mem::take(&mut self.entries);
-        let lines: Vec<&str> = text.split('\n').collect();
-        let prefix_len = dirty_from.min(old.len()).min(lines.len());
+        // Stream the lines instead of collecting a Vec<&str>: on a large
+        // document that vector alone is one pointer per line (megabytes for
+        // a file with hundreds of thousands of lines).
+        let line_count = text.bytes().filter(|&b| b == b'\n').count() + 1;
+        let prefix_len = dirty_from.min(old.len()).min(line_count);
 
-        let mut entries: Vec<std::sync::Arc<Entry<P>>> = Vec::with_capacity(lines.len());
+        let mut entries: Vec<std::sync::Arc<Entry<P>>> = Vec::with_capacity(line_count);
         entries.extend_from_slice(&old[..prefix_len]);
         let mut in_state = entries
             .last()
@@ -131,7 +134,7 @@ impl<P: LineProcessor + ?Sized> LineCache<P> {
         let mut run_start: Option<usize> = None;
         let mut j = prefix_len;
 
-        for (i, line) in lines.iter().enumerate().skip(prefix_len) {
+        for (i, line) in text.split('\n').enumerate().skip(prefix_len) {
             let h = line_hash(line);
             // Re-alignment: an old entry with the same content hash and the
             // same entering state is valid to reuse, however far the edit
@@ -151,7 +154,7 @@ impl<P: LineProcessor + ?Sized> LineCache<P> {
                     j = k + 1;
                 }
                 None => {
-                    let (value, out) = proc.process(line, &in_state, i + 1 == lines.len());
+                    let (value, out) = proc.process(line, &in_state, i + 1 == line_count);
                     entries.push(std::sync::Arc::new(Entry {
                         hash: h,
                         in_state: in_state.clone(),
@@ -164,7 +167,7 @@ impl<P: LineProcessor + ?Sized> LineCache<P> {
             }
         }
         if let Some(s) = run_start.take() {
-            changed.push((s, lines.len().saturating_sub(1)));
+            changed.push((s, line_count.saturating_sub(1)));
         }
         self.entries = entries;
         changed

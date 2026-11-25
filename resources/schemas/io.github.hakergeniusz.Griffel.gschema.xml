@@ -57,12 +57,18 @@
       <choices>
         <choice value="characters"/>
         <choice value="words"/>
+        <choice value="tokens"/>
         <choice value="sentences"/>
         <choice value="paragraphs"/>
         <choice value="read_time"/>
       </choices>
       <default>"words"</default>
       <summary>Which statistic the status button shows</summary>
+    </key>
+    <key name="recovery-in-preferences" type="b">
+      <default>false</default>
+      <summary>List autosave recoveries in Preferences</summary>
+      <description>When enabled, recovered files are not opened in new windows at startup; they are listed in Preferences instead.</description>
     </key>
     <key name="characters-per-line" type="i">
       <default>66</default>
