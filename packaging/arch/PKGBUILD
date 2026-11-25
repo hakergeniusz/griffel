@@ -19,9 +19,7 @@ optdepends=('pandoc: live preview and export'
 makedepends=('cargo')
 options=('!lto')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
-# Refresh with `updpkgsums` once the v51.0.0-rc.2 tag exists; the checksum
-# below still belongs to the rc.1 tarball.
-sha256sums=('01a9e254ca88eeb0ca2cecafdafa22c08b93e4f45976a1c84dd78362c36b8df6')
+sha256sums=('aa0865ae690ea571ceecdeb35fe939f309987b5cf445bca40ae957e97f9d71b6')
 
 prepare() {
   cd "$pkgname-51.0.0-rc.2"
